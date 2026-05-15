@@ -1,0 +1,87 @@
+Opening a Local Small Business in Cebu / Lapu-Lapu — Founder's Playbook
+Source: Compiled from DTI Negosyo Center handouts, Cebu City BPLO Citizen's
+Charter, and Lapu-Lapu City Citizen's Charter.
+
+Who This Guide Is For
+---------------------
+First-time founders launching a physical business — a cafe, food stall,
+barbershop, dental clinic, retail shop, salon, or co-working spot — anywhere
+in Metro Cebu.
+
+The 6-Phase Launch Plan
+-----------------------
+
+Phase 1: Validate the Concept (Week 1–2)
+- Pick a clear customer niche. "Coffee shop near IT Park young professionals"
+  beats "general coffee shop."
+- Run 10–15 customer interviews. Skip "would you?" questions; ask about
+  current spending behavior.
+- Estimate first-year operating cost. The rule of thumb in Cebu: PHP 250,000
+  to PHP 1,500,000 to launch a small physical shop, depending on size and
+  fit-out.
+
+Phase 2: Choose Your Legal Structure (Week 2)
+- Sole Proprietorship — register with DTI. Fastest, cheapest. You own
+  everything but you are personally liable.
+- Partnership / Corporation — register with SEC. Best if you have co-founders
+  or plan to raise outside capital.
+- Cooperative — register with CDA. For community-driven groups.
+
+Phase 3: Secure the Location (Week 2–4)
+- Sign a Letter of Intent before a final lease — it locks the property while
+  you finish due diligence.
+- Verify Zoning Compliance with the City Planning and Development Office
+  (CPDO). Some streets in Cebu are residential-only.
+- Negotiate: 2 months deposit + 1 month advance is the local norm; some
+  landlords accept lower for longer leases.
+
+Phase 4: Government Registrations (Week 3–6)
+The Cebu / Lapu-Lapu sequence is:
+1. DTI Business Name Certificate — online, same-day.
+2. Barangay Business Clearance — same-day if zoning is clean.
+3. Mayor's Permit (a.k.a. Business Permit) — 3–7 working days through the
+   Business One Stop Shop (BOSS) in the city's BPLO. You'll also clear:
+   - Fire Safety Inspection Certificate (FSIC)
+   - Sanitary Permit (City Health Office)
+   - Locational / Zoning Clearance
+4. BIR Registration — Form 1901 for sole proprietors, plus your books of
+   accounts and an Authority to Print receipts.
+5. SSS / PhilHealth / Pag-IBIG — register the business as an employer.
+
+Phase 5: Build Out and Brand (Week 5–10)
+- Fit-out cost in Cebu: PHP 5,000–15,000 per square meter for a coffee shop;
+  more for restaurants with grease traps.
+- Lock down social handles (Facebook, Instagram, TikTok, Google Business
+  Profile) before opening — Google Business Profile is a free traffic engine.
+- Photograph the space professionally before you open. Pre-launch hype is
+  cheaper than post-launch ads.
+
+Phase 6: Soft Launch and Iterate (Week 10–12)
+- Run a 1-week soft launch with 30–50% off for friends, family, and the
+  surrounding offices. The goal is feedback, not revenue.
+- Track three numbers obsessively:
+  * Daily customer count
+  * Average ticket size
+  * Repeat-customer rate after 4 weeks
+- Make one operational change per week based on what you learn.
+
+Common First-Year Mistakes
+--------------------------
+- Skipping the Mayor's Permit. LGU inspectors do walk-throughs; an unpermitted
+  business will be padlocked and fined.
+- Underestimating fit-out time. Construction in Cebu takes 1.5–2x longer
+  than scheduled, especially during the rainy season.
+- Hiring too early. Wait until the soft launch tells you the actual demand
+  pattern before adding staff.
+- No POS system. Even a free Loyverse or basic Foodee POS gives you the
+  data needed to make smart inventory decisions.
+- Ignoring SSS/PhilHealth registration. These come up the first time an
+  employee gets sick, and the back-fees compound monthly.
+
+Helpful Local Resources
+-----------------------
+- Negosyo Center Cebu City — free consultations, Mondays to Fridays.
+- DTI Region 7 — runs frequent Kapatid Mentor ME workshops.
+- Cebu City BPLO BOSS counters during January renewal season — fast-tracked
+  one-stop processing.
+- USC, UP Cebu, and CIT-U incubators — for tech-flavored small businesses.

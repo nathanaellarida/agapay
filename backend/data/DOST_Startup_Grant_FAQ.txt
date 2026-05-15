@@ -1,0 +1,91 @@
+DOST Startup Grant Fund (SGF) — Frequently Asked Questions
+Source: DOST-PCIEERD Startup Grant Fund Program Guidelines.
+
+What Is the Startup Grant Fund (SGF)
+------------------------------------
+The Startup Grant Fund is a non-equity, non-collateralized cash grant
+provided by the Department of Science and Technology through PCIEERD
+(Philippine Council for Industry, Energy, and Emerging Technology Research
+and Development). It supports innovative, technology-driven Filipino
+startups during the prototype, validation, and early scaling stages.
+
+Who Can Apply
+-------------
+- Philippine-registered startups (DTI sole prop, SEC corporation, or
+  cooperative).
+- Operating for less than five (5) years.
+- Have a working prototype OR a clearly defined R&D-driven product /
+  process /business model.
+- The Filipino founder team must hold majority ownership.
+
+Funding Tiers
+-------------
+- Ideation Grant:    up to PHP 100,000  (proof of concept, problem
+                                          validation, customer interviews)
+- MVP Grant:         up to PHP 1,000,000 (build a minimum viable product
+                                          and run a paid pilot)
+- Scaleup Grant:     up to PHP 5,000,000 (post-product-market-fit growth,
+                                          regional expansion, partnerships)
+Funding amounts are indicative; actual approvals depend on the call.
+
+What Costs Are Eligible
+-----------------------
+Grants typically cover:
+- Software development costs (in-house or outsourced).
+- Hardware prototyping and 3D printing.
+- Laboratory testing and certification fees.
+- Marketing pilots and customer acquisition experiments.
+- Salaries of full-time R&D staff (capped percentage).
+- Mentorship and accelerator participation fees.
+- Travel for pitching at international demo days (limited cap).
+
+What Is NOT Covered
+-------------------
+- Personal expenses, founder dividends, or back-pay.
+- Office rent unrelated to R&D activities.
+- Acquisition of land or vehicles.
+- Repayment of existing loans or debt.
+
+Application Process
+-------------------
+Step 1. Register your startup on startupphilippines.gov.ph and obtain
+        accreditation under RA 11337 (Innovative Startup Act).
+Step 2. Watch the DOST-PCIEERD website for an open call (typically two
+        cycles per year, January and July).
+Step 3. Submit the application package, which includes:
+        - Project proposal (template provided by DOST).
+        - Pitch deck (10–15 slides).
+        - Financial projection for 3 years.
+        - Founder bios + ID copies.
+        - Proof of registration (SEC Articles, DTI Cert, or BIR 2303).
+        - Letter from a Startup Enabler endorsing the application
+          (optional but strengthens the case).
+Step 4. Pre-evaluation by PCIEERD technical staff (4–6 weeks).
+Step 5. Pitch to the Startup Grant Fund Committee — 10-minute pitch + 15
+        minutes Q&A.
+Step 6. Decision and contract drafting if approved.
+Step 7. Tranche disbursement based on milestones agreed in the contract.
+
+Reporting Requirements
+----------------------
+- Monthly progress reports during the grant period.
+- Quarterly financial liquidation reports (with receipts).
+- Final terminal report and impact assessment at the end of the grant.
+
+Common Reasons for Rejection
+----------------------------
+- Lack of a clear "innovation" angle — DOST is not a generic MSME loan
+  window. Submissions need a defensible technology or process novelty.
+- Weak market validation — at least show waitlist signups, LOIs, or paid
+  pilot customers.
+- Missing or sloppy financial projections.
+- Founder team without a technical co-founder for tech-heavy proposals.
+- Applying as an unregistered "idea" rather than a real legal entity.
+
+Pro Tips
+--------
+- Apply through a DOST-accredited Startup Enabler (e.g., QBO, IdeaSpace,
+  AIM Dado Banatao Incubator). Their endorsement letter materially helps.
+- Focus the pitch on impact metrics: jobs created, IP filed, customers
+  served, export potential.
+- Be realistic. The Committee prefers "credible 10x" over "fantastical 100x."

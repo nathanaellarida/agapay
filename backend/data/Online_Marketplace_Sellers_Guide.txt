@@ -1,0 +1,90 @@
+Online Marketplace Seller's Guide — TikTok Shop, Shopee, Lazada Philippines
+Source: Platform seller policies (2024–2026 editions) and DTI Memorandum
+Circular No. 22-05 on online business registration.
+
+Overview
+--------
+Selling online in the Philippines is now governed by both the platform you
+sell on and government regulation. Since 2022, DTI has required all online
+sellers operating commercially to be properly registered. Platforms verify
+this during onboarding.
+
+Step 1: Register Your Online Business
+-------------------------------------
+Even if you sell only through TikTok Shop or Shopee, you legally need:
+1. A DTI Business Name Certificate (sole proprietor) OR SEC registration
+   (if a corporation/partnership).
+2. A Barangay Business Clearance — yes, even for home-based online sellers.
+3. A Mayor's Permit from the LGU where your stock or fulfillment address is.
+4. BIR registration (Form 1901 for sole props) and a Certificate of
+   Registration (Form 2303). You will need this to issue receipts and
+   invoices, which platforms now require for higher seller tiers.
+
+Tip for low-volume sellers: Some LGUs have introduced a "Negosyo sa Bahay"
+or simplified online seller permit. Check your city's BPLO before applying
+for a full Mayor's Permit.
+
+Step 2: Create a Seller Account on the Platform
+-----------------------------------------------
+A. TikTok Shop Philippines
+   - Apply via seller.tiktokglobalshop.com.
+   - Required documents:
+     * DTI / SEC Certificate
+     * Government-issued ID of the legal representative
+     * Active Philippine bank account or e-wallet for payouts
+   - Approval: usually 2–5 business days.
+   - Categories restricted to brand-authorized sellers: cosmetics, health
+     supplements, electronics. You will be asked for an Authorization Letter.
+
+B. Shopee Philippines
+   - Apply via banner.shopee.ph or the "Become a Seller" page.
+   - Required documents:
+     * DTI / SEC Certificate (for "Mall" and verified seller programs)
+     * Valid ID
+     * Bank account / GCash for Shopee Wallet payouts
+   - Personal sellers (no DTI yet) can sell low-volume but cannot join
+     Shopee Mall, Brand Box, or run paid ads beyond a basic threshold.
+
+C. Lazada Philippines
+   - Apply via lazada.com.ph/seller-center.
+   - Required documents:
+     * DTI / SEC Certificate
+     * Valid ID
+     * Bank account
+     * Tax-related documents for LazMall sellers
+   - LazMall is invite-only or requires brand authorization plus higher
+     monthly GMV.
+
+Step 3: Tax and Receipt Compliance
+----------------------------------
+- Issue official receipts (or BIR-registered invoices, post-Ease of Paying
+  Taxes Act) for every sale. Platforms can be audited and may share GMV
+  reports with BIR.
+- File quarterly Percentage Tax (Form 2551Q) if non-VAT-registered, OR
+  the 8% flat income tax option if you elected it during BIR registration.
+- File annual income tax (Form 1701 or 1701A).
+- Withholding tax: platforms now withhold 1% creditable withholding tax
+  on payouts to non-VAT sellers and remit it to BIR. You'll see this on
+  your platform statement.
+
+Step 4: Run Your Listings Like a Brand
+--------------------------------------
+- High-resolution product photos (min. 1000x1000px) outperform basic phone
+  shots in conversion.
+- Use Filipino + English bilingual titles for broader reach.
+- Star sellers respond to messages within 1 hour during business hours.
+- Run platform-funded promotions (Shopee 9.9, TikTok Shop Live Fest, Lazada
+  Birthday Sale) — discounts are partially subsidized by the platform.
+- Use voucher stacking (platform voucher + seller voucher + free shipping)
+  to maximize the cart-conversion algorithm boost.
+
+Common Mistakes
+---------------
+- Operating without DTI registration. Platforms have started suspending
+  unregistered shops during periodic compliance sweeps.
+- Mixing personal and business bank accounts. Open a separate account or
+  e-wallet for the business — your accountant will thank you.
+- Ignoring product compliance. FDA-regulated goods (cosmetics, food
+  supplements) require Certificates of Product Notification before listing.
+- Posting copyrighted brand logos without authorization. Counterfeit-watch
+  systems on TikTok Shop and Shopee are aggressive.

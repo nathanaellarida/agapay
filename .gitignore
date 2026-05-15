@@ -1,0 +1,18 @@
+# ---- Python / backend ----
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.env
+backend/chroma_db/
+
+# ---- Node / frontend ----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ---- Editor ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

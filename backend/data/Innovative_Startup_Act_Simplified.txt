@@ -1,0 +1,83 @@
+The Innovative Startup Act (Simplified Guide for Filipino Founders)
+Source: Republic Act No. 11337 — "Innovative Startup Act" (2019), DOST,
+DTI, and DICT joint implementing rules.
+
+What Is the Innovative Startup Act
+----------------------------------
+RA 11337 is the Philippine government's flagship law for supporting tech and
+innovation-driven startups. It was passed in 2019 to give early-stage Filipino
+founders access to grants, tax breaks, mentorship, and visa programs they
+would otherwise have to chase down individually.
+
+Who Counts as a "Startup" Under the Law
+---------------------------------------
+A "startup" under RA 11337 is any business or registered partnership that:
+- Has been operating for less than five (5) years.
+- Is engaged in the development of an innovative product, process, or
+  business model that uses technology in a novel way.
+- Is registered in the Philippines.
+This is intentionally broad — software, hardware, biotech, deep tech,
+fintech, agritech, and even creative-tech startups all qualify.
+
+The Three Lead Agencies
+-----------------------
+Three government agencies share oversight, each focused on a different angle:
+1. DOST (Department of Science and Technology) — funds R&D heavy startups.
+2. DTI (Department of Trade and Industry) — handles business-side incentives,
+   trade promotion, and the Philippine Business Hub.
+3. DICT (Department of Information and Communications Technology) — supports
+   software, AI, and digital startups, plus the Philippine Startup Ecosystem
+   Development Program.
+
+Key Benefits for Founders
+-------------------------
+1. Startup Grant Fund (SGF)
+   - Cash grants distributed by DOST through PCIEERD, intended for prototype
+     development, market validation, and scaling.
+   - Typical range: PHP 100,000 to PHP 5,000,000, depending on the call.
+   - You apply through the Startup Grant Fund Committee. Required documents
+     include a project proposal, founder's pitch deck, financial projection,
+     and proof of incorporation or DTI Business Name Registration.
+
+2. Startup Venture Fund (SVF)
+   - Co-investment vehicle: government matches private capital invested in
+     qualifying startups, lowering the risk for early VCs.
+   - Administered through the National Development Company (NDC).
+
+3. Startup Visa Program
+   - Allows foreign founders, employees, and investors to live and work in
+     the Philippines under simplified immigration rules.
+   - Issued by the Bureau of Immigration in coordination with the host
+     startup business and a "Startup Enabler" (an accredited incubator,
+     accelerator, or VC).
+
+4. Subsidies and Fee Waivers
+   - Discounts on filing fees with SEC, DTI, and IPOPHL (Intellectual
+     Property Office).
+   - Waived or discounted fees for registration with FDA and BFAD for
+     food-tech, health-tech, and similar startups.
+
+5. Mentorship + Access to Pinoy Startup Ecosystem
+   - Free mentorship via QBO Innovation Hub, IdeaSpace, and university
+     incubators (UP, ADMU, DLSU, USC, MSU-IIT).
+   - Access to government-backed co-working spaces.
+
+How to Get Started (3 Steps)
+----------------------------
+Step 1. Register your startup either as a sole proprietorship with DTI or
+        as a corporation with SEC. Most VC-track startups choose SEC because
+        it allows shares and equity rounds.
+Step 2. Apply for accreditation as a "Startup" or "Startup Enabler" through
+        startupphilippines.gov.ph. Accreditation unlocks access to all the
+        incentives listed above.
+Step 3. Submit grant applications when calls open (DOST publishes them
+        quarterly). Pitch decks must include traction metrics, even if
+        small (waitlist signups, MOUs, pilot customers).
+
+Common Mistakes
+---------------
+- Applying for a grant without first being accredited under RA 11337.
+- Treating the startup like a regular MSME — many grants and visa programs
+  are exclusive to RA 11337-accredited entities.
+- Skipping incorporation. SEC corporations can raise equity; DTI sole
+  proprietorships cannot.

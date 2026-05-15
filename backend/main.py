@@ -1,0 +1,132 @@
+"""
+main.py — FastAPI entrypoint.
+
+Endpoints:
+    POST /query     -> run the RAG chain (accepts persona)
+    GET  /personas  -> list available personas
+    GET  /library   -> list source documents currently indexed
+    GET  /health    -> liveness probe
+"""
+
+from __future__ import annotations
+
+import os
+from datetime import datetime
+from pathlib import Path
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from rag_chain import answer_question, list_personas
+
+load_dotenv(dotenv_path=Path(__file__).parent / ".env.local")
+
+DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
+
+app = FastAPI(
+    title="Agapay — Entrepreneurial Launchpad",
+    version="2.0.0",
+    description="Persona-aware RAG API for Filipino founders.",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# --------------------------------------------------------------------------- #
+# Schemas
+# --------------------------------------------------------------------------- #
+class QueryRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=2000)
+    persona: str = Field("tech", description="One of: tech, online, local")
+
+
+class SourceCitation(BaseModel):
+    source: str
+    snippet: str
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    persona: str
+    sources: list[SourceCitation]
+
+
+class Persona(BaseModel):
+    key: str
+    name: str
+    title: str
+
+
+class LibraryDocument(BaseModel):
+    filename: str
+    title: str
+    category: str          # "Tech" | "Online" | "Local" | "General"
+    last_updated: str
+    status: str = "Indexed & Active"
+
+
+# --------------------------------------------------------------------------- #
+# Helpers
+# --------------------------------------------------------------------------- #
+def classify_category(filename: str) -> str:
+    n = filename.upper()
+    if any(k in n for k in ("STARTUP_ACT", "DOST", "INNOVATIVE")):
+        return "Tech"
+    if any(k in n for k in ("MARKETPLACE", "TIKTOK", "SHOPEE", "LAZADA", "ONLINE")):
+        return "Online"
+    if any(k in n for k in ("LGU", "MAYOR", "CEBU", "LAPU", "BARANGAY", "LOCAL")):
+        return "Local"
+    return "General"
+
+
+def prettify_title(filename: str) -> str:
+    return Path(filename).stem.replace("_", " ").replace("-", " ").strip()
+
+
+# --------------------------------------------------------------------------- #
+# Routes
+# --------------------------------------------------------------------------- #
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok", "service": "agapay"}
+
+
+@app.get("/personas", response_model=list[Persona])
+def personas() -> list[Persona]:
+    return [Persona(**p) for p in list_personas()]
+
+
+@app.post("/query", response_model=QueryResponse)
+def query(body: QueryRequest) -> QueryResponse:
+    try:
+        result = answer_question(body.question, persona=body.persona)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"RAG error: {e}") from e
+    return QueryResponse(**result)
+
+
+@app.get("/library", response_model=list[LibraryDocument])
+def library() -> list[LibraryDocument]:
+    if not DATA_DIR.exists():
+        return []
+
+    items: list[LibraryDocument] = []
+    for path in sorted(DATA_DIR.glob("*.txt")):
+        stat = path.stat()
+        items.append(
+            LibraryDocument(
+                filename=path.name,
+                title=prettify_title(path.name),
+                category=classify_category(path.name),
+                last_updated=datetime.fromtimestamp(stat.st_mtime).date().isoformat(),
+            )
+        )
+    return items

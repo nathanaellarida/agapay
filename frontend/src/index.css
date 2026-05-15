@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html {
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #F7F7F7;
+    color: #0F172A;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Montserrat', system-ui, sans-serif;
+  }
+}
+
+/* Markdown inside chat bubbles */
+.prose-chat p          { @apply mb-2 leading-relaxed; }
+.prose-chat p:last-child { @apply mb-0; }
+.prose-chat ul         { @apply list-disc ml-5 mb-2 space-y-1; }
+.prose-chat ol         { @apply list-decimal ml-5 mb-2 space-y-1; }
+.prose-chat strong     { @apply font-semibold text-slate-900; }
+.prose-chat code       { @apply bg-slate-100 text-slate-800 rounded px-1 py-0.5 text-xs; }
+.prose-chat h1,
+.prose-chat h2,
+.prose-chat h3         { @apply font-display font-semibold text-slate-900 mt-3 mb-1; }
+
+/* Smooth sidebar transitions */
+.sidebar-enter { animation: slideIn 0.25s ease-out; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}

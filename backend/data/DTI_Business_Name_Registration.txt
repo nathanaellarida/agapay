@@ -1,0 +1,53 @@
+DTI Business Name Registration Guidelines
+Source: Department of Trade and Industry — Business Name Registration System (BNRS)
+
+Who Should Register
+-------------------
+Any sole proprietor doing business in the Philippines under a name other than
+their true name must register that business name with DTI. Corporations and
+partnerships register with the Securities and Exchange Commission (SEC)
+instead; cooperatives register with the Cooperative Development Authority (CDA).
+
+Territorial Scopes and Fees
+---------------------------
+Business names are registered for a territorial scope. The registration fee
+depends on the scope selected:
+- Barangay:    PHP 200
+- City/Municipality: PHP 500
+- Regional:    PHP 1,000
+- National:    PHP 2,000
+A Documentary Stamp Tax of PHP 30 is added to every application.
+
+Validity
+--------
+A DTI Business Name Certificate is valid for five (5) years from the date of
+registration and may be renewed within ninety (90) days before and up to
+ninety (90) days after the expiration date. Failure to renew within this
+window cancels the business name.
+
+Requirements
+------------
+1. The applicant must be a Filipino citizen at least 18 years old. Foreign
+   nationals must comply with the Foreign Investments Act and submit a
+   Certificate of Authority to Engage in Business.
+2. One (1) valid government-issued ID.
+3. Proposed business name (must follow DTI naming rules — no generic,
+   deceptive, or confusingly similar names).
+
+Procedure (Online via BNRS)
+---------------------------
+Step 1. Go to bnrs.dti.gov.ph and create a user account.
+Step 2. Search the proposed business name for availability.
+Step 3. Fill out the application form and choose a territorial scope.
+Step 4. Pay the corresponding fee through the accepted channels
+        (GCash, Maya, LandBank, Bancnet, over-the-counter, etc.).
+Step 5. Download the Certificate of Business Name Registration in PDF format.
+
+Next Steps After DTI Registration
+---------------------------------
+After receiving the DTI certificate, the sole proprietor should:
+- Register with the Barangay (Barangay Clearance).
+- Secure a Mayor's Permit / Business Permit from the LGU.
+- Register with the BIR and receive the Certificate of Registration (Form 2303),
+  Authority to Print receipts, and official books of accounts.
+- Register the business and its employees with SSS, PhilHealth, and Pag-IBIG.
