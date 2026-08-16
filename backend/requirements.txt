@@ -7,5 +7,5 @@ pydantic==2.13.4
 groq==1.6.0
 sentence-transformers==5.7.0
 transformers==5.15.0
-tokenizers==0.22.2
+tokenizers==0.23.1
 numpy==2.2.6
