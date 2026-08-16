@@ -85,8 +85,7 @@ agapay/
 |   |-- src/                 # React application
 |   |-- package.json
 |   `-- vite.config.js
-|-- README.md
-`-- SECURITY.md
+`-- README.md
 ```
 
 ## Getting started
@@ -176,6 +175,5 @@ clients.
 - Do not expose the development servers directly to the internet. A production
   deployment still needs authentication, TLS, rate limiting, request-size
   limits, centralized secrets, and a trusted reverse proxy.
-- Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 This repository is a prototype, not a production-ready public service.
