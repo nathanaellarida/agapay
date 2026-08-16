@@ -10,20 +10,35 @@ Endpoints:
 
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime
-from pathlib import Path
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from rag_chain import answer_question, list_personas
+from rag_chain import (
+    answer_question,
+    list_personas,
+    require_backend_path,
+    resolve_configured_path,
+)
 
-load_dotenv(dotenv_path=Path(__file__).parent / ".env.local")
+logger = logging.getLogger(__name__)
 
-DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
+DATA_DIR = require_backend_path(
+    resolve_configured_path("DATA_DIR", "./data"), "DATA_DIR"
+)
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",")
+    if origin.strip()
+]
+if not CORS_ORIGINS or "*" in CORS_ORIGINS:
+    raise ValueError("CORS_ORIGINS must list explicit trusted origins")
 
 app = FastAPI(
     title="Agapay — Entrepreneurial Launchpad",
@@ -33,11 +48,21 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 
 # --------------------------------------------------------------------------- #
@@ -108,8 +133,12 @@ def personas() -> list[Persona]:
 def query(body: QueryRequest) -> QueryResponse:
     try:
         result = answer_question(body.question, persona=body.persona)
-    except Exception as e:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=f"RAG error: {e}") from e
+    except Exception as exc:  # noqa: BLE001
+        logger.error("RAG query failed (%s)", type(exc).__name__)
+        raise HTTPException(
+            status_code=503,
+            detail="The assistant is temporarily unavailable.",
+        ) from exc
     return QueryResponse(**result)
 
 
