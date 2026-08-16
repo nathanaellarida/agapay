@@ -8,4 +8,4 @@ groq==1.6.0
 sentence-transformers==5.7.0
 transformers==5.15.0
 tokenizers==0.22.2
-numpy==2.2.6
+numpy==2.5.2
