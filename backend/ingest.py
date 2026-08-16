@@ -1,84 +1,123 @@
-"""
-ingest.py
----------
-One-off script: load every .txt file in DATA_DIR, split it, embed it, and
-persist into ChromaDB. Safe to re-run — the collection is recreated each time.
-
-Run:  python ingest.py
-"""
+"""Build Agapay's local JSON vector index from reviewed text documents."""
 
 from __future__ import annotations
 
+import json
 import os
-import shutil
 from pathlib import Path
 
-from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from rag_chain import (
+    EMBEDDING_MODEL,
+    EMBEDDING_MODEL_REVISION,
+    INDEX_PATH,
+    INDEX_SCHEMA_VERSION,
+    get_embedding_model,
+    require_backend_path,
+    resolve_configured_path,
+)
 
-from rag_chain import build_embeddings
-
-load_dotenv(dotenv_path=Path(__file__).parent / ".env.local")
-
-DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
-CHROMA_DIR = Path(os.getenv("CHROMA_DIR", "./chroma_db"))
-COLLECTION_NAME = os.getenv("COLLECTION_NAME", "agapay_msme")
+DATA_DIR = require_backend_path(
+    resolve_configured_path("DATA_DIR", "./data"), "DATA_DIR"
+)
+CHUNK_SIZE = 800
+CHUNK_OVERLAP = 120
 
 
-def load_documents() -> list:
+def load_documents() -> list[tuple[str, str]]:
     if not DATA_DIR.exists():
-        raise FileNotFoundError(f"Data directory not found: {DATA_DIR.resolve()}")
+        raise FileNotFoundError(f"Data directory not found: {DATA_DIR}")
 
     txt_files = sorted(DATA_DIR.glob("*.txt"))
     if not txt_files:
-        raise FileNotFoundError(f"No .txt files found in {DATA_DIR.resolve()}")
+        raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
 
-    docs = []
+    documents = []
     for path in txt_files:
-        loader = TextLoader(str(path), encoding="utf-8")
-        for d in loader.load():
-            # Normalize the metadata source to the plain filename — the UI
-            # surfaces this value as the citation.
-            d.metadata["source"] = path.name
-            docs.append(d)
+        if path.is_symlink():
+            raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
+        documents.append((path.name, path.read_text(encoding="utf-8")))
         print(f"  loaded {path.name}")
-    return docs
+    return documents
+
+
+def split_text(text: str) -> list[str]:
+    """Split text deterministically while preferring natural boundaries."""
+    normalized = text.replace("\r\n", "\n").strip()
+    chunks: list[str] = []
+    start = 0
+
+    while start < len(normalized):
+        end = min(start + CHUNK_SIZE, len(normalized))
+        if end < len(normalized):
+            boundaries = (
+                normalized.rfind("\n\n", start, end),
+                normalized.rfind("\n", start, end),
+                normalized.rfind(". ", start, end),
+            )
+            boundary = max(boundaries)
+            if boundary > start + CHUNK_SIZE // 2:
+                end = boundary + (2 if normalized[boundary : boundary + 2] == ". " else 0)
+
+        chunk = normalized[start:end].strip()
+        if chunk:
+            chunks.append(chunk)
+        if end >= len(normalized):
+            break
+        start = max(end - CHUNK_OVERLAP, start + 1)
+
+    return chunks
+
+
+def build_entries(documents: list[tuple[str, str]]) -> list[dict]:
+    chunks = [
+        {"source": source, "text": chunk}
+        for source, text in documents
+        for chunk in split_text(text)
+    ]
+    if not chunks:
+        raise ValueError("No content was available to index")
+
+    embeddings = get_embedding_model().encode(
+        [chunk["text"] for chunk in chunks],
+        batch_size=32,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
+        show_progress_bar=True,
+    )
+    return [
+        {**chunk, "embedding": embedding.tolist()}
+        for chunk, embedding in zip(chunks, embeddings, strict=True)
+    ]
+
+
+def write_index(entries: list[dict]) -> None:
+    if INDEX_PATH.suffix.lower() != ".json":
+        raise ValueError("INDEX_PATH must use a .json extension")
+
+    payload = {
+        "schema_version": INDEX_SCHEMA_VERSION,
+        "model": {
+            "name": EMBEDDING_MODEL,
+            "revision": EMBEDDING_MODEL_REVISION,
+        },
+        "entries": entries,
+    }
+    temporary_path = INDEX_PATH.with_suffix(".json.tmp")
+    temporary_path.write_text(
+        json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    os.replace(temporary_path, INDEX_PATH)
 
 
 def main() -> None:
-    print(f"Data dir:     {DATA_DIR.resolve()}")
-    print(f"Chroma dir:   {CHROMA_DIR.resolve()}")
-    print(f"Collection:   {COLLECTION_NAME}")
+    print(f"Data dir:  {DATA_DIR}")
+    print(f"Index:     {INDEX_PATH}")
     print()
-
-    # Wipe old index so re-ingestion is deterministic.
-    if CHROMA_DIR.exists():
-        print("Removing existing Chroma index…")
-        shutil.rmtree(CHROMA_DIR, ignore_errors=True)
-
-    print("Loading documents…")
-    raw_docs = load_documents()
-
-    print(f"Splitting {len(raw_docs)} documents…")
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=120,
-        separators=["\n\n", "\n", ". ", " ", ""],
-    )
-    chunks = splitter.split_documents(raw_docs)
-    print(f"  produced {len(chunks)} chunks")
-
-    print("Embedding + persisting to ChromaDB…")
-    Chroma.from_documents(
-        documents=chunks,
-        embedding=build_embeddings(),
-        collection_name=COLLECTION_NAME,
-        persist_directory=str(CHROMA_DIR),
-    )
-
-    print("\nDone. Index built successfully.")
+    documents = load_documents()
+    entries = build_entries(documents)
+    write_index(entries)
+    print(f"\nDone. Indexed {len(entries)} chunks.")
 
 
 if __name__ == "__main__":
