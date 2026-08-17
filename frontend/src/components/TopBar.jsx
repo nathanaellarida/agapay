@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronRight,
   Download,
@@ -10,16 +10,32 @@ import {
 } from "lucide-react";
 
 function ExportModal({ onClose }) {
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-dialog-title"
+        aria-describedby="export-dialog-description"
         className="rounded-2xl shadow-xl border border-slate-200 w-80 p-5"
         style={{ backgroundColor: "#FCFCFC" }}
       >
-        <h3 className="font-display font-bold text-slate-900 mb-1">
+        <h3
+          id="export-dialog-title"
+          className="font-display font-bold text-slate-900 mb-1"
+        >
           Export Founder Report
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p id="export-dialog-description" className="text-xs text-slate-500 mb-4">
           Save your conversation as a launch-ready document.
         </p>
         <div className="space-y-2">
@@ -69,6 +85,10 @@ export default function TopBar({
         {persona ? (
           <button
             onClick={onToggleLeft}
+            aria-label={
+              leftOpen ? "Hide conversation history" : "Show conversation history"
+            }
+            aria-expanded={leftOpen}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
             title={leftOpen ? "Hide history" : "Show history"}
           >
@@ -126,6 +146,7 @@ export default function TopBar({
           <>
             <button
               onClick={() => setShowExport(true)}
+              aria-haspopup="dialog"
               className="flex items-center gap-1.5 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition"
             >
               <Download className="w-3.5 h-3.5" />
@@ -134,6 +155,8 @@ export default function TopBar({
 
             <button
               onClick={onToggleRight}
+              aria-label={rightOpen ? "Hide insights" : "Show insights"}
+              aria-expanded={rightOpen}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
               title={rightOpen ? "Hide insights" : "Show insights"}
             >
