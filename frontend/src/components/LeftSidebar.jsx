@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MessageSquare,
   Bookmark,
@@ -37,6 +37,20 @@ const SAMPLE_BOOKMARKS = [
 export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewChat }) {
   const [tab, setTab] = useState("chats");
   const [search, setSearch] = useState("");
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    function focusSearch(event) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    }
+
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
 
   const chats = SAMPLE_CHATS[persona.key] || [];
   const items = tab === "chats" ? chats : SAMPLE_BOOKMARKS;
@@ -144,14 +158,17 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
         <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2">
           <Search className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           <input
+            ref={searchRef}
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
+            aria-label="Search conversations"
+            aria-keyshortcuts="Control+K Meta+K"
             className="bg-transparent text-xs text-slate-700 placeholder-slate-400 outline-none flex-1 min-w-0"
           />
           <kbd className="text-[9px] text-slate-400 bg-white border border-slate-200 rounded px-1 py-0.5 font-mono hidden sm:block">
-            ⌘K
+            ⌘/Ctrl K
           </kbd>
         </div>
       </div>
