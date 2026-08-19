@@ -58,6 +58,7 @@ const PERSONA_DESCRIPTIONS = {
 const TYPE_SPEED = 55;
 const DELETE_SPEED = 28;
 const PAUSE = 1800;
+const MAX_QUESTION_LENGTH = 2000;
 
 function useTypewriter(phrases) {
   const [displayed, setDisplayed] = useState("");
@@ -363,6 +364,7 @@ export default function ChatFeed({
             <Sparkles className="w-4 h-4 text-slate-400 flex-shrink-0 mb-0.5" />
             <textarea
               rows={1}
+              maxLength={MAX_QUESTION_LENGTH}
               value={input}
               onChange={(e) => {
                 if (locked) return;
