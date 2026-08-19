@@ -257,7 +257,7 @@ export default function ChatFeed({
         { role: "user", content: q },
         {
           role: "assistant",
-          content: "I couldn't reach the backend. Make sure FastAPI is running on port 8000.",
+          content: "I couldn't reach Agapay right now. Please check your connection and try again in a moment.",
           sources: [],
         },
       ]);
