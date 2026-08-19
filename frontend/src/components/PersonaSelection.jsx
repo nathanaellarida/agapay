@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Rocket, ShoppingBag, Store } from "lucide-react";
 
 export const PERSONAS = [
@@ -61,6 +61,21 @@ export default function PersonaSelection({ onSelect }) {
   const prev = () =>
     setIndex((i) => (i - 1 + PERSONAS.length) % PERSONAS.length);
   const next = () => setIndex((i) => (i + 1) % PERSONAS.length);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setIndex((i) => (i - 1 + PERSONAS.length) % PERSONAS.length);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        setIndex((i) => (i + 1) % PERSONAS.length);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-4 pt-10">
@@ -125,7 +140,7 @@ export default function PersonaSelection({ onSelect }) {
         </button>
 
         <p className="mt-6 text-xs text-slate-400">
-          Tap the arrows to meet each mentor. You can switch anytime.
+          Use the arrow keys or buttons to meet each mentor. You can switch anytime.
         </p>
       </div>
     </div>
