@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   Circle,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { ROADMAPS, CATEGORIES, fmtPeso } from "../data/roadmaps.js";
 import { detectDiscussedSteps } from "../data/stepKeywords.js";
+
+const ROADMAP_PROGRESS_KEY = "agapay-roadmap-progress";
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Tab 1: LAUNCH ROADMAP
@@ -365,7 +367,22 @@ function CostTab({ persona, completed, discussed }) {
  * ────────────────────────────────────────────────────────────────────────── */
 export default function RightSidebar({ persona, messages = [], onAskMentor }) {
   const [tab, setTab] = useState("roadmap");
-  const [completedByPersona, setCompletedByPersona] = useState({});
+  const [completedByPersona, setCompletedByPersona] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(ROADMAP_PROGRESS_KEY));
+      return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ROADMAP_PROGRESS_KEY, JSON.stringify(completedByPersona));
+    } catch {
+      // Progress still works for this session when storage is unavailable.
+    }
+  }, [completedByPersona]);
 
   // Memoized: which roadmap steps the AI has discussed in this conversation
   const discussed = useMemo(() => {
