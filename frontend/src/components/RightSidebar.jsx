@@ -42,7 +42,14 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
           </span>
           <span className="text-[10px] font-bold text-flag-blue">{pct}%</span>
         </div>
-        <div className="mt-1.5 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          role="progressbar"
+          aria-label="Roadmap completion"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pct}
+          className="mt-1.5 h-1.5 bg-slate-100 rounded-full overflow-hidden"
+        >
           <div
             className="h-full bg-flag-blue transition-all duration-500 rounded-full"
             style={{ width: `${pct}%` }}
