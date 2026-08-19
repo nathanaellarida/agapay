@@ -78,8 +78,15 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
               {/* Dot */}
               <button
                 onClick={() => onToggle(step.id)}
-                className="absolute left-0 top-2 w-[31px] flex items-center justify-center"
-                aria-label={isDone ? "Mark incomplete" : "Mark complete"}
+                disabled={!isDone && !prevDone}
+                className="absolute left-0 top-2 w-[31px] flex items-center justify-center disabled:cursor-not-allowed"
+                aria-label={
+                  isDone
+                    ? "Mark incomplete"
+                    : prevDone
+                    ? "Mark complete"
+                    : "Complete the previous step first"
+                }
               >
                 {isDone ? (
                   <CheckCircle2 className="w-5 h-5 text-flag-blue fill-blue-50" />
