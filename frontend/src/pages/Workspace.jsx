@@ -30,6 +30,7 @@ export default function Workspace() {
 
   function handleNewChat() {
     setActiveChat(null);
+    setMessages([{ role: "assistant", content: "__intro__" }]);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
   }
 
