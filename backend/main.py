@@ -17,7 +17,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from rag_chain import (
     answer_question,
@@ -72,6 +72,14 @@ async def security_headers(request, call_next):
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=2, max_length=2000)
     persona: str = Field("tech", description="One of: tech, online, local")
+
+    @field_validator("question")
+    @classmethod
+    def normalize_question(cls, value: str) -> str:
+        normalized = value.strip()
+        if len(normalized) < 2:
+            raise ValueError("Question must contain at least two non-whitespace characters")
+        return normalized
 
 
 class SourceCitation(BaseModel):
