@@ -78,6 +78,7 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
           </div>
           <button
             onClick={onNewChat}
+            aria-label="Start a new chat"
             className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-flag-blue flex items-center justify-center text-slate-500 transition"
             title="New chat"
           >
