@@ -138,6 +138,7 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
           <button
             key={item.id}
             onClick={() => onSelectChat(item)}
+            aria-current={activeChat?.id === item.id ? "true" : undefined}
             className={`w-full text-left flex items-start gap-2.5 px-2.5 py-2 rounded-lg mb-0.5 group transition ${
               activeChat?.id === item.id
                 ? "bg-blue-50 text-flag-blue"
