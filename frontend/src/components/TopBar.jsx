@@ -20,10 +20,14 @@ function ExportModal({ onClose }) {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
+        onClick={(event) => event.stopPropagation()}
         aria-labelledby="export-dialog-title"
         aria-describedby="export-dialog-description"
         className="rounded-2xl shadow-xl border border-slate-200 w-80 p-5"
