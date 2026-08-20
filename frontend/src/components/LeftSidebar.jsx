@@ -111,6 +111,7 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
             <button
               key={t}
               onClick={() => setTab(t)}
+              aria-pressed={tab === t}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold capitalize transition ${
                 tab === t
                   ? "bg-white text-slate-900 shadow-sm"
