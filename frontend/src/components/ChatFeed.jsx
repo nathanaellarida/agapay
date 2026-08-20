@@ -58,6 +58,7 @@ const PERSONA_DESCRIPTIONS = {
 const TYPE_SPEED = 55;
 const DELETE_SPEED = 28;
 const PAUSE = 1800;
+const MIN_QUESTION_LENGTH = 2;
 const MAX_QUESTION_LENGTH = 2000;
 
 function useTypewriter(phrases) {
@@ -230,7 +231,7 @@ export default function ChatFeed({
 
   async function send(text) {
     const q = (text ?? input).trim();
-    if (!q || loading || locked || !persona) return;
+    if (q.length < MIN_QUESTION_LENGTH || loading || locked || !persona) return;
     setInput("");
     onMessagesChange([
       ...messages.filter((m) => m.content !== "__intro__"),
@@ -364,6 +365,7 @@ export default function ChatFeed({
             <Sparkles className="w-4 h-4 text-slate-400 flex-shrink-0 mb-0.5" />
             <textarea
               rows={1}
+              minLength={MIN_QUESTION_LENGTH}
               maxLength={MAX_QUESTION_LENGTH}
               value={input}
               onChange={(e) => {
@@ -394,7 +396,7 @@ export default function ChatFeed({
             <button
               type="button"
               onClick={() => send()}
-              disabled={loading || locked || !input.trim()}
+              disabled={loading || locked || input.trim().length < MIN_QUESTION_LENGTH}
               className="w-8 h-8 bg-flag-blue text-white rounded-xl flex items-center justify-center hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex-shrink-0"
               aria-label="Send"
             >
