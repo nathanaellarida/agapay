@@ -50,6 +50,7 @@ function ExportModal({ onClose }) {
           ].map((opt) => (
             <button
               key={opt.label}
+              autoFocus={opt.label === "PDF Launch Checklist"}
               className="w-full text-left flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-flag-blue hover:bg-blue-50 transition"
               onClick={onClose}
             >
