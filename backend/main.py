@@ -14,6 +14,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -71,7 +72,7 @@ async def security_headers(request, call_next):
 # --------------------------------------------------------------------------- #
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=2, max_length=2000)
-    persona: str = Field("tech", description="One of: tech, online, local")
+    persona: Literal["tech", "online", "local"] = "tech"
 
     @field_validator("question")
     @classmethod
