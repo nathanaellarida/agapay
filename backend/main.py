@@ -124,7 +124,8 @@ def classify_category(filename: str) -> str:
 
 
 def prettify_title(filename: str) -> str:
-    return Path(filename).stem.replace("_", " ").replace("-", " ").strip()
+    stem = Path(filename).stem.replace("_", " ").replace("-", " ")
+    return " ".join(stem.split())
 
 
 # --------------------------------------------------------------------------- #
