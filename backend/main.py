@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
@@ -172,7 +172,9 @@ def library() -> list[LibraryDocument]:
                 filename=path.name,
                 title=prettify_title(path.name),
                 category=classify_category(path.name),
-                last_updated=datetime.fromtimestamp(stat.st_mtime).date().isoformat(),
+                last_updated=datetime.fromtimestamp(
+                    stat.st_mtime, tz=timezone.utc
+                ).date().isoformat(),
             )
         )
     return items
