@@ -160,7 +160,12 @@ def library() -> list[LibraryDocument]:
         return []
 
     items: list[LibraryDocument] = []
-    for path in sorted(DATA_DIR.glob("*.txt")):
+    text_paths = (
+        path
+        for path in DATA_DIR.iterdir()
+        if path.is_file() and path.suffix.lower() == ".txt"
+    )
+    for path in sorted(text_paths):
         stat = path.stat()
         items.append(
             LibraryDocument(
