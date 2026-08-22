@@ -62,9 +62,9 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
       {/* Timeline */}
       <ol className="relative space-y-1">
         {/* Vertical line — dashed and behind the dots */}
-        <div
+        <li
           className="absolute left-[15px] top-2 bottom-2 w-px border-l border-dashed border-slate-200"
-          aria-hidden
+          aria-hidden="true"
         />
 
         {data.steps.map((step, i) => {
