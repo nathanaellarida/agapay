@@ -60,6 +60,7 @@ const DELETE_SPEED = 28;
 const PAUSE = 1800;
 const MIN_QUESTION_LENGTH = 2;
 const MAX_QUESTION_LENGTH = 2000;
+const QUERY_TIMEOUT_MS = 45_000;
 
 function useTypewriter(phrases) {
   const [displayed, setDisplayed] = useState("");
@@ -239,11 +240,15 @@ export default function ChatFeed({
     ]);
     setLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
+
     try {
       const res = await fetch("/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, persona: persona.key }),
+        signal: controller.signal,
       });
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
@@ -263,6 +268,7 @@ export default function ChatFeed({
         },
       ]);
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }
