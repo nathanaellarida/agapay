@@ -210,6 +210,7 @@ export default function ChatFeed({
 
   // Reset feed when persona changes
   useEffect(() => {
+    setInput("");
     if (persona && content) {
       onMessagesChange([{ role: "assistant", content: "__intro__" }]);
     } else {
