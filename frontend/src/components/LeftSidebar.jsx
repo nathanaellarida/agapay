@@ -40,6 +40,10 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
   const searchRef = useRef(null);
 
   useEffect(() => {
+    setSearch("");
+  }, [persona.key]);
+
+  useEffect(() => {
     function focusSearch(event) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
