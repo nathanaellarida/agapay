@@ -80,6 +80,10 @@ export default function PersonaSelection({ onSelect }) {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-4 pt-10">
       <div className="w-full max-w-xl text-center animate-[fadeIn_0.45s_ease-out]">
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {`Mentor ${index + 1} of ${PERSONAS.length}: ${persona.name}, ${persona.title}, for ${persona.pathLabel}`}
+        </p>
+
         {/* Title + subtitle */}
         <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400 font-bold mb-1">
           What are we building today?
