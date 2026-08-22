@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronRight,
   Download,
@@ -83,6 +83,12 @@ export default function TopBar({
   onSwitchPersona,
 }) {
   const [showExport, setShowExport] = useState(false);
+  const exportButtonRef = useRef(null);
+
+  function closeExport() {
+    setShowExport(false);
+    exportButtonRef.current?.focus();
+  }
 
   return (
     <>
@@ -150,6 +156,7 @@ export default function TopBar({
         {persona && (
           <>
             <button
+              ref={exportButtonRef}
               onClick={() => setShowExport(true)}
               aria-haspopup="dialog"
               className="flex items-center gap-1.5 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition"
@@ -171,7 +178,7 @@ export default function TopBar({
         )}
       </header>
 
-      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
+      {showExport && <ExportModal onClose={closeExport} />}
     </>
   );
 }
