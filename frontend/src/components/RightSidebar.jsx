@@ -82,10 +82,10 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
                 className="absolute left-0 top-2 w-[31px] flex items-center justify-center disabled:cursor-not-allowed"
                 aria-label={
                   isDone
-                    ? "Mark incomplete"
+                    ? `Mark ${step.title} incomplete`
                     : prevDone
-                    ? "Mark complete"
-                    : "Complete the previous step first"
+                    ? `Mark ${step.title} complete`
+                    : `${step.title}: complete the previous step first`
                 }
               >
                 {isDone ? (
