@@ -206,10 +206,14 @@ export default function ChatFeed({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
+  const activeRequestRef = useRef(null);
   const placeholder = useTypewriter(content?.placeholders || []);
 
   // Reset feed when persona changes
   useEffect(() => {
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
+    setLoading(false);
     setInput("");
     if (persona && content) {
       onMessagesChange([{ role: "assistant", content: "__intro__" }]);
@@ -243,6 +247,7 @@ export default function ChatFeed({
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
+    activeRequestRef.current = controller;
 
     try {
       const res = await fetch("/api/query", {
@@ -253,12 +258,14 @@ export default function ChatFeed({
       });
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
+      if (activeRequestRef.current !== controller) return;
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },
         { role: "assistant", content: data.answer, sources: data.sources ?? [] },
       ]);
     } catch {
+      if (activeRequestRef.current !== controller) return;
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },
@@ -270,7 +277,10 @@ export default function ChatFeed({
       ]);
     } finally {
       clearTimeout(timeoutId);
-      setLoading(false);
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
