@@ -138,6 +138,7 @@ export default function PersonaSelection({ onSelect }) {
         {/* SELECT button */}
         <button
           onClick={() => onSelect(persona)}
+          aria-label={`Select ${persona.name} as your mentor`}
           className="bg-flag-blue text-white font-display font-bold tracking-[0.15em] px-12 py-3.5 rounded-2xl shadow-action hover:bg-blue-800 active:scale-[0.98] transition"
         >
           SELECT
