@@ -116,11 +116,15 @@ export default function TopBar({
         )}
 
         {/* Breadcrumbs */}
-        <nav className="flex-1 flex items-center gap-1 text-xs text-slate-500 min-w-0">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex-1 flex items-center gap-1 text-xs text-slate-500 min-w-0"
+        >
           {breadcrumbs.map((crumb, i) => (
             <span key={`${crumb}-${i}`} className="flex items-center gap-1 min-w-0">
               {i > 0 && <ChevronRight className="w-3 h-3 flex-shrink-0 text-slate-300" />}
               <span
+                aria-current={i === breadcrumbs.length - 1 ? "page" : undefined}
                 className={`truncate ${
                   i === breadcrumbs.length - 1
                     ? "text-slate-900 font-semibold"
