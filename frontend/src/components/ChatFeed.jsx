@@ -266,12 +266,15 @@ export default function ChatFeed({
       ]);
     } catch {
       if (activeRequestRef.current !== controller) return;
+      const errorMessage = controller.signal.aborted
+        ? "Agapay took too long to respond. Please try again."
+        : "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },
         {
           role: "assistant",
-          content: "I couldn't reach Agapay right now. Please check your connection and try again in a moment.",
+          content: errorMessage,
           sources: [],
         },
       ]);
