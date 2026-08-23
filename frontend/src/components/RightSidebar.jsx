@@ -377,7 +377,14 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
   const [completedByPersona, setCompletedByPersona] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(ROADMAP_PROGRESS_KEY));
-      return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+      if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+
+      return Object.fromEntries(
+        Object.entries(saved).filter(
+          ([, progress]) =>
+            progress && typeof progress === "object" && !Array.isArray(progress)
+        )
+      );
     } catch {
       return {};
     }
