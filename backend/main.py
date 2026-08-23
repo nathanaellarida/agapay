@@ -165,7 +165,7 @@ def library() -> list[LibraryDocument]:
         for path in DATA_DIR.iterdir()
         if path.is_file() and path.suffix.lower() == ".txt"
     )
-    for path in sorted(text_paths):
+    for path in sorted(text_paths, key=lambda path: path.name.casefold()):
         stat = path.stat()
         items.append(
             LibraryDocument(
