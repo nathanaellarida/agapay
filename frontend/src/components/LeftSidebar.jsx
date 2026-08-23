@@ -58,8 +58,9 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
 
   const chats = SAMPLE_CHATS[persona.key] || [];
   const items = tab === "chats" ? chats : SAMPLE_BOOKMARKS;
+  const normalizedSearch = search.trim().toLowerCase();
   const filtered = items.filter((i) =>
-    i.title.toLowerCase().includes(search.toLowerCase())
+    i.title.toLowerCase().includes(normalizedSearch)
   );
 
   return (
