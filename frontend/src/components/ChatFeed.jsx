@@ -114,6 +114,7 @@ function InlineSources({ sources }) {
         {sources.map((s, i) => (
           <span
             key={`${s.source}-${i}`}
+            aria-label={`${s.source}: ${s.snippet}`}
             className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200"
             title={s.snippet}
           >
