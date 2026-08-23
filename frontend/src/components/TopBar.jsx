@@ -163,6 +163,7 @@ export default function TopBar({
               ref={exportButtonRef}
               onClick={() => setShowExport(true)}
               aria-haspopup="dialog"
+              aria-expanded={showExport}
               className="flex items-center gap-1.5 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition"
             >
               <Download className="w-3.5 h-3.5" />
