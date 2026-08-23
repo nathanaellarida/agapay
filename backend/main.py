@@ -156,7 +156,7 @@ def query(body: QueryRequest) -> QueryResponse:
 
 @app.get("/library", response_model=list[LibraryDocument])
 def library() -> list[LibraryDocument]:
-    if not DATA_DIR.exists():
+    if not DATA_DIR.is_dir():
         return []
 
     items: list[LibraryDocument] = []
