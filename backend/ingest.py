@@ -27,7 +27,14 @@ def load_documents() -> list[tuple[str, str]]:
     if not DATA_DIR.exists():
         raise FileNotFoundError(f"Data directory not found: {DATA_DIR}")
 
-    txt_files = sorted(DATA_DIR.glob("*.txt"))
+    txt_files = sorted(
+        (
+            path
+            for path in DATA_DIR.iterdir()
+            if path.is_file() and path.suffix.lower() == ".txt"
+        ),
+        key=lambda path: path.name.casefold(),
+    )
     if not txt_files:
         raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
 
