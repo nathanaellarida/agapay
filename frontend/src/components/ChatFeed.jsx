@@ -297,7 +297,13 @@ export default function ChatFeed({
         {locked && onboardingContent ? (
           onboardingContent
         ) : (
-          <div className="max-w-3xl mx-auto px-6 py-6 space-y-4">
+          <div
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            aria-label="Conversation"
+            className="max-w-3xl mx-auto px-6 py-6 space-y-4"
+          >
             {/* Mentor intro screen */}
             {onlyWelcome && !loading && content && (
               <div className="flex flex-col items-center text-center pt-6 pb-4 animate-[fadeIn_0.5s_ease-out]">
