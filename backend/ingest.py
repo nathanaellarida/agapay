@@ -42,7 +42,10 @@ def load_documents() -> list[tuple[str, str]]:
     for path in txt_files:
         if path.is_symlink():
             raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
-        documents.append((path.name, path.read_text(encoding="utf-8")))
+        content = path.read_text(encoding="utf-8")
+        if not content.strip():
+            raise ValueError(f"Document is empty: {path.name}")
+        documents.append((path.name, content))
         print(f"  loaded {path.name}")
     return documents
 
