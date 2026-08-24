@@ -149,8 +149,12 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
 
     clean_embedding: list[float] = []
     for value in embedding:
-        if not isinstance(value, (int, float)) or not math.isfinite(value):
-            raise ValueError("Vector index contains a non-finite embedding value")
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+        ):
+            raise ValueError("Vector index contains an invalid embedding value")
         clean_embedding.append(float(value))
 
     return {
