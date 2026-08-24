@@ -168,7 +168,11 @@ def get_index() -> tuple[dict[str, Any], ...]:
         raise ValueError("Vector index was generated with an unexpected model")
 
     raw_entries = payload.get("entries")
-    if not isinstance(raw_entries, list) or len(raw_entries) > MAX_INDEX_ENTRIES:
+    if (
+        not isinstance(raw_entries, list)
+        or not raw_entries
+        or len(raw_entries) > MAX_INDEX_ENTRIES
+    ):
         raise ValueError("Vector index entry count is invalid")
 
     entries: list[dict[str, Any]] = []
