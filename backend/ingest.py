@@ -11,6 +11,7 @@ from rag_chain import (
     EMBEDDING_MODEL_REVISION,
     INDEX_PATH,
     INDEX_SCHEMA_VERSION,
+    MAX_INDEX_ENTRIES,
     get_embedding_model,
     require_backend_path,
     resolve_configured_path,
@@ -86,6 +87,8 @@ def build_entries(documents: list[tuple[str, str]]) -> list[dict]:
     ]
     if not chunks:
         raise ValueError("No content was available to index")
+    if len(chunks) > MAX_INDEX_ENTRIES:
+        raise ValueError("Document chunks exceed the configured index entry limit")
 
     embeddings = get_embedding_model().encode(
         [chunk["text"] for chunk in chunks],
