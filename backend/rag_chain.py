@@ -132,7 +132,11 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     embedding = raw.get("embedding")
     if not isinstance(source, str) or Path(source).name != source:
         raise ValueError("Vector index contains an invalid source name")
-    if not isinstance(text, str) or len(text) > 10_000:
+    if (
+        not isinstance(text, str)
+        or not text.strip()
+        or len(text) > 10_000
+    ):
         raise ValueError("Vector index contains an invalid text chunk")
     if not isinstance(embedding, list) or not embedding:
         raise ValueError("Vector index contains an invalid embedding")
