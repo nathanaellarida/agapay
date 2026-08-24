@@ -163,7 +163,11 @@ def library() -> list[LibraryDocument]:
     text_paths = (
         path
         for path in DATA_DIR.iterdir()
-        if path.is_file() and path.suffix.lower() == ".txt"
+        if (
+            path.is_file()
+            and not path.is_symlink()
+            and path.suffix.lower() == ".txt"
+        )
     )
     for path in sorted(text_paths, key=lambda path: path.name.casefold()):
         stat = path.stat()
