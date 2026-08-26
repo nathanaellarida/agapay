@@ -40,6 +40,7 @@ INDEX_PATH = require_backend_path(
 )
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 EMBEDDING_MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+EMBEDDING_DIMENSION = 384
 GROQ_MODEL = "llama-3.3-70b-versatile"
 INDEX_SCHEMA_VERSION = 1
 MAX_INDEX_BYTES = 100 * 1024 * 1024
@@ -144,6 +145,8 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
         raise ValueError("Vector index contains an invalid text chunk")
     if not isinstance(embedding, list) or not embedding:
         raise ValueError("Vector index contains an invalid embedding")
+    if len(embedding) != EMBEDDING_DIMENSION:
+        raise ValueError("Vector index contains an unexpected embedding dimension")
     if dimension is not None and len(embedding) != dimension:
         raise ValueError("Vector index contains inconsistent dimensions")
 
