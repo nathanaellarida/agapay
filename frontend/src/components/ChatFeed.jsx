@@ -134,7 +134,7 @@ function AssistantBubble({ content, sources, persona }) {
         <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mt-1">
           <img
             src={persona.image}
-            alt={persona.name}
+            alt=""
             className="w-full h-full object-cover object-top"
           />
         </div>
@@ -164,7 +164,7 @@ function Loader({ persona }) {
         <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mt-1">
           <img
             src={persona.image}
-            alt={persona.name}
+            alt=""
             className="w-full h-full object-cover object-top"
           />
         </div>
@@ -310,7 +310,7 @@ export default function ChatFeed({
                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mb-3">
                   <img
                     src={persona.image}
-                    alt={persona.name}
+                    alt=""
                     className="w-full h-full object-cover object-top"
                   />
                 </div>
