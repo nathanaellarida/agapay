@@ -211,6 +211,7 @@ function CostTab({ persona, completed, discussed }) {
           <button
             key={t.key}
             onClick={() => setMode(t.key)}
+            aria-pressed={mode === t.key}
             className={`flex-1 py-1 rounded-md text-[10px] font-semibold transition ${
               mode === t.key
                 ? "bg-white text-slate-900 shadow-sm"
@@ -439,6 +440,7 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
+              aria-pressed={tab === t.key}
               className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition ${
                 tab === t.key
                   ? "bg-white text-slate-900 shadow-sm"
