@@ -261,11 +261,21 @@ export default function ChatFeed({
       });
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
+      const answer = typeof data.answer === "string" ? data.answer.trim() : "";
+      if (!answer) throw new Error("API returned an invalid answer");
+      const sources = Array.isArray(data.sources)
+        ? data.sources.filter(
+            (source) =>
+              source &&
+              typeof source.source === "string" &&
+              typeof source.snippet === "string"
+          )
+        : [];
       if (activeRequestRef.current !== controller) return;
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },
-        { role: "assistant", content: data.answer, sources: data.sources ?? [] },
+        { role: "assistant", content: answer, sources },
       ]);
     } catch {
       if (activeRequestRef.current !== controller) return;
