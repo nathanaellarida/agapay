@@ -42,6 +42,7 @@ EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 EMBEDDING_MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 EMBEDDING_DIMENSION = 384
 GROQ_MODEL = "llama-3.3-70b-versatile"
+MAX_COMPLETION_TOKENS = 800
 INDEX_SCHEMA_VERSION = 1
 MAX_INDEX_BYTES = 100 * 1024 * 1024
 MAX_INDEX_ENTRIES = 100_000
@@ -236,6 +237,7 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
             {"role": "user", "content": user_payload},
         ],
         temperature=0.2,
+        max_completion_tokens=MAX_COMPLETION_TOKENS,
     )
     answer = (completion.choices[0].message.content or "").strip() or FALLBACK_ANSWER
 
