@@ -42,6 +42,7 @@ EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 EMBEDDING_MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 EMBEDDING_DIMENSION = 384
 GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_TIMEOUT_SECONDS = 30.0
 MAX_COMPLETION_TOKENS = 800
 INDEX_SCHEMA_VERSION = 1
 MAX_INDEX_BYTES = 100 * 1024 * 1024
@@ -122,7 +123,7 @@ def get_groq_client():
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY is not configured")
-    return Groq(api_key=api_key)
+    return Groq(api_key=api_key, timeout=GROQ_TIMEOUT_SECONDS, max_retries=0)
 
 
 def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], int]:
