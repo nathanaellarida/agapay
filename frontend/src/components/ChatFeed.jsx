@@ -207,6 +207,7 @@ export default function ChatFeed({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
+  const inputRef = useRef(null);
   const activeRequestRef = useRef(null);
   const placeholder = useTypewriter(content?.placeholders || []);
 
@@ -240,6 +241,7 @@ export default function ChatFeed({
     const q = (text ?? input).trim();
     if (q.length < MIN_QUESTION_LENGTH || loading || locked || !persona) return;
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     onMessagesChange([
       ...messages.filter((m) => m.content !== "__intro__"),
       { role: "user", content: q },
@@ -391,6 +393,7 @@ export default function ChatFeed({
           <div className="flex items-end gap-2 px-4 py-3">
             <Sparkles className="w-4 h-4 text-slate-400 flex-shrink-0 mb-0.5" />
             <textarea
+              ref={inputRef}
               rows={1}
               minLength={MIN_QUESTION_LENGTH}
               maxLength={MAX_QUESTION_LENGTH}
