@@ -37,6 +37,8 @@ export default function Workspace() {
   function handleSwitchPersona() {
     setPersona(null);
     setActiveChat(null);
+    setMessages([]);
+    setPendingAsk(null);
     setBreadcrumbs(["Agapay"]);
   }
 
