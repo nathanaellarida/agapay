@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 function ExportModal({ onClose }) {
+  const dialogRef = useRef(null);
+
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === "Escape") onClose();
@@ -19,14 +21,33 @@ function ExportModal({ onClose }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  function keepFocusInDialog(event) {
+    if (event.key !== "Tab") return;
+
+    const controls = dialogRef.current?.querySelectorAll("button:not([disabled])");
+    if (!controls?.length) return;
+
+    const firstControl = controls[0];
+    const lastControl = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === firstControl) {
+      event.preventDefault();
+      lastControl.focus();
+    } else if (!event.shiftKey && document.activeElement === lastControl) {
+      event.preventDefault();
+      firstControl.focus();
+    }
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        onKeyDown={keepFocusInDialog}
         onClick={(event) => event.stopPropagation()}
         aria-labelledby="export-dialog-title"
         aria-describedby="export-dialog-description"
