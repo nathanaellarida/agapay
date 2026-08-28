@@ -58,6 +58,8 @@ export const PERSONAS = [
 export default function PersonaSelection({ onSelect }) {
   const [index, setIndex] = useState(0);
   const persona = PERSONAS[index];
+  const previousPersona = PERSONAS[(index - 1 + PERSONAS.length) % PERSONAS.length];
+  const nextPersona = PERSONAS[(index + 1) % PERSONAS.length];
   const prev = () =>
     setIndex((i) => (i - 1 + PERSONAS.length) % PERSONAS.length);
   const next = () => setIndex((i) => (i + 1) % PERSONAS.length);
@@ -108,7 +110,7 @@ export default function PersonaSelection({ onSelect }) {
           <button
             onClick={prev}
             className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-slate-400 hover:text-slate-700 transition rounded-full hover:bg-slate-100"
-            aria-label="Previous"
+            aria-label={`Previous mentor: ${previousPersona.name}`}
           >
             <ChevronLeft className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={2.4} />
           </button>
@@ -129,7 +131,7 @@ export default function PersonaSelection({ onSelect }) {
           <button
             onClick={next}
             className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-slate-400 hover:text-slate-700 transition rounded-full hover:bg-slate-100"
-            aria-label="Next"
+            aria-label={`Next mentor: ${nextPersona.name}`}
           >
             <ChevronRight className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={2.4} />
           </button>
