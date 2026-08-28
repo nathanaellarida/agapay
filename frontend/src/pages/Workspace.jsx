@@ -51,6 +51,8 @@ export default function Workspace() {
 
       {/* LEFT SIDEBAR */}
       <div
+        aria-hidden={onboarding || !leftOpen}
+        inert={onboarding || !leftOpen ? "" : undefined}
         className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${
           onboarding || !leftOpen
             ? "w-0 opacity-0 pointer-events-none"
@@ -107,6 +109,8 @@ export default function Workspace() {
 
       {/* RIGHT SIDEBAR */}
       <div
+        aria-hidden={onboarding || !rightOpen}
+        inert={onboarding || !rightOpen ? "" : undefined}
         className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${
           onboarding || !rightOpen
             ? "w-0 opacity-0 pointer-events-none"
