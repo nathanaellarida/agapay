@@ -163,7 +163,7 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
 
       {/* Search */}
       <div className="px-3 py-3 border-t border-slate-100/80">
-        <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-flag-blue focus-within:ring-offset-1">
           <Search className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           <input
             ref={searchRef}
