@@ -15,6 +15,24 @@ import { detectDiscussedSteps } from "../data/stepKeywords.js";
 
 const ROADMAP_PROGRESS_KEY = "agapay-roadmap-progress";
 
+function updateCompletedSteps(completed, steps, stepId) {
+  const next = { ...completed };
+  if (!next[stepId]) {
+    next[stepId] = true;
+    return next;
+  }
+
+  const reopenedIndex = steps.findIndex((step) => step.id === stepId);
+  if (reopenedIndex === -1) {
+    delete next[stepId];
+    return next;
+  }
+  for (const step of steps.slice(reopenedIndex)) {
+    delete next[step.id];
+  }
+  return next;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
  * Tab 1: LAUNCH ROADMAP
  * Vertical timeline of steps. Users can:
@@ -421,10 +439,13 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
 
   function toggleStep(stepId) {
     setCompletedByPersona((prev) => {
-      const cur = { ...(prev[persona.key] || {}) };
-      if (cur[stepId]) delete cur[stepId];
-      else cur[stepId] = true;
-      return { ...prev, [persona.key]: cur };
+      const steps = ROADMAPS[persona.key]?.steps || [];
+      const completed = updateCompletedSteps(
+        prev[persona.key] || {},
+        steps,
+        stepId
+      );
+      return { ...prev, [persona.key]: completed };
     });
   }
 
