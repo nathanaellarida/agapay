@@ -12,6 +12,7 @@ export default function Workspace() {
   const [activeChat, setActiveChat] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState(["Agapay"]);
   const [pendingAsk, setPendingAsk] = useState(null);
+  const [chatResetVersion, setChatResetVersion] = useState(0);
   // Lifted: messages list shared with the right sidebar so the Cost tab
   // can react to what the AI has actually discussed.
   const [messages, setMessages] = useState([]);
@@ -29,6 +30,7 @@ export default function Workspace() {
   }
 
   function handleNewChat() {
+    setChatResetVersion((version) => version + 1);
     setActiveChat(null);
     setMessages([{ role: "assistant", content: "__intro__" }]);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
@@ -98,6 +100,7 @@ export default function Workspace() {
             persona={persona}
             locked={onboarding}
             pendingAsk={pendingAsk}
+            resetVersion={chatResetVersion}
             messages={messages}
             onMessagesChange={setMessages}
             onboardingContent={

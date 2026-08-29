@@ -197,6 +197,7 @@ export default function ChatFeed({
   locked = false,
   onboardingContent = null,
   pendingAsk,
+  resetVersion = 0,
   messages,
   onMessagesChange,
 }) {
@@ -211,7 +212,7 @@ export default function ChatFeed({
   const activeRequestRef = useRef(null);
   const placeholder = useTypewriter(content?.placeholders || []);
 
-  // Reset feed when persona changes
+  // Reset the feed and cancel stale work when the persona or chat changes.
   useEffect(() => {
     activeRequestRef.current?.abort();
     activeRequestRef.current = null;
@@ -223,7 +224,7 @@ export default function ChatFeed({
       onMessagesChange([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [persona?.key]);
+  }, [persona?.key, resetVersion]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
