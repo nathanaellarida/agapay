@@ -56,7 +56,7 @@ def load_documents() -> list[tuple[str, str]]:
 
 def split_text(text: str) -> list[str]:
     """Split text deterministically while preferring natural boundaries."""
-    normalized = text.replace("\r\n", "\n").strip()
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n").strip()
     chunks: list[str] = []
     start = 0
 
