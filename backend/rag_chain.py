@@ -206,6 +206,17 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
         normalize_embeddings=True,
         convert_to_numpy=True,
     ).tolist()
+    if (
+        not isinstance(query_vector, list)
+        or len(query_vector) != EMBEDDING_DIMENSION
+        or any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            for value in query_vector
+        )
+    ):
+        raise ValueError("Embedding model returned an invalid query vector")
     entries = get_index()
     ranked = sorted(
         entries,
