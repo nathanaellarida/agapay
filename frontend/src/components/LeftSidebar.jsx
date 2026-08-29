@@ -137,6 +137,9 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
 
       {/* List */}
       <div className="flex-1 overflow-y-auto py-2 px-2">
+        <p role="status" aria-live="polite" className="sr-only">
+          {filtered.length} {filtered.length === 1 ? "result" : "results"} available
+        </p>
         {filtered.length === 0 && (
           <p className="text-xs text-slate-400 text-center mt-6">No results</p>
         )}
