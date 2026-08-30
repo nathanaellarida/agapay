@@ -172,7 +172,10 @@ def library() -> list[LibraryDocument]:
         )
     )
     for path in sorted(text_paths, key=lambda path: path.name.casefold()):
-        stat = path.stat()
+        try:
+            stat = path.stat()
+        except FileNotFoundError:
+            continue
         items.append(
             LibraryDocument(
                 filename=path.name,
