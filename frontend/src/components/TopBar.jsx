@@ -162,7 +162,8 @@ export default function TopBar({
         {persona && (
           <button
             onClick={onSwitchPersona}
-            className={`hidden md:flex items-center gap-2 text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${persona.accentSoft} hover:opacity-80 transition group`}
+            aria-label={`Switch mentor from ${persona.name}`}
+            className={`flex items-center gap-2 text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${persona.accentSoft} hover:opacity-80 transition group`}
             title="Switch mentor"
           >
             <div className="w-5 h-5 rounded-full overflow-hidden border border-white shadow-sm flex-shrink-0">
@@ -172,8 +173,8 @@ export default function TopBar({
                 className="w-full h-full object-cover object-top"
               />
             </div>
-            <span>{persona.name}</span>
-            <RefreshCw className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="hidden sm:inline">{persona.name}</span>
+            <RefreshCw className="w-3 h-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity" />
           </button>
         )}
 
