@@ -96,7 +96,7 @@ function useTypewriter(phrases) {
 function UserBubble({ content }) {
   return (
     <div className="flex justify-end">
-      <div className="max-w-[72%] bg-flag-blue text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm">
+      <div className="max-w-[72%] break-words bg-flag-blue text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm">
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
       </div>
     </div>
@@ -115,7 +115,7 @@ function InlineSources({ sources }) {
           <span
             key={`${s.source}-${i}`}
             aria-label={`${s.source}: ${s.snippet}`}
-            className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200"
+            className="inline-flex max-w-full items-center gap-1 break-all bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200"
             title={s.snippet}
           >
             <FileText className="w-2.5 h-2.5 text-flag-blue" />
@@ -140,7 +140,7 @@ function AssistantBubble({ content, sources, persona }) {
         </div>
       )}
       <div
-        className="max-w-[80%] border border-slate-200 border-l-4 border-l-flag-blue rounded-2xl rounded-tl-none shadow-sm px-4 py-3"
+        className="max-w-[80%] min-w-0 break-words border border-slate-200 border-l-4 border-l-flag-blue rounded-2xl rounded-tl-none shadow-sm px-4 py-3"
         style={{ backgroundColor: "#FCFCFC" }}
       >
         {persona && (
