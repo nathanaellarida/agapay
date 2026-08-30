@@ -32,13 +32,15 @@ logger = logging.getLogger(__name__)
 DATA_DIR = require_backend_path(
     resolve_configured_path("DATA_DIR", "./data"), "DATA_DIR"
 )
-CORS_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
-    ).split(",")
-    if origin.strip()
-]
+CORS_ORIGINS = list(
+    dict.fromkeys(
+        normalized
+        for origin in os.getenv(
+            "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+        ).split(",")
+        if (normalized := origin.strip().removesuffix("/"))
+    )
+)
 if not CORS_ORIGINS or "*" in CORS_ORIGINS:
     raise ValueError("CORS_ORIGINS must list explicit trusted origins")
 
