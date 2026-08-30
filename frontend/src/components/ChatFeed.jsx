@@ -240,7 +240,15 @@ export default function ChatFeed({
 
   async function send(text) {
     const q = (text ?? input).trim();
-    if (q.length < MIN_QUESTION_LENGTH || loading || locked || !persona) return;
+    if (
+      q.length < MIN_QUESTION_LENGTH ||
+      activeRequestRef.current ||
+      loading ||
+      locked ||
+      !persona
+    ) {
+      return;
+    }
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
     onMessagesChange([
