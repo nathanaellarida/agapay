@@ -42,6 +42,15 @@ export const STEP_KEYWORDS = {
   "local-12": ["grand opening", "launch event", "opening day"],
 };
 
+function includesKeyword(text, keyword) {
+  if (!/^[a-z0-9]{2,4}$/.test(keyword)) {
+    return text.includes(keyword);
+  }
+
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`).test(text);
+}
+
 /**
  * Given a list of chat messages and a roadmap, return a Set of step IDs that
  * have been discussed (i.e. any of their keywords appears in any message).
@@ -59,7 +68,7 @@ export function detectDiscussedSteps(messages, steps) {
   for (const step of steps) {
     const keywords = STEP_KEYWORDS[step.id] || [];
     for (const kw of keywords) {
-      if (text.includes(kw.toLowerCase())) {
+      if (includesKeyword(text, kw.toLowerCase())) {
         hits.add(step.id);
         break;
       }
