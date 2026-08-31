@@ -172,12 +172,17 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
 @lru_cache(maxsize=1)
 def get_index() -> tuple[dict[str, Any], ...]:
     """Load and validate the generated local index before using it."""
-    if not INDEX_PATH.exists():
-        raise FileNotFoundError("Vector index is missing; run `python ingest.py`")
-    if INDEX_PATH.stat().st_size > MAX_INDEX_BYTES:
+    try:
+        with INDEX_PATH.open("rb") as index_file:
+            raw_index = index_file.read(MAX_INDEX_BYTES + 1)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Vector index is missing; run `python ingest.py`"
+        ) from None
+    if len(raw_index) > MAX_INDEX_BYTES:
         raise ValueError("Vector index exceeds the configured safety limit")
 
-    payload = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+    payload = json.loads(raw_index.decode("utf-8"))
     if not isinstance(payload, dict) or payload.get("schema_version") != INDEX_SCHEMA_VERSION:
         raise ValueError("Vector index schema is unsupported")
     model = payload.get("model")
