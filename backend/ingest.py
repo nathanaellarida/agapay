@@ -118,7 +118,9 @@ def write_index(entries: list[dict]) -> None:
         },
         "entries": entries,
     }
-    temporary_path = INDEX_PATH.with_suffix(".json.tmp")
+    temporary_path = INDEX_PATH.with_name(
+        f".{INDEX_PATH.name}.{os.getpid()}.tmp"
+    )
     temporary_path.write_text(
         json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")),
         encoding="utf-8",
