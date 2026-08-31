@@ -6,6 +6,7 @@ model. The language-model request is sent to Groq from the backend only.
 
 from __future__ import annotations
 
+import heapq
 import json
 import math
 import os
@@ -223,7 +224,8 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
     ):
         raise ValueError("Embedding model returned an invalid query vector")
     entries = get_index()
-    ranked = sorted(
+    return heapq.nlargest(
+        limit,
         entries,
         key=lambda entry: sum(
             query_value * stored_value
@@ -231,9 +233,7 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
                 query_vector, entry["embedding"], strict=True
             )
         ),
-        reverse=True,
     )
-    return ranked[:limit]
 
 
 def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, Any]:
