@@ -49,7 +49,7 @@ export default function Workspace() {
   }
 
   return (
-    <div className="h-screen flex bg-canvas overflow-hidden p-3 gap-3">
+    <div className="h-screen h-dvh flex bg-canvas overflow-hidden p-3 gap-3">
 
       {/* LEFT SIDEBAR */}
       <div
