@@ -227,6 +227,10 @@ export default function ChatFeed({
   }, [persona?.key, resetVersion]);
 
   useEffect(() => {
+    if (resetVersion > 0) inputRef.current?.focus();
+  }, [resetVersion]);
+
+  useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
