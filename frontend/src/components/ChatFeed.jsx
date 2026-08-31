@@ -449,6 +449,11 @@ export default function ChatFeed({
               }`}
               style={{ minHeight: "24px", maxHeight: "120px" }}
               aria-label="Your question"
+              aria-describedby={
+                locked
+                  ? "question-help"
+                  : "question-help question-character-count"
+              }
             />
             <button
               type="button"
@@ -461,11 +466,25 @@ export default function ChatFeed({
             </button>
           </div>
         </div>
-        <p className="text-center text-[10px] text-slate-400 mt-2">
-          {locked
-            ? "Choose your mentor to unlock the chat"
-            : `${persona?.name}'s answers cite their source documents`}
-        </p>
+        <div className="max-w-3xl mx-auto mt-2 flex items-center justify-between gap-3 text-[10px] text-slate-400">
+          <p id="question-help">
+            {locked
+              ? "Choose your mentor to unlock the chat"
+              : `${persona?.name}'s answers cite their source documents`}
+          </p>
+          {!locked && (
+            <p
+              id="question-character-count"
+              className={
+                input.length === MAX_QUESTION_LENGTH
+                  ? "font-semibold text-amber-600"
+                  : ""
+              }
+            >
+              {input.length}/{MAX_QUESTION_LENGTH}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
