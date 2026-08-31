@@ -251,7 +251,8 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
         temperature=0.2,
         max_completion_tokens=MAX_COMPLETION_TOKENS,
     )
-    answer = (completion.choices[0].message.content or "").strip() or FALLBACK_ANSWER
+    message = completion.choices[0].message.content if completion.choices else None
+    answer = (message or "").strip() or FALLBACK_ANSWER
 
     sources = []
     seen: set[str] = set()
