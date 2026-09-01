@@ -418,6 +418,7 @@ export default function ChatFeed({
             <textarea
               ref={inputRef}
               rows={1}
+              enterKeyHint="send"
               minLength={MIN_QUESTION_LENGTH}
               maxLength={MAX_QUESTION_LENGTH}
               value={input}
