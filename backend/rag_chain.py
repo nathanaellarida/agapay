@@ -170,8 +170,21 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     }, len(clean_embedding)
 
 
+def _index_signature() -> tuple[int, int, int, int]:
+    """Identify the currently published index for cache invalidation."""
+    try:
+        stat = INDEX_PATH.stat()
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Vector index is missing; run `python ingest.py`"
+        ) from None
+    return stat.st_dev, stat.st_ino, stat.st_mtime_ns, stat.st_size
+
+
 @lru_cache(maxsize=1)
-def get_index() -> tuple[dict[str, Any], ...]:
+def _load_index(
+    _signature: tuple[int, int, int, int]
+) -> tuple[dict[str, Any], ...]:
     """Load and validate the generated local index before using it."""
     try:
         with INDEX_PATH.open("rb") as index_file:
@@ -204,6 +217,11 @@ def get_index() -> tuple[dict[str, Any], ...]:
         entry, dimension = _validated_entry(raw, dimension)
         entries.append(entry)
     return tuple(entries)
+
+
+def get_index() -> tuple[dict[str, Any], ...]:
+    """Return the cached index, reloading it after atomic replacement."""
+    return _load_index(_index_signature())
 
 
 def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
