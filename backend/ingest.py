@@ -121,11 +121,19 @@ def write_index(entries: list[dict]) -> None:
     temporary_path = INDEX_PATH.with_name(
         f".{INDEX_PATH.name}.{os.getpid()}.tmp"
     )
-    temporary_path.write_text(
-        json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")),
-        encoding="utf-8",
-    )
-    os.replace(temporary_path, INDEX_PATH)
+    try:
+        temporary_path.write_text(
+            json.dumps(
+                payload,
+                ensure_ascii=False,
+                allow_nan=False,
+                separators=(",", ":"),
+            ),
+            encoding="utf-8",
+        )
+        os.replace(temporary_path, INDEX_PATH)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def main() -> None:
