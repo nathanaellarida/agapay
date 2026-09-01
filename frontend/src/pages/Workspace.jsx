@@ -5,10 +5,14 @@ import ChatFeed from "../components/ChatFeed.jsx";
 import RightSidebar from "../components/RightSidebar.jsx";
 import PersonaSelection from "../components/PersonaSelection.jsx";
 
+const openSidebarsByDefault = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(min-width: 1024px)").matches;
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
-  const [leftOpen, setLeftOpen] = useState(true);
-  const [rightOpen, setRightOpen] = useState(true);
+  const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
+  const [rightOpen, setRightOpen] = useState(openSidebarsByDefault);
   const [activeChat, setActiveChat] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState(["Agapay"]);
   const [pendingAsk, setPendingAsk] = useState(null);
