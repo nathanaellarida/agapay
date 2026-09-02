@@ -44,9 +44,11 @@ def load_documents() -> list[tuple[str, str]]:
     for path in txt_files:
         if path.is_symlink():
             raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
-        if path.stat().st_size > MAX_DOCUMENT_BYTES:
+        with path.open("rb") as document_file:
+            raw_content = document_file.read(MAX_DOCUMENT_BYTES + 1)
+        if len(raw_content) > MAX_DOCUMENT_BYTES:
             raise ValueError(f"Document exceeds the size limit: {path.name}")
-        content = path.read_text(encoding="utf-8-sig")
+        content = raw_content.decode("utf-8-sig")
         if not content.strip():
             raise ValueError(f"Document is empty: {path.name}")
         documents.append((path.name, content))
