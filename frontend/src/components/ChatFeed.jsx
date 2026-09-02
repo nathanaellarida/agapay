@@ -223,6 +223,10 @@ export default function ChatFeed({
     } else {
       onMessagesChange([]);
     }
+    return () => {
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [persona?.key, resetVersion]);
 
