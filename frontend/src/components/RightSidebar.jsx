@@ -157,7 +157,7 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
 
                 <button
                   onClick={() => onAskMentor(step.prompt)}
-                  className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-flag-blue hover:underline opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
+                  className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-flag-blue hover:underline opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition"
                 >
                   Ask {persona.name} <ArrowRight className="w-2.5 h-2.5" />
                 </button>
