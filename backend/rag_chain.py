@@ -275,7 +275,9 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
         max_completion_tokens=MAX_COMPLETION_TOKENS,
     )
     message = completion.choices[0].message.content if completion.choices else None
-    answer = (message or "").strip() or FALLBACK_ANSWER
+    answer = message.strip() if isinstance(message, str) else ""
+    if not answer:
+        answer = FALLBACK_ANSWER
 
     sources = []
     seen: set[str] = set()
