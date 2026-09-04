@@ -149,7 +149,10 @@ function AssistantBubble({ content, sources, persona }) {
           </p>
         )}
         <div className="prose-chat text-slate-800 text-sm">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          {/* Untrusted replies must not trigger automatic image requests. */}
+          <ReactMarkdown remarkPlugins={[remarkGfm]} disallowedElements={["img"]}>
+            {content}
+          </ReactMarkdown>
         </div>
         <InlineSources sources={sources} />
       </div>
