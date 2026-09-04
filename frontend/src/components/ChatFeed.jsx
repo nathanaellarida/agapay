@@ -127,6 +127,25 @@ function InlineSources({ sources }) {
   );
 }
 
+function MarkdownLink({ node: _node, href, children, ...props }) {
+  if (!/^(https?:)?\/\//i.test(href || "")) {
+    return <a {...props} href={href}>{children}</a>;
+  }
+
+  return (
+    <a
+      {...props}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={props.title || "Opens in a new tab"}
+    >
+      {children}
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
 function AssistantBubble({ content, sources, persona }) {
   return (
     <div className="flex justify-start gap-2">
@@ -150,7 +169,11 @@ function AssistantBubble({ content, sources, persona }) {
         )}
         <div className="prose-chat text-slate-800 text-sm">
           {/* Untrusted replies must not trigger automatic image requests. */}
-          <ReactMarkdown remarkPlugins={[remarkGfm]} disallowedElements={["img"]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            disallowedElements={["img"]}
+            components={{ a: MarkdownLink }}
+          >
             {content}
           </ReactMarkdown>
         </div>
