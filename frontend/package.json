@@ -17,7 +17,7 @@
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.5",
+    "@vitejs/plugin-react": "^6.1.0",
     "autoprefixer": "^10.5.4",
     "postcss": "^8.5.26",
     "tailwindcss": "^3.4.12",
