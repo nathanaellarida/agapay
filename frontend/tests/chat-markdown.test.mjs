@@ -4,6 +4,38 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
 
+test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: ChatFeed } = await server.ssrLoadModule("/src/components/ChatFeed.jsx");
+    const html = renderToStaticMarkup(createElement(ChatFeed, {
+      persona: null,
+      messages: [{
+        role: "assistant",
+        content: [
+          "| Step | Estimated cost |",
+          "| :--- | ---: |",
+          "| Registration | PHP 500 |",
+        ].join("\n"),
+      }],
+      onMessagesChange() {},
+    }));
+    const wrapper = html.match(/<div[^>]*role="region"[^>]*><table>[\s\S]*?<\/table><\/div>/)?.[0];
+    assert.ok(wrapper, "table must be inside a scroll region");
+    assert.match(wrapper, /tabindex="0"/);
+    assert.match(wrapper, /aria-label="Response table"/);
+    assert.match(wrapper, /class="[^"]*overflow-x-auto/);
+    assert.match(wrapper, /<thead><tr><th style="text-align:left">Step<\/th>/);
+    assert.match(wrapper, /<td style="text-align:right">PHP 500<\/td>/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("assistant Markdown cannot load images but keeps text, links, and portraits", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
