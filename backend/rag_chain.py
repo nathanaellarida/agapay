@@ -225,6 +225,8 @@ def get_index() -> tuple[dict[str, Any], ...]:
 
 
 def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
+    # Fail before loading or running the model when the index is unavailable.
+    entries = get_index()
     query_vector = get_embedding_model().encode(
         question,
         normalize_embeddings=True,
@@ -241,7 +243,6 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
         )
     ):
         raise ValueError("Embedding model returned an invalid query vector")
-    entries = get_index()
     return heapq.nlargest(
         limit,
         entries,
