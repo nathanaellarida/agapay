@@ -11,6 +11,7 @@ from rag_chain import (
     EMBEDDING_MODEL_REVISION,
     INDEX_PATH,
     INDEX_SCHEMA_VERSION,
+    MAX_INDEX_BYTES,
     MAX_INDEX_ENTRIES,
     get_embedding_model,
     require_backend_path,
@@ -120,19 +121,20 @@ def write_index(entries: list[dict]) -> None:
         },
         "entries": entries,
     }
+    serialized = json.dumps(
+        payload,
+        ensure_ascii=False,
+        allow_nan=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    if len(serialized) > MAX_INDEX_BYTES:
+        raise ValueError("Generated vector index exceeds the configured size limit")
+
     temporary_path = INDEX_PATH.with_name(
         f".{INDEX_PATH.name}.{os.getpid()}.tmp"
     )
     try:
-        temporary_path.write_text(
-            json.dumps(
-                payload,
-                ensure_ascii=False,
-                allow_nan=False,
-                separators=(",", ":"),
-            ),
-            encoding="utf-8",
-        )
+        temporary_path.write_bytes(serialized)
         os.replace(temporary_path, INDEX_PATH)
     finally:
         temporary_path.unlink(missing_ok=True)
