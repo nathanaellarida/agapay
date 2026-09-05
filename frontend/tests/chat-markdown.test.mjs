@@ -159,3 +159,22 @@ test("plain-text export includes the conversation and source citations", async (
     await server.close();
   }
 });
+
+test("the workspace exposes its primary content as a main landmark", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: Workspace } = await server.ssrLoadModule("/src/pages/Workspace.jsx");
+    const html = renderToStaticMarkup(createElement(Workspace));
+    const main = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/)?.[0];
+
+    assert.ok(main, "workspace must expose a main landmark");
+    assert.equal((html.match(/<main\b/g) || []).length, 1);
+    assert.match(main, /What are we building today\?/);
+  } finally {
+    await server.close();
+  }
+});
