@@ -9,7 +9,25 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-function ExportModal({ onClose }) {
+export function buildPlainTextTranscript(messages, persona) {
+  const lines = [`Agapay conversation with ${persona?.name || "your mentor"}`, ""];
+
+  for (const message of messages.filter((item) => item.content !== "__intro__")) {
+    lines.push(message.role === "user" ? "You:" : `${persona?.name || "Agapay"}:`);
+    lines.push(message.content);
+    if (message.sources?.length) {
+      lines.push("Sources:");
+      for (const source of message.sources) {
+        lines.push(`- ${source.source}: ${source.snippet}`);
+      }
+    }
+    lines.push("");
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function ExportModal({ onClose, onExportPlainText }) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -65,15 +83,16 @@ function ExportModal({ onClose }) {
         </p>
         <div className="space-y-2">
           {[
-            { label: "PDF Launch Checklist", desc: "Step-by-step requirements as a printable PDF" },
-            { label: "Founder Report", desc: "Full Q&A with source citations" },
-            { label: "Plain Text (.txt)", desc: "Raw conversation transcript" },
+            { label: "PDF Launch Checklist", desc: "Coming soon", enabled: false },
+            { label: "Founder Report", desc: "Coming soon", enabled: false },
+            { label: "Plain Text (.txt)", desc: "Conversation with source citations", enabled: true },
           ].map((opt) => (
             <button
               key={opt.label}
-              autoFocus={opt.label === "PDF Launch Checklist"}
-              className="w-full text-left flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-flag-blue hover:bg-blue-50 transition"
-              onClick={onClose}
+              autoFocus={opt.enabled}
+              disabled={!opt.enabled}
+              className="w-full text-left flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-flag-blue hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-slate-200 disabled:hover:bg-transparent transition"
+              onClick={onExportPlainText}
             >
               <Download className="w-4 h-4 text-flag-blue mt-0.5 flex-shrink-0" />
               <div>
@@ -102,6 +121,7 @@ export default function TopBar({
   onToggleLeft,
   onToggleRight,
   onSwitchPersona,
+  messages = [],
 }) {
   const [showExport, setShowExport] = useState(false);
   const exportButtonRef = useRef(null);
@@ -109,6 +129,21 @@ export default function TopBar({
   function closeExport() {
     setShowExport(false);
     exportButtonRef.current?.focus();
+  }
+
+  function exportPlainText() {
+    const blob = new Blob([buildPlainTextTranscript(messages, persona)], {
+      type: "text/plain;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `agapay-${persona.key}-conversation.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    closeExport();
   }
 
   return (
@@ -205,7 +240,12 @@ export default function TopBar({
         )}
       </header>
 
-      {showExport && <ExportModal onClose={closeExport} />}
+      {showExport && (
+        <ExportModal
+          onClose={closeExport}
+          onExportPlainText={exportPlainText}
+        />
+      )}
     </>
   );
 }

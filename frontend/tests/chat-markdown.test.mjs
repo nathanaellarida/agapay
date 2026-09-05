@@ -118,3 +118,44 @@ test("web links open separately while footnotes and email links keep their behav
     await server.close();
   }
 });
+
+test("plain-text export includes the conversation and source citations", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { buildPlainTextTranscript } = await server.ssrLoadModule(
+      "/src/components/TopBar.jsx"
+    );
+    const transcript = buildPlainTextTranscript([
+      { role: "assistant", content: "__intro__" },
+      { role: "user", content: "What permit do I need?" },
+      {
+        role: "assistant",
+        content: "Start with a barangay clearance.",
+        sources: [{
+          source: "LGU_Barangay_Clearance.txt",
+          snippet: "Apply at the barangay hall.",
+        }],
+      },
+    ], { name: "Miko" });
+
+    assert.equal(transcript, [
+      "Agapay conversation with Miko",
+      "",
+      "You:",
+      "What permit do I need?",
+      "",
+      "Miko:",
+      "Start with a barangay clearance.",
+      "Sources:",
+      "- LGU_Barangay_Clearance.txt: Apply at the barangay hall.",
+      "",
+    ].join("\n"));
+    assert.doesNotMatch(transcript, /__intro__/);
+  } finally {
+    await server.close();
+  }
+});

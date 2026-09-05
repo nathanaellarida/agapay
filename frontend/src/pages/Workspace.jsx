@@ -95,6 +95,7 @@ export default function Workspace() {
             onToggleLeft={() => setLeftOpen((v) => !v)}
             onToggleRight={() => setRightOpen((v) => !v)}
             onSwitchPersona={handleSwitchPersona}
+            messages={messages}
           />
         </div>
 
