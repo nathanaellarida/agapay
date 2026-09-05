@@ -112,15 +112,18 @@ function InlineSources({ sources }) {
       </p>
       <div className="flex flex-wrap gap-1.5">
         {sources.map((s, i) => (
-          <span
+          <details
             key={`${s.source}-${i}`}
-            aria-label={`${s.source}: ${s.snippet}`}
-            className="inline-flex max-w-full items-center gap-1 break-all bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200"
-            title={s.snippet}
+            className="max-w-full bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200"
           >
-            <FileText className="w-2.5 h-2.5 text-flag-blue" />
-            {s.source}
-          </span>
+            <summary className="inline-flex max-w-full items-center gap-1 break-all cursor-pointer list-none">
+              <FileText className="w-2.5 h-2.5 flex-shrink-0 text-flag-blue" />
+              {s.source}
+            </summary>
+            <p className="mt-1.5 max-w-sm whitespace-normal break-words leading-relaxed text-slate-600">
+              {s.snippet}
+            </p>
+          </details>
         ))}
       </div>
     </div>

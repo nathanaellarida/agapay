@@ -67,7 +67,9 @@ test("assistant Markdown cannot load images but keeps text, links, and portraits
     assert.match(html, /src="\/startupAdvisor\.png"/);
     assert.match(html, /<strong>Useful guidance<\/strong>/);
     assert.match(html, /href="https:\/\/example\.com\/guide"/);
-    assert.match(html, /guide\.txt: Reviewed guidance/);
+    assert.match(html, /<details[^>]*>/);
+    assert.match(html, /<summary[^>]*>[\s\S]*guide\.txt[\s\S]*<\/summary>/);
+    assert.match(html, /<p[^>]*>Reviewed guidance<\/p>/);
   } finally {
     await server.close();
   }
