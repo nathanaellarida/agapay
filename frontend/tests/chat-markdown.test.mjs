@@ -178,3 +178,28 @@ test("the workspace exposes its primary content as a main landmark", async () =>
     await server.close();
   }
 });
+
+test("mentor selection keeps its controls within narrow screens", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: PersonaSelection } = await server.ssrLoadModule(
+      "/src/components/PersonaSelection.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(PersonaSelection, {
+      onSelect() {},
+    }));
+    const portrait = html.match(/<img[^>]*src="\/startupAdvisor\.png"[^>]*>/)?.[0];
+
+    assert.ok(portrait, "selected mentor portrait must be rendered");
+    assert.match(portrait, /class="[^"]*w-40 h-40/);
+    assert.match(portrait, /min-\[400px\]:w-64/);
+    assert.match(portrait, /sm:w-\[26rem\]/);
+    assert.match(html, /class="[^"]*justify-center gap-2 sm:gap-10/);
+  } finally {
+    await server.close();
+  }
+});

@@ -106,7 +106,7 @@ export default function PersonaSelection({ onSelect }) {
         </p>
 
         {/* Image + arrows row */}
-        <div className="relative flex items-center justify-center gap-6 sm:gap-10 mb-10">
+        <div className="relative flex items-center justify-center gap-2 sm:gap-10 mb-10">
           <button
             onClick={prev}
             className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-slate-400 hover:text-slate-700 transition rounded-full hover:bg-slate-100"
@@ -123,7 +123,7 @@ export default function PersonaSelection({ onSelect }) {
             <img
               src={persona.image}
               alt={persona.name}
-              className="w-80 h-80 sm:w-[26rem] sm:h-[26rem] object-contain drop-shadow-xl"
+              className="w-40 h-40 min-[400px]:w-64 min-[400px]:h-64 sm:w-[26rem] sm:h-[26rem] object-contain drop-shadow-xl"
               draggable={false}
             />
           </div>
