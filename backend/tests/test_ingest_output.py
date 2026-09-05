@@ -2,7 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import ingest
 
@@ -49,6 +49,44 @@ class IndexOutputLimitTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "size limit"):
                 ingest.write_index(self.entries)
         self.assertEqual(list(self.index_path.parent.iterdir()), [])
+
+
+class GeneratedEmbeddingTests(unittest.TestCase):
+    class Array:
+        def __init__(self, values):
+            self.values = values
+
+        def tolist(self):
+            return self.values
+
+    def test_invalid_generated_embeddings_are_rejected(self):
+        invalid_vectors = (
+            [0.0] * (ingest.EMBEDDING_DIMENSION - 1),
+            [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [float("nan")],
+            [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [True],
+        )
+
+        for vector in invalid_vectors:
+            with self.subTest(last_value=vector[-1]):
+                with self.assertRaisesRegex(ValueError, "invalid document vector"):
+                    ingest.validate_generated_embedding(self.Array(vector))
+
+    def test_valid_generated_embedding_is_normalized_to_floats(self):
+        vector = [0] * ingest.EMBEDDING_DIMENSION
+
+        result = ingest.validate_generated_embedding(self.Array(vector))
+
+        self.assertEqual(result, [0.0] * ingest.EMBEDDING_DIMENSION)
+
+    def test_build_entries_rejects_invalid_model_output(self):
+        model = Mock()
+        model.encode.return_value = [
+            self.Array([0.0] * (ingest.EMBEDDING_DIMENSION - 1))
+        ]
+
+        with patch.object(ingest, "get_embedding_model", return_value=model):
+            with self.assertRaisesRegex(ValueError, "invalid document vector"):
+                ingest.build_entries([("guide.txt", "Registration guidance")])
 
 
 if __name__ == "__main__":

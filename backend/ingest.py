@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from pathlib import Path
 
 from rag_chain import (
+    EMBEDDING_DIMENSION,
     EMBEDDING_MODEL,
     EMBEDDING_MODEL_REVISION,
     INDEX_PATH,
@@ -24,6 +26,23 @@ DATA_DIR = require_backend_path(
 CHUNK_SIZE = 800
 CHUNK_OVERLAP = 120
 MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
+
+
+def validate_generated_embedding(embedding) -> list[float]:
+    """Return a safe vector or fail before publishing a corrupt index."""
+    vector = embedding.tolist() if hasattr(embedding, "tolist") else embedding
+    if (
+        not isinstance(vector, list)
+        or len(vector) != EMBEDDING_DIMENSION
+        or any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            for value in vector
+        )
+    ):
+        raise ValueError("Embedding model returned an invalid document vector")
+    return [float(value) for value in vector]
 
 
 def load_documents() -> list[tuple[str, str]]:
@@ -104,7 +123,7 @@ def build_entries(documents: list[tuple[str, str]]) -> list[dict]:
         show_progress_bar=True,
     )
     return [
-        {**chunk, "embedding": embedding.tolist()}
+        {**chunk, "embedding": validate_generated_embedding(embedding)}
         for chunk, embedding in zip(chunks, embeddings, strict=True)
     ]
 
