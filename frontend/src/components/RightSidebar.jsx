@@ -427,7 +427,10 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
 
   if (!persona) {
     return (
-      <aside className="w-full flex-shrink-0 bg-transparent flex flex-col h-full items-center justify-center p-4 text-center">
+      <aside
+        aria-label="Launch insights"
+        className="w-full flex-shrink-0 bg-transparent flex flex-col h-full items-center justify-center p-4 text-center"
+      >
         <p className="text-xs text-slate-400">
           Choose your mentor to see your launch roadmap.
         </p>
@@ -450,7 +453,10 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
   }
 
   return (
-    <aside className="w-full flex-shrink-0 bg-transparent flex flex-col h-full">
+    <aside
+      aria-label="Launch insights"
+      className="w-full flex-shrink-0 bg-transparent flex flex-col h-full"
+    >
       {/* Tab toggle */}
       <div className="px-3 pt-3 pb-2 border-b border-slate-100/80">
         <div className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5">

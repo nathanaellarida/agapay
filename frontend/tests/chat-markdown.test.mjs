@@ -203,3 +203,39 @@ test("mentor selection keeps its controls within narrow screens", async () => {
     await server.close();
   }
 });
+
+test("workspace sidebars expose distinct landmark names", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const [{ default: LeftSidebar }, { default: RightSidebar }] = await Promise.all([
+      server.ssrLoadModule("/src/components/LeftSidebar.jsx"),
+      server.ssrLoadModule("/src/components/RightSidebar.jsx"),
+    ]);
+    const persona = {
+      key: "tech",
+      name: "Anton",
+      title: "The Tech Strategist",
+      image: "/startupAdvisor.png",
+      accentSoft: "bg-indigo-50",
+    };
+    const left = renderToStaticMarkup(createElement(LeftSidebar, {
+      persona,
+      activeChat: null,
+      onSelectChat() {},
+      onNewChat() {},
+    }));
+    const right = renderToStaticMarkup(createElement(RightSidebar, {
+      persona: null,
+      onAskMentor() {},
+    }));
+
+    assert.match(left, /<aside[^>]*aria-label="Conversation history"/);
+    assert.match(right, /<aside[^>]*aria-label="Launch insights"/);
+  } finally {
+    await server.close();
+  }
+});

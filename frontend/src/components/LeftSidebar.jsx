@@ -64,7 +64,10 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
   );
 
   return (
-    <aside className="w-full flex-shrink-0 bg-transparent flex flex-col h-full">
+    <aside
+      aria-label="Conversation history"
+      className="w-full flex-shrink-0 bg-transparent flex flex-col h-full"
+    >
       {/* Brand */}
       <div className="px-4 pt-4 pb-3 border-b border-slate-100/80">
         <div className="flex items-center justify-between mb-3">
