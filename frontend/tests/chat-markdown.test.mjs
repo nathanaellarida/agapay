@@ -4,6 +4,36 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
 
+test("roadmap questions wait for the current reply and send only once", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldProcessPendingAsk } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const pendingAsk = { prompt: "What permit comes next?", ts: 42 };
+    const ready = {
+      pendingAsk,
+      handledTimestamp: null,
+      persona: { key: "local" },
+      locked: false,
+      busy: false,
+    };
+
+    assert.equal(shouldProcessPendingAsk({ ...ready, busy: true }), false);
+    assert.equal(shouldProcessPendingAsk(ready), true);
+    assert.equal(
+      shouldProcessPendingAsk({ ...ready, handledTimestamp: pendingAsk.ts }),
+      false
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

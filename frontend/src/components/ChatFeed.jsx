@@ -62,6 +62,22 @@ const MIN_QUESTION_LENGTH = 2;
 const MAX_QUESTION_LENGTH = 2000;
 const QUERY_TIMEOUT_MS = 45_000;
 
+export function shouldProcessPendingAsk({
+  pendingAsk,
+  handledTimestamp,
+  persona,
+  locked,
+  busy,
+}) {
+  return Boolean(
+    pendingAsk?.prompt &&
+      pendingAsk.ts !== handledTimestamp &&
+      persona &&
+      !locked &&
+      !busy
+  );
+}
+
 function useTypewriter(phrases) {
   const [displayed, setDisplayed] = useState("");
   const [pi, setPi] = useState(0);
@@ -252,6 +268,7 @@ export default function ChatFeed({
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const activeRequestRef = useRef(null);
+  const handledPendingAskRef = useRef(null);
   const placeholder = useTypewriter(content?.placeholders || []);
 
   // Reset the feed and cancel stale work when the persona or chat changes.
@@ -280,13 +297,20 @@ export default function ChatFeed({
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // When the right sidebar requests a question, auto-send it.
+  // When the right sidebar requests a question, send it once the feed is idle.
   useEffect(() => {
-    if (pendingAsk?.prompt && persona && !locked) {
-      send(pendingAsk.prompt);
-    }
+    if (!shouldProcessPendingAsk({
+      pendingAsk,
+      handledTimestamp: handledPendingAskRef.current,
+      persona,
+      locked,
+      busy: loading || Boolean(activeRequestRef.current),
+    })) return;
+
+    handledPendingAskRef.current = pendingAsk.ts;
+    send(pendingAsk.prompt);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingAsk?.ts]);
+  }, [pendingAsk?.ts, loading, locked, persona?.key]);
 
   async function send(text) {
     const q = (text ?? input).trim();
