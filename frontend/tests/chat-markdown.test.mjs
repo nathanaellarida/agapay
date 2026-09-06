@@ -162,6 +162,52 @@ test("plain-text export includes the conversation and source citations", async (
   }
 });
 
+test("export stays unavailable until the conversation has content", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: TopBar } = await server.ssrLoadModule(
+      "/src/components/TopBar.jsx"
+    );
+    const props = {
+      breadcrumbs: ["Agapay"],
+      persona: {
+        key: "tech",
+        name: "Anton",
+        image: "/startupAdvisor.png",
+        accentSoft: "bg-indigo-50",
+      },
+      leftOpen: false,
+      rightOpen: false,
+      onToggleLeft() {},
+      onToggleRight() {},
+      onSwitchPersona() {},
+    };
+    const emptyHtml = renderToStaticMarkup(createElement(TopBar, {
+      ...props,
+      messages: [{ role: "assistant", content: "__intro__" }],
+    }));
+    const readyHtml = renderToStaticMarkup(createElement(TopBar, {
+      ...props,
+      messages: [{ role: "user", content: "How do I register?" }],
+    }));
+    const exportButtonPattern = /<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?<\/button>/;
+    const emptyButton = emptyHtml.match(exportButtonPattern)?.[0];
+    const readyButton = readyHtml.match(exportButtonPattern)?.[0];
+
+    assert.ok(emptyButton, "empty conversation must render an export button");
+    assert.match(emptyButton, /disabled=""/);
+    assert.match(emptyButton, /Start a conversation before exporting/);
+    assert.ok(readyButton, "non-empty conversation must render an export button");
+    assert.doesNotMatch(readyButton, /disabled=""/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the workspace exposes its primary content as a main landmark", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

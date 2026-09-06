@@ -125,6 +125,9 @@ export default function TopBar({
 }) {
   const [showExport, setShowExport] = useState(false);
   const exportButtonRef = useRef(null);
+  const hasExportableMessages = messages.some(
+    (message) => message.content !== "__intro__"
+  );
 
   function closeExport() {
     setShowExport(false);
@@ -132,6 +135,8 @@ export default function TopBar({
   }
 
   function exportPlainText() {
+    if (!hasExportableMessages) return;
+
     const blob = new Blob([buildPlainTextTranscript(messages, persona)], {
       type: "text/plain;charset=utf-8",
     });
@@ -219,9 +224,15 @@ export default function TopBar({
             <button
               ref={exportButtonRef}
               onClick={() => setShowExport(true)}
+              disabled={!hasExportableMessages}
               aria-haspopup="dialog"
               aria-expanded={showExport}
-              className="flex items-center gap-1.5 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition"
+              title={
+                hasExportableMessages
+                  ? "Export conversation"
+                  : "Start a conversation before exporting"
+              }
+              className="flex items-center gap-1.5 bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-900 transition"
             >
               <Download className="w-3.5 h-3.5" />
               Export
