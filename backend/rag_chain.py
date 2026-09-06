@@ -224,6 +224,11 @@ def get_index() -> tuple[dict[str, Any], ...]:
     return _load_index(_index_signature())
 
 
+def get_indexed_sources() -> frozenset[str]:
+    """Return source filenames represented in the validated index."""
+    return frozenset(entry["source"] for entry in get_index())
+
+
 def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
     # Fail before loading or running the model when the index is unavailable.
     entries = get_index()

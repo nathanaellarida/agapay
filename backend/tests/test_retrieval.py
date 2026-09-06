@@ -25,6 +25,18 @@ class RetrievalTests(unittest.TestCase):
         model.encode.return_value.tolist.return_value = vector
         return model
 
+    def test_indexed_sources_are_deduplicated(self):
+        entries = (
+            {"source": "guide.txt"},
+            {"source": "guide.txt"},
+            {"source": "faq.txt"},
+        )
+
+        with patch.object(rag_chain, "get_index", return_value=entries):
+            result = rag_chain.get_indexed_sources()
+
+        self.assertEqual(result, frozenset({"guide.txt", "faq.txt"}))
+
     def test_index_errors_skip_model_loading(self):
         for error in (FileNotFoundError("missing index"), ValueError("invalid index")):
             with self.subTest(error=type(error).__name__):

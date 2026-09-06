@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from rag_chain import (
     answer_question,
+    get_indexed_sources,
     list_personas,
     require_backend_path,
     resolve_configured_path,
@@ -108,7 +109,7 @@ class LibraryDocument(BaseModel):
     title: str
     category: str          # "Tech" | "Online" | "Local" | "General"
     last_updated: str
-    status: str = "Indexed & Active"
+    status: str
 
 
 # --------------------------------------------------------------------------- #
@@ -161,6 +162,12 @@ def library() -> list[LibraryDocument]:
     if not DATA_DIR.is_dir():
         return []
 
+    try:
+        indexed_sources = get_indexed_sources()
+    except (OSError, UnicodeError, ValueError) as exc:
+        logger.warning("Could not read vector index (%s)", type(exc).__name__)
+        indexed_sources = frozenset()
+
     items: list[LibraryDocument] = []
     text_paths = (
         path
@@ -184,6 +191,11 @@ def library() -> list[LibraryDocument]:
                 last_updated=datetime.fromtimestamp(
                     stat.st_mtime, tz=timezone.utc
                 ).date().isoformat(),
+                status=(
+                    "Indexed & Active"
+                    if path.name in indexed_sources
+                    else "Needs Reindex"
+                ),
             )
         )
     return items
