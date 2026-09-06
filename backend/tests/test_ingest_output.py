@@ -51,6 +51,22 @@ class IndexOutputLimitTests(unittest.TestCase):
         self.assertEqual(list(self.index_path.parent.iterdir()), [])
 
 
+class DocumentInputTests(unittest.TestCase):
+    def test_case_insensitive_duplicate_filenames_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / "Guide.txt").write_text(
+                "Registration guidance", encoding="utf-8"
+            )
+            (data_dir / "guide.TXT").write_text(
+                "Funding guidance", encoding="utf-8"
+            )
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(ValueError, "unique.*letter case"):
+                    ingest.load_documents()
+
+
 class GeneratedEmbeddingTests(unittest.TestCase):
     class Array:
         def __init__(self, values):

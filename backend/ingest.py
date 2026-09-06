@@ -60,6 +60,12 @@ def load_documents() -> list[tuple[str, str]]:
     if not txt_files:
         raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
 
+    normalized_filenames = [path.name.casefold() for path in txt_files]
+    if len(normalized_filenames) != len(set(normalized_filenames)):
+        raise ValueError(
+            "Document filenames must be unique when ignoring letter case"
+        )
+
     documents = []
     for path in txt_files:
         if path.is_symlink():
