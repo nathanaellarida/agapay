@@ -37,6 +37,7 @@ export default function Workspace() {
     setChatResetVersion((version) => version + 1);
     setActiveChat(null);
     setMessages([{ role: "assistant", content: "__intro__" }]);
+    setPendingAsk(null);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
   }
 
