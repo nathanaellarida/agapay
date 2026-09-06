@@ -255,6 +255,18 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
     )
 
 
+def _source_snippet(text: str, limit: int = 240) -> str:
+    """Build a compact citation excerpt, preferring a complete final word."""
+    normalized = " ".join(text.split())
+    if len(normalized) <= limit:
+        return normalized
+
+    clipped = normalized[:limit]
+    if " " in clipped:
+        clipped = clipped.rsplit(" ", 1)[0]
+    return clipped.rstrip() + "…"
+
+
 def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, Any]:
     """Retrieve relevant chunks and answer with citations."""
     persona_key = persona if persona in PERSONAS else DEFAULT_PERSONA
@@ -287,10 +299,12 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
         if source in seen:
             continue
         seen.add(source)
-        snippet = " ".join(document["text"].split())
-        if len(snippet) > 240:
-            snippet = snippet[:240] + "…"
-        sources.append({"source": source, "snippet": snippet})
+        sources.append(
+            {
+                "source": source,
+                "snippet": _source_snippet(document["text"]),
+            }
+        )
 
     return {"answer": answer, "persona": persona_key, "sources": sources}
 

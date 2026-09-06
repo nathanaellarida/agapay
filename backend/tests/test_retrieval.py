@@ -4,6 +4,21 @@ from unittest.mock import Mock, patch
 import rag_chain
 
 
+class SourceSnippetTests(unittest.TestCase):
+    def test_short_snippets_normalize_whitespace(self):
+        self.assertEqual(
+            rag_chain._source_snippet("  Apply\n at   the barangay.  "),
+            "Apply at the barangay.",
+        )
+
+    def test_long_snippets_end_at_a_complete_word(self):
+        result = rag_chain._source_snippet("guidance " * 40)
+        expected = ("guidance " * 26).strip() + "…"
+
+        self.assertEqual(result, expected)
+        self.assertLessEqual(len(result), 241)
+
+
 class RetrievalTests(unittest.TestCase):
     def model(self, vector):
         model = Mock()
