@@ -4,6 +4,30 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
 
+test("request errors distinguish user cancellation from timeout and failure", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getRequestErrorMessage } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const stopped = new AbortController();
+    const timedOut = new AbortController();
+    const failed = new AbortController();
+    stopped.abort("user-stopped");
+    timedOut.abort();
+
+    assert.match(getRequestErrorMessage(stopped.signal), /Response stopped/);
+    assert.match(getRequestErrorMessage(timedOut.signal), /too long/);
+    assert.match(getRequestErrorMessage(failed.signal), /couldn't reach/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("roadmap questions wait for the current reply and send only once", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

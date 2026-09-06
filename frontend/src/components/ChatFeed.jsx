@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, ArrowUp, FileText } from "lucide-react";
+import { Sparkles, ArrowUp, FileText, Square } from "lucide-react";
 
 // Persona-specific typewriter prompts and welcome messages
 const PERSONA_CONTENT = {
@@ -61,6 +61,16 @@ const PAUSE = 1800;
 const MIN_QUESTION_LENGTH = 2;
 const MAX_QUESTION_LENGTH = 2000;
 const QUERY_TIMEOUT_MS = 45_000;
+const USER_ABORT_REASON = "user-stopped";
+
+export function getRequestErrorMessage(signal) {
+  if (signal.aborted) {
+    return signal.reason === USER_ABORT_REASON
+      ? "Response stopped. You can ask another question when you're ready."
+      : "Agapay took too long to respond. Please try again.";
+  }
+  return "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
+}
 
 export function shouldProcessPendingAsk({
   pendingAsk,
@@ -362,9 +372,7 @@ export default function ChatFeed({
       ]);
     } catch {
       if (activeRequestRef.current !== controller) return;
-      const errorMessage = controller.signal.aborted
-        ? "Agapay took too long to respond. Please try again."
-        : "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
+      const errorMessage = getRequestErrorMessage(controller.signal);
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },
@@ -528,12 +536,23 @@ export default function ChatFeed({
             />
             <button
               type="button"
-              onClick={() => send()}
-              disabled={loading || locked || input.trim().length < MIN_QUESTION_LENGTH}
+              onClick={() => {
+                if (loading) {
+                  activeRequestRef.current?.abort(USER_ABORT_REASON);
+                } else {
+                  send();
+                }
+              }}
+              disabled={locked || (!loading && input.trim().length < MIN_QUESTION_LENGTH)}
               className="w-8 h-8 bg-flag-blue text-white rounded-xl flex items-center justify-center hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex-shrink-0"
-              aria-label="Send"
+              aria-label={loading ? "Stop response" : "Send"}
+              title={loading ? "Stop response" : undefined}
             >
-              <ArrowUp className="w-4 h-4" />
+              {loading ? (
+                <Square className="w-3 h-3" fill="currentColor" />
+              ) : (
+                <ArrowUp className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
