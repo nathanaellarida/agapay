@@ -80,6 +80,7 @@ class GeneratedEmbeddingTests(unittest.TestCase):
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1),
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [float("nan")],
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [True],
+            [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [10**400],
         )
 
         for vector in invalid_vectors:

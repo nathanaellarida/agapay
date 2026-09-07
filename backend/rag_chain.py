@@ -101,6 +101,22 @@ def validate_source_name(source: Any) -> str:
     return source
 
 
+def normalize_embedding_values(values: list[Any], error_message: str) -> list[float]:
+    """Return finite floats without allowing numeric conversion to overflow."""
+    normalized: list[float] = []
+    for value in values:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(error_message)
+        try:
+            number = float(value)
+        except (OverflowError, ValueError):
+            raise ValueError(error_message) from None
+        if not math.isfinite(number):
+            raise ValueError(error_message)
+        normalized.append(number)
+    return normalized
+
+
 def _system_prompt(persona_key: str) -> str:
     persona = PERSONAS.get(persona_key, PERSONAS[DEFAULT_PERSONA])
     return f"""{persona['voice']}
@@ -163,15 +179,9 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     if dimension is not None and len(embedding) != dimension:
         raise ValueError("Vector index contains inconsistent dimensions")
 
-    clean_embedding: list[float] = []
-    for value in embedding:
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not math.isfinite(value)
-        ):
-            raise ValueError("Vector index contains an invalid embedding value")
-        clean_embedding.append(float(value))
+    clean_embedding = normalize_embedding_values(
+        embedding, "Vector index contains an invalid embedding value"
+    )
 
     return {
         "source": source,
@@ -264,17 +274,11 @@ def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
         normalize_embeddings=True,
         convert_to_numpy=True,
     ).tolist()
-    if (
-        not isinstance(query_vector, list)
-        or len(query_vector) != EMBEDDING_DIMENSION
-        or any(
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not math.isfinite(value)
-            for value in query_vector
-        )
-    ):
+    if not isinstance(query_vector, list) or len(query_vector) != EMBEDDING_DIMENSION:
         raise ValueError("Embedding model returned an invalid query vector")
+    query_vector = normalize_embedding_values(
+        query_vector, "Embedding model returned an invalid query vector"
+    )
     return heapq.nlargest(
         limit,
         entries,

@@ -117,13 +117,30 @@ class RetrievalTests(unittest.TestCase):
             "How do I register?", normalize_embeddings=True, convert_to_numpy=True,
         )
 
-    def test_invalid_query_vector_is_still_rejected(self):
-        with (
-            patch.object(rag_chain, "get_index", return_value=()),
-            patch.object(rag_chain, "get_embedding_model", return_value=self.model([float("nan")])),
-        ):
-            with self.assertRaisesRegex(ValueError, "invalid query vector"):
-                rag_chain._retrieve("How do I register?")
+    def test_non_finite_and_overflowing_query_values_are_rejected(self):
+        for invalid_value in (float("nan"), 10**400):
+            vector = [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [invalid_value]
+            with self.subTest(invalid_value=invalid_value):
+                with (
+                    patch.object(rag_chain, "get_index", return_value=()),
+                    patch.object(
+                        rag_chain,
+                        "get_embedding_model",
+                        return_value=self.model(vector),
+                    ),
+                ):
+                    with self.assertRaisesRegex(ValueError, "invalid query vector"):
+                        rag_chain._retrieve("How do I register?")
+
+    def test_overflowing_index_values_are_rejected(self):
+        entry = {
+            "source": "guide.txt",
+            "text": "Registration guidance",
+            "embedding": [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [10**400],
+        }
+
+        with self.assertRaisesRegex(ValueError, "invalid embedding value"):
+            rag_chain._validated_entry(entry, None)
 
 
 if __name__ == "__main__":
