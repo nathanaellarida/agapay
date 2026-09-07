@@ -22,7 +22,8 @@ from pydantic import BaseModel, Field, field_validator
 
 from rag_chain import (
     answer_question,
-    get_indexed_sources,
+    get_index_state,
+    is_source_current,
     list_personas,
     require_backend_path,
     resolve_configured_path,
@@ -163,10 +164,10 @@ def library() -> list[LibraryDocument]:
         return []
 
     try:
-        indexed_sources = get_indexed_sources()
+        index_state = get_index_state()
     except (OSError, UnicodeError, ValueError) as exc:
         logger.warning("Could not read vector index (%s)", type(exc).__name__)
-        indexed_sources = frozenset()
+        index_state = (frozenset(), -1)
 
     items: list[LibraryDocument] = []
     text_paths = (
@@ -193,7 +194,7 @@ def library() -> list[LibraryDocument]:
                 ).date().isoformat(),
                 status=(
                     "Indexed & Active"
-                    if path.name in indexed_sources
+                    if is_source_current(path.name, stat.st_mtime_ns, index_state)
                     else "Needs Reindex"
                 ),
             )

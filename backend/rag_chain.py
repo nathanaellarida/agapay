@@ -229,6 +229,23 @@ def get_indexed_sources() -> frozenset[str]:
     return frozenset(entry["source"] for entry in get_index())
 
 
+def get_index_state() -> tuple[frozenset[str], int]:
+    """Return indexed sources and the validated index modification time."""
+    signature = _index_signature()
+    entries = _load_index(signature)
+    return frozenset(entry["source"] for entry in entries), signature[2]
+
+
+def is_source_current(
+    source: str,
+    source_mtime_ns: int,
+    index_state: tuple[frozenset[str], int],
+) -> bool:
+    """Report whether a source is present and no newer than its index."""
+    indexed_sources, index_mtime_ns = index_state
+    return source in indexed_sources and source_mtime_ns <= index_mtime_ns
+
+
 def _retrieve(question: str, limit: int = 4) -> list[dict[str, Any]]:
     # Fail before loading or running the model when the index is unavailable.
     entries = get_index()

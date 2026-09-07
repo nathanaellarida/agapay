@@ -37,6 +37,30 @@ class RetrievalTests(unittest.TestCase):
 
         self.assertEqual(result, frozenset({"guide.txt", "faq.txt"}))
 
+    def test_index_state_uses_the_validated_index_timestamp(self):
+        signature = (1, 2, 123_456, 4)
+        entries = (
+            {"source": "guide.txt"},
+            {"source": "guide.txt"},
+            {"source": "faq.txt"},
+        )
+
+        with (
+            patch.object(rag_chain, "_index_signature", return_value=signature),
+            patch.object(rag_chain, "_load_index", return_value=entries) as load_index,
+        ):
+            result = rag_chain.get_index_state()
+
+        self.assertEqual(result, (frozenset({"guide.txt", "faq.txt"}), 123_456))
+        load_index.assert_called_once_with(signature)
+
+    def test_source_is_current_only_when_indexed_after_its_last_edit(self):
+        index_state = (frozenset({"guide.txt"}), 200)
+
+        self.assertTrue(rag_chain.is_source_current("guide.txt", 200, index_state))
+        self.assertFalse(rag_chain.is_source_current("guide.txt", 201, index_state))
+        self.assertFalse(rag_chain.is_source_current("missing.txt", 100, index_state))
+
     def test_index_errors_skip_model_loading(self):
         for error in (FileNotFoundError("missing index"), ValueError("invalid index")):
             with self.subTest(error=type(error).__name__):
