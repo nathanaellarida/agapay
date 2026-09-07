@@ -18,6 +18,7 @@ from rag_chain import (
     get_embedding_model,
     require_backend_path,
     resolve_configured_path,
+    validate_source_name,
 )
 
 DATA_DIR = require_backend_path(
@@ -68,6 +69,7 @@ def load_documents() -> list[tuple[str, str]]:
 
     documents = []
     for path in txt_files:
+        validate_source_name(path.name)
         if path.is_symlink():
             raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
         with path.open("rb") as document_file:

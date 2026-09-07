@@ -48,6 +48,7 @@ MAX_COMPLETION_TOKENS = 800
 INDEX_SCHEMA_VERSION = 1
 MAX_INDEX_BYTES = 100 * 1024 * 1024
 MAX_INDEX_ENTRIES = 100_000
+MAX_SOURCE_NAME_LENGTH = 255
 
 FALLBACK_ANSWER = (
     "I don't have that specific guidance in my knowledge base yet. "
@@ -83,6 +84,21 @@ PERSONAS = {
 }
 
 DEFAULT_PERSONA = "tech"
+
+
+def validate_source_name(source: Any) -> str:
+    """Return a portable, display-safe source filename."""
+    if (
+        not isinstance(source, str)
+        or not source.strip()
+        or len(source) > MAX_SOURCE_NAME_LENGTH
+        or source in {".", ".."}
+        or "/" in source
+        or "\\" in source
+        or not source.isprintable()
+    ):
+        raise ValueError("Source name is invalid")
+    return source
 
 
 def _system_prompt(persona_key: str) -> str:
@@ -131,15 +147,9 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     if not isinstance(raw, dict):
         raise ValueError("Vector index contains an invalid entry")
 
-    source = raw.get("source")
+    source = validate_source_name(raw.get("source"))
     text = raw.get("text")
     embedding = raw.get("embedding")
-    if (
-        not isinstance(source, str)
-        or not source.strip()
-        or Path(source).name != source
-    ):
-        raise ValueError("Vector index contains an invalid source name")
     if (
         not isinstance(text, str)
         or not text.strip()

@@ -61,6 +61,31 @@ class RetrievalTests(unittest.TestCase):
         self.assertFalse(rag_chain.is_source_current("guide.txt", 201, index_state))
         self.assertFalse(rag_chain.is_source_current("missing.txt", 100, index_state))
 
+    def test_unsafe_index_source_names_are_rejected(self):
+        invalid_sources = (
+            ".",
+            "..",
+            "../guide.txt",
+            "folder/guide.txt",
+            "folder\\guide.txt",
+            "guide\n.txt",
+            "a" * (rag_chain.MAX_SOURCE_NAME_LENGTH + 1),
+        )
+        entry = {
+            "text": "Registration guidance",
+            "embedding": [0.0] * rag_chain.EMBEDDING_DIMENSION,
+        }
+
+        for source in invalid_sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError, "Source name is invalid"):
+                    rag_chain._validated_entry({**entry, "source": source}, None)
+
+        validated, _ = rag_chain._validated_entry(
+            {**entry, "source": "DTI_Gabay_Ñ.txt"}, None
+        )
+        self.assertEqual(validated["source"], "DTI_Gabay_Ñ.txt")
+
     def test_index_errors_skip_model_loading(self):
         for error in (FileNotFoundError("missing index"), ValueError("invalid index")):
             with self.subTest(error=type(error).__name__):
