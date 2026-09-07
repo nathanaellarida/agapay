@@ -281,6 +281,30 @@ test("the workspace exposes its primary content as a main landmark", async () =>
   }
 });
 
+test("workspace sidebars overlay narrow screens without squeezing the chat", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: Workspace } = await server.ssrLoadModule("/src/pages/Workspace.jsx");
+    const html = renderToStaticMarkup(createElement(Workspace));
+    const sidebarWrappers = html.match(
+      /<div aria-hidden="true" inert="" class="[^"]*(?:left-3|right-3)[^"]*">/g
+    ) || [];
+
+    assert.equal(sidebarWrappers.length, 2);
+    for (const wrapper of sidebarWrappers) {
+      assert.match(wrapper, /class="[^"]*fixed inset-y-3/);
+      assert.match(wrapper, /lg:static/);
+      assert.match(wrapper, /lg:z-auto/);
+    }
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

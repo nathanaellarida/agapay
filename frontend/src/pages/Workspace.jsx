@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TopBar from "../components/TopBar.jsx";
 import LeftSidebar from "../components/LeftSidebar.jsx";
 import ChatFeed from "../components/ChatFeed.jsx";
@@ -22,6 +22,21 @@ export default function Workspace() {
   const [messages, setMessages] = useState([]);
 
   const onboarding = !persona;
+
+  useEffect(() => {
+    const wideViewport = window.matchMedia("(min-width: 1024px)");
+    const closeSidebarsOnNarrowViewport = (event) => {
+      if (!event.matches) {
+        setLeftOpen(false);
+        setRightOpen(false);
+      }
+    };
+
+    wideViewport.addEventListener("change", closeSidebarsOnNarrowViewport);
+    return () => {
+      wideViewport.removeEventListener("change", closeSidebarsOnNarrowViewport);
+    };
+  }, []);
 
   function handlePersonaSelect(p) {
     setPersona(p);
@@ -56,14 +71,26 @@ export default function Workspace() {
   return (
     <div className="h-screen h-dvh flex bg-canvas overflow-hidden p-3 gap-3">
 
+      {!onboarding && (leftOpen || rightOpen) && (
+        <button
+          type="button"
+          aria-label="Close open sidebar"
+          onClick={() => {
+            setLeftOpen(false);
+            setRightOpen(false);
+          }}
+          className="fixed inset-0 z-30 bg-slate-900/20 lg:hidden"
+        />
+      )}
+
       {/* LEFT SIDEBAR */}
       <div
         aria-hidden={onboarding || !leftOpen}
         inert={onboarding || !leftOpen ? "" : undefined}
-        className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`fixed inset-y-3 left-3 z-40 flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden lg:static lg:z-auto ${
           onboarding || !leftOpen
             ? "w-0 opacity-0 pointer-events-none"
-            : "w-64 opacity-100"
+            : "w-64 max-w-[calc(100vw-1.5rem)] opacity-100"
         }`}
       >
         <div
@@ -120,10 +147,10 @@ export default function Workspace() {
       <div
         aria-hidden={onboarding || !rightOpen}
         inert={onboarding || !rightOpen ? "" : undefined}
-        className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`fixed inset-y-3 right-3 z-40 flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden lg:static lg:z-auto ${
           onboarding || !rightOpen
             ? "w-0 opacity-0 pointer-events-none"
-            : "w-64 opacity-100"
+            : "w-64 max-w-[calc(100vw-1.5rem)] opacity-100"
         }`}
       >
         <div
