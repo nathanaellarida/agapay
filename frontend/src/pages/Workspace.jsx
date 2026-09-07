@@ -9,6 +9,14 @@ const openSidebarsByDefault = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(min-width: 1024px)").matches;
 
+export function shouldDismissMobileSidebars(
+  event,
+  isWideViewport,
+  hasOpenSidebar
+) {
+  return event.key === "Escape" && !isWideViewport && hasOpenSidebar;
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
@@ -37,6 +45,26 @@ export default function Workspace() {
       wideViewport.removeEventListener("change", closeSidebarsOnNarrowViewport);
     };
   }, []);
+
+  useEffect(() => {
+    const wideViewport = window.matchMedia("(min-width: 1024px)");
+    const closeSidebarsOnEscape = (event) => {
+      if (
+        shouldDismissMobileSidebars(
+          event,
+          wideViewport.matches,
+          leftOpen || rightOpen
+        )
+      ) {
+        event.preventDefault();
+        setLeftOpen(false);
+        setRightOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeSidebarsOnEscape);
+    return () => window.removeEventListener("keydown", closeSidebarsOnEscape);
+  }, [leftOpen, rightOpen]);
 
   function handlePersonaSelect(p) {
     setPersona(p);

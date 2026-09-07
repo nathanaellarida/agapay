@@ -362,6 +362,30 @@ test("workspace sidebars overlay narrow screens without squeezing the chat", asy
   }
 });
 
+test("Escape dismisses open sidebars only on narrow screens", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldDismissMobileSidebars } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    const escape = { key: "Escape" };
+
+    assert.equal(shouldDismissMobileSidebars(escape, false, true), true);
+    assert.equal(shouldDismissMobileSidebars(escape, false, false), false);
+    assert.equal(shouldDismissMobileSidebars(escape, true, true), false);
+    assert.equal(
+      shouldDismissMobileSidebars({ key: "Enter" }, false, true),
+      false
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
