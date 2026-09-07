@@ -88,6 +88,25 @@ export function shouldProcessPendingAsk({
   );
 }
 
+export function getComposerStatus({ locked, loading, personaName }) {
+  if (locked) {
+    return {
+      disabled: true,
+      helpText: "Choose your mentor to unlock the chat",
+    };
+  }
+  if (loading) {
+    return {
+      disabled: false,
+      helpText: `Draft your next question while ${personaName} replies`,
+    };
+  }
+  return {
+    disabled: false,
+    helpText: `${personaName}'s answers cite their source documents`,
+  };
+}
+
 function useTypewriter(phrases) {
   const [displayed, setDisplayed] = useState("");
   const [pi, setPi] = useState(0);
@@ -318,11 +337,11 @@ export default function ChatFeed({
     })) return;
 
     handledPendingAskRef.current = pendingAsk.ts;
-    send(pendingAsk.prompt);
+    send(pendingAsk.prompt, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAsk?.ts, loading, locked, persona?.key]);
 
-  async function send(text) {
+  async function send(text, preserveInput = false) {
     const q = (text ?? input).trim();
     if (
       q.length < MIN_QUESTION_LENGTH ||
@@ -333,8 +352,10 @@ export default function ChatFeed({
     ) {
       return;
     }
-    setInput("");
-    if (inputRef.current) inputRef.current.style.height = "auto";
+    if (!preserveInput) {
+      setInput("");
+      if (inputRef.current) inputRef.current.style.height = "auto";
+    }
     onMessagesChange([
       ...messages.filter((m) => m.content !== "__intro__"),
       { role: "user", content: q },
@@ -392,6 +413,11 @@ export default function ChatFeed({
   }
 
   const onlyWelcome = messages.length === 1 && messages[0]?.content === "__intro__";
+  const composerStatus = getComposerStatus({
+    locked,
+    loading,
+    personaName: persona?.name,
+  });
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-canvas h-full">
@@ -507,7 +533,7 @@ export default function ChatFeed({
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
               }}
               onKeyDown={(e) => {
-                if (locked) return;
+                if (locked || loading) return;
                 if (
                   e.key === "Enter" &&
                   !e.shiftKey &&
@@ -522,7 +548,7 @@ export default function ChatFeed({
                   ? "Select a mentor above to start chatting…"
                   : placeholder || `Ask ${persona?.name}…`
               }
-              disabled={loading || locked}
+              disabled={composerStatus.disabled}
               className={`flex-1 bg-transparent outline-none resize-none text-sm text-slate-900 placeholder-slate-400 leading-relaxed ${
                 locked ? "cursor-not-allowed opacity-60" : ""
               }`}
@@ -558,9 +584,7 @@ export default function ChatFeed({
         </div>
         <div className="max-w-3xl mx-auto mt-2 flex items-center justify-between gap-3 text-[10px] text-slate-400">
           <p id="question-help">
-            {locked
-              ? "Choose your mentor to unlock the chat"
-              : `${persona?.name}'s answers cite their source documents`}
+            {composerStatus.helpText}
           </p>
           {!locked && (
             <p

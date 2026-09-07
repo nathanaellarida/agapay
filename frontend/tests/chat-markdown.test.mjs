@@ -86,6 +86,35 @@ test("roadmap questions wait for the current reply and send only once", async ()
   }
 });
 
+test("the composer stays editable for drafting during mentor replies", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getComposerStatus } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+
+    assert.deepEqual(getComposerStatus({
+      locked: false,
+      loading: true,
+      personaName: "Anton",
+    }), {
+      disabled: false,
+      helpText: "Draft your next question while Anton replies",
+    });
+    assert.equal(getComposerStatus({
+      locked: true,
+      loading: false,
+      personaName: undefined,
+    }).disabled, true);
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
