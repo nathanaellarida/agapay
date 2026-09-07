@@ -34,7 +34,23 @@ const SAMPLE_BOOKMARKS = [
   { id: 8, title: "Saved: Permit Process Map", time: "Saved" },
 ];
 
-export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewChat }) {
+export function isSidebarSearchShortcut(event, isOpen) {
+  return Boolean(
+    isOpen &&
+      (event.metaKey || event.ctrlKey) &&
+      !event.altKey &&
+      !event.shiftKey &&
+      event.key.toLowerCase() === "k"
+  );
+}
+
+export default function LeftSidebar({
+  persona,
+  activeChat,
+  onSelectChat,
+  onNewChat,
+  isOpen = true,
+}) {
   const [tab, setTab] = useState("chats");
   const [search, setSearch] = useState("");
   const searchRef = useRef(null);
@@ -44,8 +60,10 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
   }, [persona.key]);
 
   useEffect(() => {
+    if (!isOpen) return undefined;
+
     function focusSearch(event) {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      if (isSidebarSearchShortcut(event, isOpen)) {
         event.preventDefault();
         searchRef.current?.focus();
         searchRef.current?.select();
@@ -54,7 +72,7 @@ export default function LeftSidebar({ persona, activeChat, onSelectChat, onNewCh
 
     window.addEventListener("keydown", focusSearch);
     return () => window.removeEventListener("keydown", focusSearch);
-  }, []);
+  }, [isOpen]);
 
   const chats = SAMPLE_CHATS[persona.key] || [];
   const items = tab === "chats" ? chats : SAMPLE_BOOKMARKS;

@@ -28,6 +28,34 @@ test("request errors distinguish user cancellation from timeout and failure", as
   }
 });
 
+test("conversation search shortcut only activates for the visible sidebar", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { isSidebarSearchShortcut } = await server.ssrLoadModule(
+      "/src/components/LeftSidebar.jsx"
+    );
+    const shortcut = {
+      key: "k",
+      ctrlKey: true,
+      metaKey: false,
+      altKey: false,
+      shiftKey: false,
+    };
+
+    assert.equal(isSidebarSearchShortcut(shortcut, true), true);
+    assert.equal(isSidebarSearchShortcut(shortcut, false), false);
+    assert.equal(isSidebarSearchShortcut({ ...shortcut, altKey: true }, true), false);
+    assert.equal(isSidebarSearchShortcut({ ...shortcut, shiftKey: true }, true), false);
+    assert.equal(isSidebarSearchShortcut({ ...shortcut, key: "j" }, true), false);
+  } finally {
+    await server.close();
+  }
+});
+
 test("roadmap questions wait for the current reply and send only once", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

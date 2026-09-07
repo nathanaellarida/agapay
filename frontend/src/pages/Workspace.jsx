@@ -101,6 +101,7 @@ export default function Workspace() {
             <LeftSidebar
               persona={persona}
               activeChat={activeChat}
+              isOpen={leftOpen}
               onSelectChat={handleSelectChat}
               onNewChat={handleNewChat}
             />
