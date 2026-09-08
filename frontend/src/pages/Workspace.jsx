@@ -17,6 +17,10 @@ export function shouldDismissMobileSidebars(
   return event.key === "Escape" && !isWideViewport && hasOpenSidebar;
 }
 
+export function shouldDismissSidebarAfterAction(isWideViewport) {
+  return !isWideViewport;
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
@@ -30,6 +34,13 @@ export default function Workspace() {
   const [messages, setMessages] = useState([]);
 
   const onboarding = !persona;
+
+  function dismissSidebarAfterAction(setOpen) {
+    const isWideViewport = window.matchMedia("(min-width: 1024px)").matches;
+    if (shouldDismissSidebarAfterAction(isWideViewport)) {
+      setOpen(false);
+    }
+  }
 
   useEffect(() => {
     const wideViewport = window.matchMedia("(min-width: 1024px)");
@@ -74,6 +85,7 @@ export default function Workspace() {
   function handleSelectChat(chat) {
     setActiveChat(chat);
     setBreadcrumbs(["Agapay", persona.pathLabel, chat.title]);
+    dismissSidebarAfterAction(setLeftOpen);
   }
 
   function handleNewChat() {
@@ -82,6 +94,7 @@ export default function Workspace() {
     setMessages([{ role: "assistant", content: "__intro__" }]);
     setPendingAsk(null);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
+    dismissSidebarAfterAction(setLeftOpen);
   }
 
   function handleSwitchPersona() {
@@ -94,6 +107,7 @@ export default function Workspace() {
 
   function handleAskMentor(prompt) {
     setPendingAsk({ prompt, ts: Date.now() });
+    dismissSidebarAfterAction(setRightOpen);
   }
 
   return (

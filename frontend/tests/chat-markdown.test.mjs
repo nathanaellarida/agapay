@@ -430,6 +430,24 @@ test("Escape dismisses open sidebars only on narrow screens", async () => {
   }
 });
 
+test("sidebar actions reveal the chat on narrow screens", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldDismissSidebarAfterAction } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.equal(shouldDismissSidebarAfterAction(false), true);
+    assert.equal(shouldDismissSidebarAfterAction(true), false);
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
