@@ -127,6 +127,7 @@ export default function Workspace() {
 
       {/* LEFT SIDEBAR */}
       <div
+        id="conversation-history-panel"
         aria-hidden={onboarding || !leftOpen}
         inert={onboarding || !leftOpen ? "" : undefined}
         className={`fixed inset-y-3 left-3 z-40 flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden lg:static lg:z-auto ${
@@ -188,6 +189,7 @@ export default function Workspace() {
 
       {/* RIGHT SIDEBAR */}
       <div
+        id="launch-insights-panel"
         aria-hidden={onboarding || !rightOpen}
         inert={onboarding || !rightOpen ? "" : undefined}
         className={`fixed inset-y-3 right-3 z-40 flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden lg:static lg:z-auto ${

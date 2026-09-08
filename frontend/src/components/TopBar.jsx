@@ -161,6 +161,7 @@ export default function TopBar({
               leftOpen ? "Hide conversation history" : "Show conversation history"
             }
             aria-expanded={leftOpen}
+            aria-controls="conversation-history-panel"
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
             title={leftOpen ? "Hide history" : "Show history"}
           >
@@ -242,6 +243,7 @@ export default function TopBar({
               onClick={onToggleRight}
               aria-label={rightOpen ? "Hide insights" : "Show insights"}
               aria-expanded={rightOpen}
+              aria-controls="launch-insights-panel"
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
               title={rightOpen ? "Hide insights" : "Show insights"}
             >

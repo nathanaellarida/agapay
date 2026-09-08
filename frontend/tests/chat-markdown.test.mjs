@@ -392,7 +392,7 @@ test("workspace sidebars overlay narrow screens without squeezing the chat", asy
     const { default: Workspace } = await server.ssrLoadModule("/src/pages/Workspace.jsx");
     const html = renderToStaticMarkup(createElement(Workspace));
     const sidebarWrappers = html.match(
-      /<div aria-hidden="true" inert="" class="[^"]*(?:left-3|right-3)[^"]*">/g
+      /<div[^>]*aria-hidden="true"[^>]*inert=""[^>]*class="[^"]*(?:left-3|right-3)[^"]*"[^>]*>/g
     ) || [];
 
     assert.equal(sidebarWrappers.length, 2);
@@ -504,6 +504,45 @@ test("workspace sidebars expose distinct landmark names", async () => {
 
     assert.match(left, /<aside[^>]*aria-label="Conversation history"/);
     assert.match(right, /<aside[^>]*aria-label="Launch insights"/);
+  } finally {
+    await server.close();
+  }
+});
+
+test("sidebar toggles identify the panels they control", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const [{ default: TopBar }, { default: Workspace }] = await Promise.all([
+      server.ssrLoadModule("/src/components/TopBar.jsx"),
+      server.ssrLoadModule("/src/pages/Workspace.jsx"),
+    ]);
+    const topBar = renderToStaticMarkup(createElement(TopBar, {
+      breadcrumbs: ["Agapay", "A Tech Startup"],
+      persona: {
+        key: "tech",
+        name: "Anton",
+        image: "/startupAdvisor.png",
+        accentSoft: "bg-indigo-50",
+      },
+      leftOpen: false,
+      rightOpen: false,
+      onToggleLeft() {},
+      onToggleRight() {},
+      onSwitchPersona() {},
+    }));
+    const workspace = renderToStaticMarkup(createElement(Workspace));
+
+    for (const panelId of [
+      "conversation-history-panel",
+      "launch-insights-panel",
+    ]) {
+      assert.match(topBar, new RegExp(`aria-controls="${panelId}"`));
+      assert.match(workspace, new RegExp(`id="${panelId}"`));
+    }
   } finally {
     await server.close();
   }
