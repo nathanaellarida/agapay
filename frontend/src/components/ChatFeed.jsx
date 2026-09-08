@@ -62,6 +62,7 @@ const MIN_QUESTION_LENGTH = 2;
 const MAX_QUESTION_LENGTH = 2000;
 const QUERY_TIMEOUT_MS = 45_000;
 const USER_ABORT_REASON = "user-stopped";
+const CHAT_BOTTOM_THRESHOLD_PX = 80;
 
 export function getRequestErrorMessage(signal) {
   if (signal.aborted) {
@@ -109,6 +110,13 @@ export function getComposerStatus({ locked, loading, personaName }) {
 
 export function getChatScrollBehavior(prefersReducedMotion) {
   return prefersReducedMotion ? "auto" : "smooth";
+}
+
+export function isNearChatBottom(scrollArea) {
+  return (
+    scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight <=
+    CHAT_BOTTOM_THRESHOLD_PX
+  );
 }
 
 function useTypewriter(phrases) {
@@ -298,16 +306,19 @@ export default function ChatFeed({
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const scrollAreaRef = useRef(null);
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const activeRequestRef = useRef(null);
   const handledPendingAskRef = useRef(null);
+  const stickToBottomRef = useRef(true);
   const placeholder = useTypewriter(content?.placeholders || []);
 
   // Reset the feed and cancel stale work when the persona or chat changes.
   useEffect(() => {
     activeRequestRef.current?.abort();
     activeRequestRef.current = null;
+    stickToBottomRef.current = true;
     setLoading(false);
     setInput("");
     if (persona && content) {
@@ -327,6 +338,7 @@ export default function ChatFeed({
   }, [resetVersion]);
 
   useEffect(() => {
+    if (!stickToBottomRef.current) return;
     const prefersReducedMotion = window.matchMedia?.(
       "(prefers-reduced-motion: reduce)"
     ).matches ?? false;
@@ -365,6 +377,7 @@ export default function ChatFeed({
       setInput("");
       if (inputRef.current) inputRef.current.style.height = "auto";
     }
+    stickToBottomRef.current = true;
     onMessagesChange([
       ...messages.filter((m) => m.content !== "__intro__"),
       { role: "user", content: q },
@@ -431,7 +444,15 @@ export default function ChatFeed({
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-canvas h-full">
       {/* Feed area */}
-      <div className="flex-1 overflow-y-auto">
+      <div
+        ref={scrollAreaRef}
+        onScroll={() => {
+          if (scrollAreaRef.current) {
+            stickToBottomRef.current = isNearChatBottom(scrollAreaRef.current);
+          }
+        }}
+        className="flex-1 overflow-y-auto"
+      >
         {locked && onboardingContent ? (
           onboardingContent
         ) : (

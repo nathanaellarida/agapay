@@ -133,6 +133,32 @@ test("chat auto-scrolling respects the reduced-motion preference", async () => {
   }
 });
 
+test("chat auto-scrolling preserves the position of readers away from the bottom", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { isNearChatBottom } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+
+    assert.equal(isNearChatBottom({
+      scrollHeight: 1000,
+      scrollTop: 520,
+      clientHeight: 400,
+    }), true);
+    assert.equal(isNearChatBottom({
+      scrollHeight: 1000,
+      scrollTop: 500,
+      clientHeight: 400,
+    }), false);
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
