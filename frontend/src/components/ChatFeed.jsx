@@ -107,6 +107,10 @@ export function getComposerStatus({ locked, loading, personaName }) {
   };
 }
 
+export function getChatScrollBehavior(prefersReducedMotion) {
+  return prefersReducedMotion ? "auto" : "smooth";
+}
+
 function useTypewriter(phrases) {
   const [displayed, setDisplayed] = useState("");
   const [pi, setPi] = useState(0);
@@ -323,7 +327,12 @@ export default function ChatFeed({
   }, [resetVersion]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const prefersReducedMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    ).matches ?? false;
+    endRef.current?.scrollIntoView({
+      behavior: getChatScrollBehavior(prefersReducedMotion),
+    });
   }, [messages, loading]);
 
   // When the right sidebar requests a question, send it once the feed is idle.

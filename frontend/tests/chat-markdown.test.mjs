@@ -115,6 +115,24 @@ test("the composer stays editable for drafting during mentor replies", async () 
   }
 });
 
+test("chat auto-scrolling respects the reduced-motion preference", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getChatScrollBehavior } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+
+    assert.equal(getChatScrollBehavior(true), "auto");
+    assert.equal(getChatScrollBehavior(false), "smooth");
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
