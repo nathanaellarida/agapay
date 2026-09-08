@@ -159,6 +159,32 @@ test("chat auto-scrolling preserves the position of readers away from the bottom
   }
 });
 
+test("the conversation has a labeled keyboard-scrollable region", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: ChatFeed } = await server.ssrLoadModule("/src/components/ChatFeed.jsx");
+    const html = renderToStaticMarkup(createElement(ChatFeed, {
+      persona: null,
+      messages: [{ role: "assistant", content: "Review this guidance." }],
+      onMessagesChange() {},
+    }));
+    const scrollArea = html.match(
+      /<div[^>]*role="region"[^>]*class="[^"]*overflow-y-auto[^"]*"[^>]*>/
+    )?.[0];
+
+    assert.ok(scrollArea, "conversation must expose its vertical scroll area");
+    assert.match(scrollArea, /aria-label="Conversation scroll area"/);
+    assert.match(scrollArea, /tabindex="0"/);
+    assert.match(scrollArea, /focus-visible:outline-flag-blue/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

@@ -446,12 +446,15 @@ export default function ChatFeed({
       {/* Feed area */}
       <div
         ref={scrollAreaRef}
+        role="region"
+        aria-label="Conversation scroll area"
+        tabIndex={0}
         onScroll={() => {
           if (scrollAreaRef.current) {
             stickToBottomRef.current = isNearChatBottom(scrollAreaRef.current);
           }
         }}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-flag-blue focus-visible:outline-offset-[-2px]"
       >
         {locked && onboardingContent ? (
           onboardingContent
