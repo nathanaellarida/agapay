@@ -111,7 +111,7 @@ def normalize_embedding_values(values: list[Any], error_message: str) -> list[fl
             number = float(value)
         except (OverflowError, ValueError):
             raise ValueError(error_message) from None
-        if not math.isfinite(number):
+        if not math.isfinite(number) or abs(number) > 1.0:
             raise ValueError(error_message)
         normalized.append(number)
     return normalized

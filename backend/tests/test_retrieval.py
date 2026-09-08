@@ -117,8 +117,8 @@ class RetrievalTests(unittest.TestCase):
             "How do I register?", normalize_embeddings=True, convert_to_numpy=True,
         )
 
-    def test_non_finite_and_overflowing_query_values_are_rejected(self):
-        for invalid_value in (float("nan"), 10**400):
+    def test_invalid_query_values_are_rejected(self):
+        for invalid_value in (float("nan"), 10**400, 1.01, -1.01):
             vector = [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [invalid_value]
             with self.subTest(invalid_value=invalid_value):
                 with (
@@ -137,6 +137,16 @@ class RetrievalTests(unittest.TestCase):
             "source": "guide.txt",
             "text": "Registration guidance",
             "embedding": [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [10**400],
+        }
+
+        with self.assertRaisesRegex(ValueError, "invalid embedding value"):
+            rag_chain._validated_entry(entry, None)
+
+    def test_out_of_range_index_values_are_rejected(self):
+        entry = {
+            "source": "guide.txt",
+            "text": "Registration guidance",
+            "embedding": [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [1.01],
         }
 
         with self.assertRaisesRegex(ValueError, "invalid embedding value"):
