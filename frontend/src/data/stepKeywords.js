@@ -53,14 +53,16 @@ function includesKeyword(text, keyword) {
 
 /**
  * Given a list of chat messages and a roadmap, return a Set of step IDs that
- * have been discussed (i.e. any of their keywords appears in any message).
+ * the mentor has discussed. User questions do not count until a reply covers
+ * the topic, so pending or failed requests cannot change the cost estimate.
  *
- * @param {Array<{content:string}>} messages
+ * @param {Array<{role:string,content:string}>} messages
  * @param {Array<{id:string}>} steps
  * @returns {Set<string>}
  */
 export function detectDiscussedSteps(messages, steps) {
   const text = messages
+    .filter((message) => message?.role === "assistant")
     .map((m) => (m?.content || "").toLowerCase())
     .join(" \n ");
 

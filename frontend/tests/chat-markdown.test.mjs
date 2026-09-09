@@ -107,6 +107,37 @@ test("roadmap questions wait for the current reply and send only once", async ()
   }
 });
 
+test("roadmap estimates update only after the mentor discusses a step", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { detectDiscussedSteps } = await server.ssrLoadModule(
+      "/src/data/stepKeywords.js"
+    );
+    const steps = [{ id: "tech-2" }];
+    const question = {
+      role: "user",
+      content: "Should I use DTI registration?",
+    };
+
+    assert.deepEqual([...detectDiscussedSteps([question], steps)], []);
+    assert.deepEqual(
+      [
+        ...detectDiscussedSteps(
+          [question, { role: "assistant", content: "DTI registration fits this case." }],
+          steps
+        ),
+      ],
+      ["tech-2"]
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("locked roadmap steps remain focusable and cannot be activated", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
