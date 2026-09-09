@@ -19,6 +19,37 @@ export function canToggleRoadmapStep(isDone, previousDone) {
   return isDone || previousDone;
 }
 
+export function parseSavedRoadmapProgress(serialized) {
+  try {
+    const saved = JSON.parse(serialized);
+    if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+
+    const restored = {};
+    for (const [personaKey, roadmap] of Object.entries(ROADMAPS)) {
+      const progress = saved[personaKey];
+      if (
+        !progress ||
+        typeof progress !== "object" ||
+        Array.isArray(progress)
+      ) {
+        continue;
+      }
+
+      const completed = {};
+      for (const step of roadmap.steps) {
+        if (progress[step.id] !== true) break;
+        completed[step.id] = true;
+      }
+      if (Object.keys(completed).length > 0) {
+        restored[personaKey] = completed;
+      }
+    }
+    return restored;
+  } catch {
+    return {};
+  }
+}
+
 function updateCompletedSteps(completed, steps, stepId) {
   const next = { ...completed };
   if (!next[stepId]) {
@@ -404,14 +435,8 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
   const [tab, setTab] = useState("roadmap");
   const [completedByPersona, setCompletedByPersona] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(ROADMAP_PROGRESS_KEY));
-      if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
-
-      return Object.fromEntries(
-        Object.entries(saved).filter(
-          ([, progress]) =>
-            progress && typeof progress === "object" && !Array.isArray(progress)
-        )
+      return parseSavedRoadmapProgress(
+        localStorage.getItem(ROADMAP_PROGRESS_KEY)
       );
     } catch {
       return {};

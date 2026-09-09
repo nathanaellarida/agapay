@@ -142,6 +142,43 @@ test("locked roadmap steps remain focusable and cannot be activated", async () =
   }
 });
 
+test("saved roadmap progress restores only known sequential steps", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { parseSavedRoadmapProgress } = await server.ssrLoadModule(
+      "/src/components/RightSidebar.jsx"
+    );
+    const restored = parseSavedRoadmapProgress(JSON.stringify({
+      tech: {
+        "tech-1": true,
+        "tech-2": "true",
+        "tech-3": true,
+        unknown: true,
+      },
+      online: {
+        "online-1": true,
+        "online-2": true,
+        unknown: true,
+      },
+      local: [],
+      unknown: { "unknown-1": true },
+    }));
+
+    assert.deepEqual(restored, {
+      tech: { "tech-1": true },
+      online: { "online-1": true, "online-2": true },
+    });
+    assert.deepEqual(parseSavedRoadmapProgress("not-json"), {});
+    assert.deepEqual(parseSavedRoadmapProgress("[]"), {});
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer stays editable for drafting during mentor replies", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
