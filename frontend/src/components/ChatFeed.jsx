@@ -112,6 +112,14 @@ export function getChatScrollBehavior(prefersReducedMotion) {
   return prefersReducedMotion ? "auto" : "smooth";
 }
 
+export function getTypewriterText(phrases, displayed, prefersReducedMotion) {
+  return prefersReducedMotion ? phrases[0] || "" : displayed;
+}
+
+export function shouldAnimateTypewriter(phrases, prefersReducedMotion) {
+  return !prefersReducedMotion && phrases.length > 0;
+}
+
 export function isNearChatBottom(scrollArea) {
   return (
     scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight <=
@@ -119,7 +127,28 @@ export function isNearChatBottom(scrollArea) {
   );
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
+      : false
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!mediaQuery) return undefined;
+
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
 function useTypewriter(phrases) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [displayed, setDisplayed] = useState("");
   const [pi, setPi] = useState(0);
   const [ci, setCi] = useState(0);
@@ -131,8 +160,11 @@ function useTypewriter(phrases) {
   }, [phrases]);
 
   useEffect(() => {
+    if (!shouldAnimateTypewriter(phrases, prefersReducedMotion)) {
+      return undefined;
+    }
     const cur = phrases[pi];
-    if (!cur) return;
+    if (!cur) return undefined;
     if (!del && ci < cur.length) {
       t.current = setTimeout(() => setCi((c) => c + 1), TYPE_SPEED);
     } else if (!del && ci === cur.length) {
@@ -145,9 +177,9 @@ function useTypewriter(phrases) {
     }
     setDisplayed(cur.slice(0, ci));
     return () => clearTimeout(t.current);
-  }, [ci, del, pi, phrases]);
+  }, [ci, del, pi, phrases, prefersReducedMotion]);
 
-  return displayed;
+  return getTypewriterText(phrases, displayed, prefersReducedMotion);
 }
 
 function UserBubble({ content }) {

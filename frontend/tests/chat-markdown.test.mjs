@@ -189,6 +189,28 @@ test("chat auto-scrolling respects the reduced-motion preference", async () => {
   }
 });
 
+test("typewriter prompts stay static when reduced motion is requested", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getTypewriterText, shouldAnimateTypewriter } =
+      await server.ssrLoadModule("/src/components/ChatFeed.jsx");
+    const prompts = ["Ask about permits", "Plan your next step"];
+
+    assert.equal(getTypewriterText(prompts, "Ask ab", true), prompts[0]);
+    assert.equal(getTypewriterText(prompts, "Ask ab", false), "Ask ab");
+    assert.equal(getTypewriterText([], "", true), "");
+    assert.equal(shouldAnimateTypewriter(prompts, true), false);
+    assert.equal(shouldAnimateTypewriter(prompts, false), true);
+    assert.equal(shouldAnimateTypewriter([], false), false);
+  } finally {
+    await server.close();
+  }
+});
+
 test("chat auto-scrolling preserves the position of readers away from the bottom", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
