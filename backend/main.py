@@ -170,16 +170,24 @@ def library() -> list[LibraryDocument]:
         index_state = (frozenset(), -1)
 
     items: list[LibraryDocument] = []
-    text_paths = (
-        path
-        for path in DATA_DIR.iterdir()
-        if (
-            path.is_file()
-            and not path.is_symlink()
-            and path.suffix.lower() == ".txt"
+    try:
+        text_paths = sorted(
+            (
+                path
+                for path in DATA_DIR.iterdir()
+                if (
+                    path.is_file()
+                    and not path.is_symlink()
+                    and path.suffix.lower() == ".txt"
+                )
+            ),
+            key=lambda path: path.name.casefold(),
         )
-    )
-    for path in sorted(text_paths, key=lambda path: path.name.casefold()):
+    except OSError as exc:
+        logger.warning("Could not list library documents (%s)", type(exc).__name__)
+        return []
+
+    for path in text_paths:
         try:
             stat = path.stat()
         except FileNotFoundError:
