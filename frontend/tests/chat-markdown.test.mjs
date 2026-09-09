@@ -562,6 +562,15 @@ test("Escape dismisses open sidebars only on narrow screens", async () => {
     assert.equal(shouldDismissMobileSidebars(escape, false, true), true);
     assert.equal(shouldDismissMobileSidebars(escape, false, false), false);
     assert.equal(shouldDismissMobileSidebars(escape, true, true), false);
+    assert.equal(shouldDismissMobileSidebars(escape, false, true, true), false);
+    assert.equal(
+      shouldDismissMobileSidebars(
+        { key: "Escape", defaultPrevented: true },
+        false,
+        true
+      ),
+      false
+    );
     assert.equal(
       shouldDismissMobileSidebars({ key: "Enter" }, false, true),
       false

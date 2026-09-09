@@ -12,9 +12,16 @@ const openSidebarsByDefault = () =>
 export function shouldDismissMobileSidebars(
   event,
   isWideViewport,
-  hasOpenSidebar
+  hasOpenSidebar,
+  hasOpenModal = false
 ) {
-  return event.key === "Escape" && !isWideViewport && hasOpenSidebar;
+  return (
+    event.key === "Escape" &&
+    !event.defaultPrevented &&
+    !isWideViewport &&
+    hasOpenSidebar &&
+    !hasOpenModal
+  );
 }
 
 export function shouldDismissSidebarAfterAction(isWideViewport) {
@@ -64,7 +71,8 @@ export default function Workspace() {
         shouldDismissMobileSidebars(
           event,
           wideViewport.matches,
-          leftOpen || rightOpen
+          leftOpen || rightOpen,
+          Boolean(document.querySelector('[aria-modal="true"]'))
         )
       ) {
         event.preventDefault();
