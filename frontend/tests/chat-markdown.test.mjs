@@ -28,6 +28,27 @@ test("request errors distinguish user cancellation from timeout and failure", as
   }
 });
 
+test("application failures show a clear recovery screen", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { AppErrorBoundary } = await server.ssrLoadModule("/src/App.jsx");
+    const boundary = new AppErrorBoundary({ children: null });
+    boundary.state = AppErrorBoundary.getDerivedStateFromError();
+    const fallbackHtml = renderToStaticMarkup(boundary.render());
+
+    assert.deepEqual(boundary.state, { hasError: true });
+    assert.match(fallbackHtml, /<main[^>]*role="alert"/);
+    assert.match(fallbackHtml, /Agapay needs a refresh/);
+    assert.match(fallbackHtml, /Reload Agapay/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("conversation search shortcut only activates for the visible sidebar", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
