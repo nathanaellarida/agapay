@@ -15,6 +15,10 @@ import { detectDiscussedSteps } from "../data/stepKeywords.js";
 
 const ROADMAP_PROGRESS_KEY = "agapay-roadmap-progress";
 
+export function canToggleRoadmapStep(isDone, previousDone) {
+  return isDone || previousDone;
+}
+
 function updateCompletedSteps(completed, steps, stepId) {
   const next = { ...completed };
   if (!next[stepId]) {
@@ -89,15 +93,20 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
           const isDone = !!completed[step.id];
           const isDiscussed = discussed?.has(step.id);
           const prevDone = i === 0 || !!completed[data.steps[i - 1].id];
+          const canToggle = canToggleRoadmapStep(isDone, prevDone);
           const cat = CATEGORIES[step.category] || CATEGORIES.Operations;
 
           return (
             <li key={step.id} className="relative pl-8">
               {/* Dot */}
               <button
-                onClick={() => onToggle(step.id)}
-                disabled={!isDone && !prevDone}
-                className="absolute left-0 top-2 w-[31px] flex items-center justify-center disabled:cursor-not-allowed"
+                onClick={() => {
+                  if (canToggle) onToggle(step.id);
+                }}
+                aria-disabled={!canToggle}
+                className={`absolute left-0 top-2 w-[31px] flex items-center justify-center ${
+                  canToggle ? "" : "cursor-not-allowed"
+                }`}
                 aria-label={
                   isDone
                     ? `Mark ${step.title} incomplete`

@@ -86,6 +86,41 @@ test("roadmap questions wait for the current reply and send only once", async ()
   }
 });
 
+test("locked roadmap steps remain focusable and cannot be activated", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: RightSidebar, canToggleRoadmapStep } =
+      await server.ssrLoadModule("/src/components/RightSidebar.jsx");
+    const html = renderToStaticMarkup(createElement(RightSidebar, {
+      persona: {
+        key: "tech",
+        name: "Anton",
+        title: "The Tech Strategist",
+        image: "/startupAdvisor.png",
+        accentSoft: "bg-indigo-50",
+      },
+      messages: [],
+      onAskMentor() {},
+    }));
+    const lockedControl = (html.match(/<button\b[^>]*>/g) || []).find((button) =>
+      button.includes("complete the previous step first")
+    );
+
+    assert.equal(canToggleRoadmapStep(false, false), false);
+    assert.equal(canToggleRoadmapStep(false, true), true);
+    assert.equal(canToggleRoadmapStep(true, false), true);
+    assert.ok(lockedControl, "a locked roadmap control must be rendered");
+    assert.match(lockedControl, /aria-disabled="true"/);
+    assert.doesNotMatch(lockedControl, /\sdisabled(?:=|\s|>)/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer stays editable for drafting during mentor replies", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
