@@ -629,6 +629,45 @@ test("sidebar actions reveal the chat on narrow screens", async () => {
   }
 });
 
+test("opening a mobile sidebar moves focus into its first control", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { focusOpenMobileSidebar } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    let focused = 0;
+    const firstControl = { focus: () => focused++ };
+    const leftSidebar = { querySelector: () => firstControl };
+    const rightSidebar = { querySelector: () => firstControl };
+
+    assert.equal(
+      focusOpenMobileSidebar(false, true, false, leftSidebar, rightSidebar),
+      true
+    );
+    assert.equal(focused, 1);
+    assert.equal(
+      focusOpenMobileSidebar(false, false, true, leftSidebar, rightSidebar),
+      true
+    );
+    assert.equal(focused, 2);
+    assert.equal(
+      focusOpenMobileSidebar(true, true, false, leftSidebar, rightSidebar),
+      false
+    );
+    assert.equal(
+      focusOpenMobileSidebar(false, false, false, leftSidebar, rightSidebar),
+      false
+    );
+    assert.equal(focused, 2);
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TopBar from "../components/TopBar.jsx";
 import LeftSidebar from "../components/LeftSidebar.jsx";
 import ChatFeed from "../components/ChatFeed.jsx";
@@ -28,6 +28,29 @@ export function shouldDismissSidebarAfterAction(isWideViewport) {
   return !isWideViewport;
 }
 
+export function focusOpenMobileSidebar(
+  isWideViewport,
+  leftOpen,
+  rightOpen,
+  leftSidebar,
+  rightSidebar
+) {
+  if (isWideViewport) return false;
+
+  const openSidebar = leftOpen
+    ? leftSidebar
+    : rightOpen
+    ? rightSidebar
+    : null;
+  const firstControl = openSidebar?.querySelector(
+    "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])"
+  );
+
+  if (!firstControl) return false;
+  firstControl.focus();
+  return true;
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
@@ -36,6 +59,8 @@ export default function Workspace() {
   const [breadcrumbs, setBreadcrumbs] = useState(["Agapay"]);
   const [pendingAsk, setPendingAsk] = useState(null);
   const [chatResetVersion, setChatResetVersion] = useState(0);
+  const leftSidebarRef = useRef(null);
+  const rightSidebarRef = useRef(null);
   // Lifted: messages list shared with the right sidebar so the Cost tab
   // can react to what the AI has actually discussed.
   const [messages, setMessages] = useState([]);
@@ -83,6 +108,16 @@ export default function Workspace() {
 
     window.addEventListener("keydown", closeSidebarsOnEscape);
     return () => window.removeEventListener("keydown", closeSidebarsOnEscape);
+  }, [leftOpen, rightOpen]);
+
+  useEffect(() => {
+    focusOpenMobileSidebar(
+      window.matchMedia("(min-width: 1024px)").matches,
+      leftOpen,
+      rightOpen,
+      leftSidebarRef.current,
+      rightSidebarRef.current
+    );
   }, [leftOpen, rightOpen]);
 
   function handlePersonaSelect(p) {
@@ -135,6 +170,7 @@ export default function Workspace() {
 
       {/* LEFT SIDEBAR */}
       <div
+        ref={leftSidebarRef}
         id="conversation-history-panel"
         aria-hidden={onboarding || !leftOpen}
         inert={onboarding || !leftOpen ? "" : undefined}
@@ -197,6 +233,7 @@ export default function Workspace() {
 
       {/* RIGHT SIDEBAR */}
       <div
+        ref={rightSidebarRef}
         id="launch-insights-panel"
         aria-hidden={onboarding || !rightOpen}
         inert={onboarding || !rightOpen ? "" : undefined}
