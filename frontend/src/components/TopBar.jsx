@@ -120,6 +120,8 @@ export default function TopBar({
   rightOpen,
   onToggleLeft,
   onToggleRight,
+  leftToggleRef,
+  rightToggleRef,
   onSwitchPersona,
   messages = [],
 }) {
@@ -156,6 +158,7 @@ export default function TopBar({
       <header className="h-12 bg-transparent flex items-center px-3 gap-3 flex-shrink-0">
         {persona ? (
           <button
+            ref={leftToggleRef}
             onClick={onToggleLeft}
             aria-label={
               leftOpen ? "Hide conversation history" : "Show conversation history"
@@ -240,6 +243,7 @@ export default function TopBar({
             </button>
 
             <button
+              ref={rightToggleRef}
               onClick={onToggleRight}
               aria-label={rightOpen ? "Hide insights" : "Show insights"}
               aria-expanded={rightOpen}

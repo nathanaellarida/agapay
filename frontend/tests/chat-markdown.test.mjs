@@ -698,6 +698,42 @@ test("opening a mobile sidebar moves focus into its first control", async () => 
   }
 });
 
+test("dismissing a mobile sidebar restores focus to its toggle", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { restoreSidebarToggleFocus } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    let leftFocused = 0;
+    let rightFocused = 0;
+    const leftToggle = { focus: () => leftFocused++ };
+    const rightToggle = { focus: () => rightFocused++ };
+
+    assert.equal(
+      restoreSidebarToggleFocus(true, false, leftToggle, rightToggle),
+      true
+    );
+    assert.equal(leftFocused, 1);
+    assert.equal(rightFocused, 0);
+    assert.equal(
+      restoreSidebarToggleFocus(false, true, leftToggle, rightToggle),
+      true
+    );
+    assert.equal(leftFocused, 1);
+    assert.equal(rightFocused, 1);
+    assert.equal(
+      restoreSidebarToggleFocus(false, false, leftToggle, rightToggle),
+      false
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

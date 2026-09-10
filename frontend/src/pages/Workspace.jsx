@@ -51,6 +51,23 @@ export function focusOpenMobileSidebar(
   return true;
 }
 
+export function restoreSidebarToggleFocus(
+  leftWasOpen,
+  rightWasOpen,
+  leftToggle,
+  rightToggle
+) {
+  const toggle = leftWasOpen
+    ? leftToggle
+    : rightWasOpen
+    ? rightToggle
+    : null;
+
+  if (!toggle) return false;
+  toggle.focus();
+  return true;
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
@@ -61,17 +78,33 @@ export default function Workspace() {
   const [chatResetVersion, setChatResetVersion] = useState(0);
   const leftSidebarRef = useRef(null);
   const rightSidebarRef = useRef(null);
+  const leftToggleRef = useRef(null);
+  const rightToggleRef = useRef(null);
   // Lifted: messages list shared with the right sidebar so the Cost tab
   // can react to what the AI has actually discussed.
   const [messages, setMessages] = useState([]);
 
   const onboarding = !persona;
 
-  function dismissSidebarAfterAction(setOpen) {
+  function dismissSidebarAfterAction(setOpen, toggleRef) {
     const isWideViewport = window.matchMedia("(min-width: 1024px)").matches;
     if (shouldDismissSidebarAfterAction(isWideViewport)) {
       setOpen(false);
+      toggleRef.current?.focus();
     }
+  }
+
+  function dismissOpenMobileSidebars() {
+    const leftWasOpen = leftOpen;
+    const rightWasOpen = rightOpen;
+    setLeftOpen(false);
+    setRightOpen(false);
+    restoreSidebarToggleFocus(
+      leftWasOpen,
+      rightWasOpen,
+      leftToggleRef.current,
+      rightToggleRef.current
+    );
   }
 
   useEffect(() => {
@@ -101,8 +134,7 @@ export default function Workspace() {
         )
       ) {
         event.preventDefault();
-        setLeftOpen(false);
-        setRightOpen(false);
+        dismissOpenMobileSidebars();
       }
     };
 
@@ -128,7 +160,7 @@ export default function Workspace() {
   function handleSelectChat(chat) {
     setActiveChat(chat);
     setBreadcrumbs(["Agapay", persona.pathLabel, chat.title]);
-    dismissSidebarAfterAction(setLeftOpen);
+    dismissSidebarAfterAction(setLeftOpen, leftToggleRef);
   }
 
   function handleNewChat() {
@@ -137,7 +169,7 @@ export default function Workspace() {
     setMessages([{ role: "assistant", content: "__intro__" }]);
     setPendingAsk(null);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
-    dismissSidebarAfterAction(setLeftOpen);
+    dismissSidebarAfterAction(setLeftOpen, leftToggleRef);
   }
 
   function handleSwitchPersona() {
@@ -150,7 +182,7 @@ export default function Workspace() {
 
   function handleAskMentor(prompt) {
     setPendingAsk({ prompt, ts: Date.now() });
-    dismissSidebarAfterAction(setRightOpen);
+    dismissSidebarAfterAction(setRightOpen, rightToggleRef);
   }
 
   return (
@@ -160,10 +192,7 @@ export default function Workspace() {
         <button
           type="button"
           aria-label="Close open sidebar"
-          onClick={() => {
-            setLeftOpen(false);
-            setRightOpen(false);
-          }}
+          onClick={dismissOpenMobileSidebars}
           className="fixed inset-0 z-30 bg-slate-900/20 lg:hidden"
         />
       )}
@@ -210,6 +239,8 @@ export default function Workspace() {
             rightOpen={rightOpen}
             onToggleLeft={() => setLeftOpen((v) => !v)}
             onToggleRight={() => setRightOpen((v) => !v)}
+            leftToggleRef={leftToggleRef}
+            rightToggleRef={rightToggleRef}
             onSwitchPersona={handleSwitchPersona}
             messages={messages}
           />
