@@ -127,6 +127,12 @@ export function isNearChatBottom(scrollArea) {
   );
 }
 
+export function focusComposer(persona, input) {
+  if (!persona || !input) return false;
+  input.focus();
+  return true;
+}
+
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
     typeof window !== "undefined"
@@ -384,8 +390,8 @@ export default function ChatFeed({
   }, [persona?.key, resetVersion]);
 
   useEffect(() => {
-    if (resetVersion > 0) inputRef.current?.focus();
-  }, [resetVersion]);
+    focusComposer(persona, inputRef.current);
+  }, [persona?.key, resetVersion]);
 
   useEffect(() => {
     if (!stickToBottomRef.current) return;

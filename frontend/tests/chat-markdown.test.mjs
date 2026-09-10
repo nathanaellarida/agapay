@@ -239,6 +239,28 @@ test("the composer stays editable for drafting during mentor replies", async () 
   }
 });
 
+test("the composer receives focus after a mentor becomes active", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { focusComposer } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    let focusCount = 0;
+    const input = { focus: () => focusCount++ };
+
+    assert.equal(focusComposer(null, input), false);
+    assert.equal(focusCount, 0);
+    assert.equal(focusComposer({ key: "tech" }, input), true);
+    assert.equal(focusCount, 1);
+  } finally {
+    await server.close();
+  }
+});
+
 test("chat auto-scrolling respects the reduced-motion preference", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
