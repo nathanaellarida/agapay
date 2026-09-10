@@ -2,6 +2,18 @@ import unittest
 from unittest.mock import Mock, patch
 
 import main
+from pydantic import ValidationError
+
+
+class QueryRequestTests(unittest.TestCase):
+    def test_question_length_is_checked_after_trimming(self):
+        request = main.QueryRequest(question="ok" + (" " * 2000))
+
+        self.assertEqual(request.question, "ok")
+
+    def test_meaningful_question_still_respects_maximum_length(self):
+        with self.assertRaises(ValidationError):
+            main.QueryRequest(question="x" * 2001)
 
 
 class LibraryApiTests(unittest.TestCase):

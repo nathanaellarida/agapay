@@ -79,9 +79,11 @@ class QueryRequest(BaseModel):
     question: str = Field(..., min_length=2, max_length=2000)
     persona: Literal["tech", "online", "local"] = "tech"
 
-    @field_validator("question")
+    @field_validator("question", mode="before")
     @classmethod
-    def normalize_question(cls, value: str) -> str:
+    def normalize_question(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
         normalized = value.strip()
         if len(normalized) < 2:
             raise ValueError("Question must contain at least two non-whitespace characters")
