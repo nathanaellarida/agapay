@@ -363,6 +363,36 @@ test("Markdown tables have a labeled keyboard-accessible scroll area", async () 
   }
 });
 
+test("Markdown code blocks have a labeled keyboard-accessible scroll area", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: ChatFeed } = await server.ssrLoadModule("/src/components/ChatFeed.jsx");
+    const html = renderToStaticMarkup(createElement(ChatFeed, {
+      persona: null,
+      messages: [{
+        role: "assistant",
+        content: "```powershell\npython -m pip install a-package-with-a-very-long-name\n```",
+      }],
+      onMessagesChange() {},
+    }));
+    const codeBlock = html.match(
+      /<pre[^>]*role="region"[^>]*>[\s\S]*?<\/pre>/
+    )?.[0];
+
+    assert.ok(codeBlock, "fenced code must render inside a scroll region");
+    assert.match(codeBlock, /aria-label="Response code block"/);
+    assert.match(codeBlock, /tabindex="0"/);
+    assert.match(codeBlock, /class="[^"]*overflow-x-auto/);
+    assert.match(codeBlock, /<code class="language-powershell">/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("assistant Markdown cannot load images but keeps text, links, and portraits", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

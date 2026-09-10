@@ -251,6 +251,20 @@ function MarkdownTable({ node: _node, children, ...props }) {
   );
 }
 
+function MarkdownPre({ node: _node, children, ...props }) {
+  return (
+    <pre
+      {...props}
+      role="region"
+      aria-label="Response code block"
+      tabIndex={0}
+      className="max-w-full overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-flag-blue"
+    >
+      {children}
+    </pre>
+  );
+}
+
 function AssistantBubble({ content, sources, persona }) {
   return (
     <div className="flex justify-start gap-2">
@@ -277,7 +291,11 @@ function AssistantBubble({ content, sources, persona }) {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             disallowedElements={["img"]}
-            components={{ a: MarkdownLink, table: MarkdownTable }}
+            components={{
+              a: MarkdownLink,
+              pre: MarkdownPre,
+              table: MarkdownTable,
+            }}
           >
             {content}
           </ReactMarkdown>
