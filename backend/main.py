@@ -192,7 +192,12 @@ def library() -> list[LibraryDocument]:
     for path in text_paths:
         try:
             stat = path.stat()
-        except FileNotFoundError:
+        except OSError as exc:
+            logger.warning(
+                "Could not inspect library document %s (%s)",
+                path.name,
+                type(exc).__name__,
+            )
             continue
         items.append(
             LibraryDocument(
