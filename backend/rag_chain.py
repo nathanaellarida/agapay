@@ -91,6 +91,7 @@ def validate_source_name(source: Any) -> str:
     if (
         not isinstance(source, str)
         or not source.strip()
+        or source != source.strip()
         or len(source) > MAX_SOURCE_NAME_LENGTH
         or source in {".", ".."}
         or "/" in source

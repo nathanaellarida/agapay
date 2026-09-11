@@ -69,6 +69,8 @@ class RetrievalTests(unittest.TestCase):
             "folder/guide.txt",
             "folder\\guide.txt",
             "guide\n.txt",
+            " guide.txt",
+            "guide.txt ",
             "a" * (rag_chain.MAX_SOURCE_NAME_LENGTH + 1),
         )
         entry = {
