@@ -134,6 +134,14 @@ def prettify_title(filename: str) -> str:
     return " ".join(stem.split())
 
 
+def format_last_updated(timestamp: float) -> str:
+    """Return an ISO date without letting invalid metadata break the library."""
+    try:
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc).date().isoformat()
+    except (OSError, OverflowError, ValueError):
+        return "Unknown"
+
+
 # --------------------------------------------------------------------------- #
 # Routes
 # --------------------------------------------------------------------------- #
@@ -204,9 +212,7 @@ def library() -> list[LibraryDocument]:
                 filename=path.name,
                 title=prettify_title(path.name),
                 category=classify_category(path.name),
-                last_updated=datetime.fromtimestamp(
-                    stat.st_mtime, tz=timezone.utc
-                ).date().isoformat(),
+                last_updated=format_last_updated(stat.st_mtime),
                 status=(
                     "Indexed & Active"
                     if is_source_current(path.name, stat.st_mtime_ns, index_state)

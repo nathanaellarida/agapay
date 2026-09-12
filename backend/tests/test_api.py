@@ -17,6 +17,15 @@ class QueryRequestTests(unittest.TestCase):
 
 
 class LibraryApiTests(unittest.TestCase):
+    def test_invalid_document_timestamp_uses_a_safe_fallback(self):
+        self.assertEqual(main.format_last_updated(0), "1970-01-01")
+
+        invalid_datetime = Mock()
+        invalid_datetime.fromtimestamp.side_effect = OSError("timestamp out of range")
+
+        with patch.object(main, "datetime", invalid_datetime):
+            self.assertEqual(main.format_last_updated(0), "Unknown")
+
     def test_unreadable_document_is_skipped(self):
         blocked_path = Mock()
         blocked_path.name = "Blocked.txt"
