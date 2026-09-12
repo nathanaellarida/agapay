@@ -152,11 +152,12 @@ def get_embedding_model():
 
 @lru_cache(maxsize=1)
 def get_groq_client():
-    from groq import Groq
-
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY", "").strip()
     if not api_key:
         raise ValueError("GROQ_API_KEY is not configured")
+
+    from groq import Groq
+
     return Groq(api_key=api_key, timeout=GROQ_TIMEOUT_SECONDS, max_retries=0)
 
 

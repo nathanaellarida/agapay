@@ -1,3 +1,4 @@
+import sys
 import unittest
 from unittest.mock import Mock, patch
 
@@ -24,6 +25,38 @@ class RetrievalTests(unittest.TestCase):
         model = Mock()
         model.encode.return_value.tolist.return_value = vector
         return model
+
+    def test_groq_api_key_is_validated_before_client_creation(self):
+        for api_key in ("", "   "):
+            with self.subTest(api_key=api_key):
+                rag_chain.get_groq_client.cache_clear()
+                with patch.dict(
+                    rag_chain.os.environ,
+                    {"GROQ_API_KEY": api_key},
+                    clear=True,
+                ):
+                    with self.assertRaisesRegex(ValueError, "not configured"):
+                        rag_chain.get_groq_client()
+
+        client = object()
+        groq_module = Mock()
+        groq_module.Groq.return_value = client
+        rag_chain.get_groq_client.cache_clear()
+        with (
+            patch.dict(sys.modules, {"groq": groq_module}),
+            patch.dict(
+                rag_chain.os.environ,
+                {"GROQ_API_KEY": "  configured-key  "},
+                clear=True,
+            ),
+        ):
+            self.assertIs(rag_chain.get_groq_client(), client)
+        groq_module.Groq.assert_called_once_with(
+            api_key="configured-key",
+            timeout=rag_chain.GROQ_TIMEOUT_SECONDS,
+            max_retries=0,
+        )
+        rag_chain.get_groq_client.cache_clear()
 
     def test_indexed_sources_are_deduplicated(self):
         entries = (
