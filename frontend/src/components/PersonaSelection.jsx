@@ -46,6 +46,17 @@ export const PERSONAS = [
   },
 ];
 
+export function shouldNavigateMentorCarousel(event) {
+  return Boolean(
+    !event.defaultPrevented &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      (event.key === "ArrowLeft" || event.key === "ArrowRight")
+  );
+}
+
 /**
  * Centered persona-selection view. Renders inside the Workspace shell
  * while the topbar / sidebars / chat are hidden.
@@ -66,6 +77,8 @@ export default function PersonaSelection({ onSelect }) {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      if (!shouldNavigateMentorCarousel(event)) return;
+
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         setIndex((i) => (i - 1 + PERSONAS.length) % PERSONAS.length);

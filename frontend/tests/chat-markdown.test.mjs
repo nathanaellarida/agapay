@@ -781,6 +781,44 @@ test("mentor selection keeps its controls within narrow screens", async () => {
   }
 });
 
+test("mentor keyboard navigation preserves modified arrow shortcuts", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldNavigateMentorCarousel } = await server.ssrLoadModule(
+      "/src/components/PersonaSelection.jsx"
+    );
+    const arrow = {
+      key: "ArrowLeft",
+      defaultPrevented: false,
+      altKey: false,
+      ctrlKey: false,
+      metaKey: false,
+      shiftKey: false,
+    };
+
+    assert.equal(shouldNavigateMentorCarousel(arrow), true);
+    assert.equal(
+      shouldNavigateMentorCarousel({ ...arrow, key: "ArrowRight" }),
+      true
+    );
+    assert.equal(shouldNavigateMentorCarousel({ ...arrow, altKey: true }), false);
+    assert.equal(shouldNavigateMentorCarousel({ ...arrow, ctrlKey: true }), false);
+    assert.equal(shouldNavigateMentorCarousel({ ...arrow, metaKey: true }), false);
+    assert.equal(shouldNavigateMentorCarousel({ ...arrow, shiftKey: true }), false);
+    assert.equal(
+      shouldNavigateMentorCarousel({ ...arrow, defaultPrevented: true }),
+      false
+    );
+    assert.equal(shouldNavigateMentorCarousel({ ...arrow, key: "Enter" }), false);
+  } finally {
+    await server.close();
+  }
+});
+
 test("workspace sidebars expose distinct landmark names", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
