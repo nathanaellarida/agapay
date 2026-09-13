@@ -1,5 +1,7 @@
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import rag_chain
@@ -86,6 +88,19 @@ class RetrievalTests(unittest.TestCase):
 
         self.assertEqual(result, (frozenset({"guide.txt", "faq.txt"}), 123_456))
         load_index.assert_called_once_with(signature)
+
+    def test_duplicate_index_object_keys_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            index_path.write_text(
+                '{"schema_version":1,"schema_version":1,"model":{},"entries":[]}',
+                encoding="utf-8",
+            )
+            rag_chain._load_index.cache_clear()
+            with patch.object(rag_chain, "INDEX_PATH", index_path):
+                with self.assertRaisesRegex(ValueError, "duplicate object keys"):
+                    rag_chain.get_index()
+            rag_chain._load_index.cache_clear()
 
     def test_source_is_current_only_when_indexed_after_its_last_edit(self):
         index_state = (frozenset({"guide.txt"}), 200)

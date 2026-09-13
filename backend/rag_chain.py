@@ -118,6 +118,16 @@ def normalize_embedding_values(values: list[Any], error_message: str) -> list[fl
     return normalized
 
 
+def reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject ambiguous JSON objects instead of silently keeping later values."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Vector index contains duplicate object keys")
+        result[key] = value
+    return result
+
+
 def _system_prompt(persona_key: str) -> str:
     persona = PERSONAS.get(persona_key, PERSONAS[DEFAULT_PERSONA])
     return f"""{persona['voice']}
@@ -218,7 +228,10 @@ def _load_index(
     if len(raw_index) > MAX_INDEX_BYTES:
         raise ValueError("Vector index exceeds the configured safety limit")
 
-    payload = json.loads(raw_index.decode("utf-8"))
+    payload = json.loads(
+        raw_index.decode("utf-8"),
+        object_pairs_hook=reject_duplicate_json_keys,
+    )
     if not isinstance(payload, dict) or payload.get("schema_version") != INDEX_SCHEMA_VERSION:
         raise ValueError("Vector index schema is unsupported")
     model = payload.get("model")
