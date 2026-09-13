@@ -27,6 +27,14 @@ export function buildPlainTextTranscript(messages, persona) {
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
+export function scheduleObjectUrlRevocation(
+  url,
+  schedule = (callback) => setTimeout(callback, 0),
+  revoke = (objectUrl) => URL.revokeObjectURL(objectUrl)
+) {
+  schedule(() => revoke(url));
+}
+
 function ExportModal({ onClose, onExportPlainText }) {
   const dialogRef = useRef(null);
 
@@ -149,7 +157,7 @@ export default function TopBar({
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
+    scheduleObjectUrlRevocation(url);
     closeExport();
   }
 

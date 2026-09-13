@@ -541,6 +541,36 @@ test("plain-text export includes the conversation and source citations", async (
   }
 });
 
+test("download URLs stay valid until the browser handles the click", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { scheduleObjectUrlRevocation } = await server.ssrLoadModule(
+      "/src/components/TopBar.jsx"
+    );
+    let scheduledCallback;
+    const revoked = [];
+
+    scheduleObjectUrlRevocation(
+      "blob:agapay-report",
+      (callback) => {
+        scheduledCallback = callback;
+      },
+      (url) => revoked.push(url)
+    );
+
+    assert.deepEqual(revoked, []);
+    assert.equal(typeof scheduledCallback, "function");
+    scheduledCallback();
+    assert.deepEqual(revoked, ["blob:agapay-report"]);
+  } finally {
+    await server.close();
+  }
+});
+
 test("export stays unavailable until the conversation has content", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
