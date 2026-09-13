@@ -15,6 +15,7 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,20 +32,46 @@ from rag_chain import (
 
 logger = logging.getLogger(__name__)
 
+
+def parse_cors_origins(value: str) -> list[str]:
+    """Return unique HTTP(S) origins and reject malformed configuration."""
+    origins: list[str] = []
+    for configured in value.split(","):
+        origin = configured.strip().removesuffix("/")
+        if not origin:
+            continue
+        try:
+            parsed = urlsplit(origin)
+            parsed.port
+        except ValueError:
+            raise ValueError("CORS_ORIGINS contains an invalid origin") from None
+        if (
+            origin == "*"
+            or parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or any(character.isspace() for character in origin)
+        ):
+            raise ValueError("CORS_ORIGINS contains an invalid origin")
+        if origin not in origins:
+            origins.append(origin)
+
+    if not origins:
+        raise ValueError("CORS_ORIGINS must list explicit trusted origins")
+    return origins
+
 DATA_DIR = require_backend_path(
     resolve_configured_path("DATA_DIR", "./data"), "DATA_DIR"
 )
-CORS_ORIGINS = list(
-    dict.fromkeys(
-        normalized
-        for origin in os.getenv(
-            "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
-        ).split(",")
-        if (normalized := origin.strip().removesuffix("/"))
+CORS_ORIGINS = parse_cors_origins(
+    os.getenv(
+        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
     )
 )
-if not CORS_ORIGINS or "*" in CORS_ORIGINS:
-    raise ValueError("CORS_ORIGINS must list explicit trusted origins")
 
 app = FastAPI(
     title="Agapay — Entrepreneurial Launchpad",

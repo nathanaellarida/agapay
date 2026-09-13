@@ -16,6 +16,35 @@ class QueryRequestTests(unittest.TestCase):
             main.QueryRequest(question="x" * 2001)
 
 
+class CorsConfigurationTests(unittest.TestCase):
+    def test_origins_are_normalized_and_deduplicated(self):
+        self.assertEqual(
+            main.parse_cors_origins(
+                " https://founder.example/ ,http://localhost:5173,https://founder.example "
+            ),
+            ["https://founder.example", "http://localhost:5173"],
+        )
+
+    def test_malformed_origins_are_rejected(self):
+        invalid_values = (
+            "",
+            "*",
+            "founder.example",
+            "ftp://founder.example",
+            "https://user:secret@founder.example",
+            "https://founder.example/path",
+            "https://founder.example?preview=true",
+            "https://founder.example#preview",
+            "https://founder example",
+            "https://founder.example:invalid",
+        )
+
+        for value in invalid_values:
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "CORS_ORIGINS"):
+                    main.parse_cors_origins(value)
+
+
 class LibraryApiTests(unittest.TestCase):
     def test_invalid_document_timestamp_uses_a_safe_fallback(self):
         self.assertEqual(main.format_last_updated(0), "1970-01-01")
