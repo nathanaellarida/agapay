@@ -64,11 +64,17 @@ const QUERY_TIMEOUT_MS = 45_000;
 const USER_ABORT_REASON = "user-stopped";
 const CHAT_BOTTOM_THRESHOLD_PX = 80;
 
-export function getRequestErrorMessage(signal) {
+export function getRequestErrorMessage(signal, status = null) {
   if (signal.aborted) {
     return signal.reason === USER_ABORT_REASON
       ? "Response stopped. You can ask another question when you're ready."
       : "Agapay took too long to respond. Please try again.";
+  }
+  if (status !== null && status >= 500) {
+    return "Agapay is temporarily unavailable. Please try again in a moment.";
+  }
+  if (status !== null && status >= 400) {
+    return "Agapay couldn't process that question. Please review it and try again.";
   }
   return "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
 }
@@ -444,6 +450,7 @@ export default function ChatFeed({
     const timeoutId = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
     activeRequestRef.current = controller;
 
+    let responseStatus = null;
     try {
       const res = await fetch("/api/query", {
         method: "POST",
@@ -451,6 +458,7 @@ export default function ChatFeed({
         body: JSON.stringify({ question: q, persona: persona.key }),
         signal: controller.signal,
       });
+      responseStatus = res.status;
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
       const answer = typeof data.answer === "string" ? data.answer.trim() : "";
@@ -471,7 +479,10 @@ export default function ChatFeed({
       ]);
     } catch {
       if (activeRequestRef.current !== controller) return;
-      const errorMessage = getRequestErrorMessage(controller.signal);
+      const errorMessage = getRequestErrorMessage(
+        controller.signal,
+        responseStatus
+      );
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),
         { role: "user", content: q },

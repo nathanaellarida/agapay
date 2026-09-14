@@ -23,6 +23,14 @@ test("request errors distinguish user cancellation from timeout and failure", as
     assert.match(getRequestErrorMessage(stopped.signal), /Response stopped/);
     assert.match(getRequestErrorMessage(timedOut.signal), /too long/);
     assert.match(getRequestErrorMessage(failed.signal), /couldn't reach/);
+    assert.match(
+      getRequestErrorMessage(failed.signal, 422),
+      /couldn't process that question/
+    );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 503),
+      /temporarily unavailable/
+    );
   } finally {
     await server.close();
   }
