@@ -16,6 +16,25 @@ class QueryRequestTests(unittest.TestCase):
             main.QueryRequest(question="x" * 2001)
 
 
+class QueryApiTests(unittest.TestCase):
+    def test_temporary_failures_include_retry_guidance(self):
+        request = main.QueryRequest(question="How do I register?")
+
+        with patch.object(
+            main,
+            "answer_question",
+            side_effect=RuntimeError("provider unavailable"),
+        ):
+            with self.assertRaises(main.HTTPException) as raised:
+                main.query(request)
+
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertEqual(
+            raised.exception.headers,
+            {"Retry-After": str(main.RETRY_AFTER_SECONDS)},
+        )
+
+
 class CorsConfigurationTests(unittest.TestCase):
     def test_origins_are_normalized_and_deduplicated(self):
         self.assertEqual(

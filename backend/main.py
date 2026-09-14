@@ -31,6 +31,7 @@ from rag_chain import (
 )
 
 logger = logging.getLogger(__name__)
+RETRY_AFTER_SECONDS = 5
 
 
 def parse_cors_origins(value: str) -> list[str]:
@@ -191,6 +192,7 @@ def query(body: QueryRequest) -> QueryResponse:
         raise HTTPException(
             status_code=503,
             detail="The assistant is temporarily unavailable.",
+            headers={"Retry-After": str(RETRY_AFTER_SECONDS)},
         ) from exc
     return QueryResponse(**result)
 
