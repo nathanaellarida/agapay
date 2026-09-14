@@ -34,6 +34,28 @@ class IndexOutputLimitTests(unittest.TestCase):
         self.assertEqual(self.index_path.read_bytes(), expected)
         self.assertEqual(list(self.index_path.parent.iterdir()), [self.index_path])
 
+    def test_output_is_flushed_before_it_is_published(self):
+        events = []
+        fsync = ingest.os.fsync
+        replace = ingest.os.replace
+
+        def record_fsync(file_descriptor):
+            events.append("fsync")
+            fsync(file_descriptor)
+
+        def record_replace(source, destination):
+            events.append("replace")
+            replace(source, destination)
+
+        with (
+            patch.object(ingest.os, "fsync", side_effect=record_fsync),
+            patch.object(ingest.os, "replace", side_effect=record_replace),
+        ):
+            ingest.write_index(self.entries)
+
+        self.assertEqual(events, ["fsync", "replace"])
+        self.assertEqual(self.index_path.read_bytes(), self.serialized())
+
     def test_oversized_output_preserves_previous_index(self):
         self.index_path.write_bytes(b"previous index")
         with patch.object(ingest, "MAX_INDEX_BYTES", len(self.serialized()) - 1):

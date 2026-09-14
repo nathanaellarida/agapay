@@ -153,7 +153,10 @@ def write_index(entries: list[dict]) -> None:
         f".{INDEX_PATH.name}.{os.getpid()}.tmp"
     )
     try:
-        temporary_path.write_bytes(serialized)
+        with temporary_path.open("wb") as index_file:
+            index_file.write(serialized)
+            index_file.flush()
+            os.fsync(index_file.fileno())
         os.replace(temporary_path, INDEX_PATH)
     finally:
         temporary_path.unlink(missing_ok=True)
