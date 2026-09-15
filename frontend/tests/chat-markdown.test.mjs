@@ -3,6 +3,15 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
+import viteConfig from "../vite.config.js";
+
+test("development proxy uses the backend IPv4 listener", () => {
+  assert.equal(viteConfig.server.host, "127.0.0.1");
+  assert.equal(
+    viteConfig.server.proxy["/api"].target,
+    "http://127.0.0.1:8000"
+  );
+});
 
 test("request errors distinguish user cancellation from timeout and failure", async () => {
   const server = await createServer({
