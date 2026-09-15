@@ -232,7 +232,10 @@ def _load_index(
         raw_index.decode("utf-8"),
         object_pairs_hook=reject_duplicate_json_keys,
     )
-    if not isinstance(payload, dict) or payload.get("schema_version") != INDEX_SCHEMA_VERSION:
+    if not isinstance(payload, dict):
+        raise ValueError("Vector index schema is unsupported")
+    schema_version = payload.get("schema_version")
+    if type(schema_version) is not int or schema_version != INDEX_SCHEMA_VERSION:
         raise ValueError("Vector index schema is unsupported")
     model = payload.get("model")
     if model != {"name": EMBEDDING_MODEL, "revision": EMBEDDING_MODEL_REVISION}:

@@ -1,3 +1,4 @@
+import json
 import sys
 import tempfile
 import unittest
@@ -100,6 +101,32 @@ class RetrievalTests(unittest.TestCase):
             with patch.object(rag_chain, "INDEX_PATH", index_path):
                 with self.assertRaisesRegex(ValueError, "duplicate object keys"):
                     rag_chain.get_index()
+            rag_chain._load_index.cache_clear()
+
+    def test_non_integer_index_schema_versions_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            for schema_version in (True, 1.0):
+                with self.subTest(schema_version=schema_version):
+                    index_path.write_text(
+                        json.dumps(
+                            {
+                                "schema_version": schema_version,
+                                "model": {
+                                    "name": rag_chain.EMBEDDING_MODEL,
+                                    "revision": rag_chain.EMBEDDING_MODEL_REVISION,
+                                },
+                                "entries": [],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    rag_chain._load_index.cache_clear()
+                    with patch.object(rag_chain, "INDEX_PATH", index_path):
+                        with self.assertRaisesRegex(
+                            ValueError, "schema is unsupported"
+                        ):
+                            rag_chain.get_index()
             rag_chain._load_index.cache_clear()
 
     def test_source_is_current_only_when_indexed_after_its_last_edit(self):
