@@ -89,6 +89,7 @@ def split_text(text: str) -> list[str]:
                 normalized.rfind("\n\n", start, end),
                 normalized.rfind("\n", start, end),
                 normalized.rfind(". ", start, end),
+                normalized.rfind(" ", start, end),
             )
             boundary = max(boundaries)
             if boundary > start + CHUNK_SIZE // 2:
@@ -99,7 +100,10 @@ def split_text(text: str) -> list[str]:
             chunks.append(chunk)
         if end >= len(normalized):
             break
-        start = max(end - CHUNK_OVERLAP, start + 1)
+        next_start = max(end - CHUNK_OVERLAP, start + 1)
+        while next_start < end and not normalized[next_start - 1].isspace():
+            next_start += 1
+        start = next_start
 
     return chunks
 

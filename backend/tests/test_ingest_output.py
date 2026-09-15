@@ -89,6 +89,16 @@ class DocumentInputTests(unittest.TestCase):
                     ingest.load_documents()
 
 
+class TextSplittingTests(unittest.TestCase):
+    def test_overlapping_chunks_start_and_end_at_word_boundaries(self):
+        chunks = ingest.split_text("guidance " * 220)
+
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(chunk.startswith("guidance") for chunk in chunks))
+        self.assertTrue(all(chunk.endswith("guidance") for chunk in chunks))
+        self.assertTrue(all(len(chunk) <= ingest.CHUNK_SIZE for chunk in chunks))
+
+
 class GeneratedEmbeddingTests(unittest.TestCase):
     class Array:
         def __init__(self, values):
