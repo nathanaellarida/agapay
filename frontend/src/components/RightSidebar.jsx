@@ -50,6 +50,12 @@ export function parseSavedRoadmapProgress(serialized) {
   }
 }
 
+export function getRoadmapProgressStorageUpdate(event, storage) {
+  if (event.storageArea !== storage) return null;
+  if (event.key !== ROADMAP_PROGRESS_KEY && event.key !== null) return null;
+  return parseSavedRoadmapProgress(event.newValue);
+}
+
 function updateCompletedSteps(completed, steps, stepId) {
   const next = { ...completed };
   if (!next[stepId]) {
@@ -450,6 +456,20 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
       // Progress still works for this session when storage is unavailable.
     }
   }, [completedByPersona]);
+
+  useEffect(() => {
+    function syncRoadmapProgress(event) {
+      try {
+        const progress = getRoadmapProgressStorageUpdate(event, localStorage);
+        if (progress !== null) setCompletedByPersona(progress);
+      } catch {
+        // Ignore storage access failures; in-memory progress remains available.
+      }
+    }
+
+    window.addEventListener("storage", syncRoadmapProgress);
+    return () => window.removeEventListener("storage", syncRoadmapProgress);
+  }, []);
 
   // Memoized: which roadmap steps the AI has discussed in this conversation
   const discussed = useMemo(() => {

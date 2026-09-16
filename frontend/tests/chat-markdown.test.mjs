@@ -227,6 +227,46 @@ test("saved roadmap progress restores only known sequential steps", async () => 
   }
 });
 
+test("roadmap progress synchronizes only from local storage updates", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getRoadmapProgressStorageUpdate } = await server.ssrLoadModule(
+      "/src/components/RightSidebar.jsx"
+    );
+    const localStorageArea = {};
+    const otherStorageArea = {};
+
+    assert.deepEqual(getRoadmapProgressStorageUpdate({
+      storageArea: localStorageArea,
+      key: "agapay-roadmap-progress",
+      newValue: JSON.stringify({ tech: { "tech-1": true } }),
+    }, localStorageArea), {
+      tech: { "tech-1": true },
+    });
+    assert.deepEqual(getRoadmapProgressStorageUpdate({
+      storageArea: localStorageArea,
+      key: null,
+      newValue: null,
+    }, localStorageArea), {});
+    assert.equal(getRoadmapProgressStorageUpdate({
+      storageArea: localStorageArea,
+      key: "unrelated-key",
+      newValue: "{}",
+    }, localStorageArea), null);
+    assert.equal(getRoadmapProgressStorageUpdate({
+      storageArea: otherStorageArea,
+      key: "agapay-roadmap-progress",
+      newValue: "{}",
+    }, localStorageArea), null);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer stays editable for drafting during mentor replies", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
