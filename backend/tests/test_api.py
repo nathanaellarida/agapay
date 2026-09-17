@@ -15,6 +15,15 @@ class QueryRequestTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             main.QueryRequest(question="x" * 2001)
 
+    def test_invisible_characters_do_not_satisfy_the_minimum_length(self):
+        for question in ("\u200b\u200b", "A\u200b", "A\x00"):
+            with self.subTest(question=repr(question)):
+                with self.assertRaisesRegex(ValidationError, "visible characters"):
+                    main.QueryRequest(question=question)
+
+        request = main.QueryRequest(question="A\nB")
+        self.assertEqual(request.question, "A\nB")
+
 
 class QueryApiTests(unittest.TestCase):
     def test_temporary_failures_include_retry_guidance(self):

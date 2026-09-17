@@ -113,8 +113,12 @@ class QueryRequest(BaseModel):
         if not isinstance(value, str):
             return value
         normalized = value.strip()
-        if len(normalized) < 2:
-            raise ValueError("Question must contain at least two non-whitespace characters")
+        visible_characters = sum(
+            character.isprintable() and not character.isspace()
+            for character in normalized
+        )
+        if visible_characters < 2:
+            raise ValueError("Question must contain at least two visible characters")
         return normalized
 
 
