@@ -221,7 +221,7 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
  * Aggregates min / max / weeks across all steps.
  * Toggle "remaining only" excludes already-completed steps.
  * ────────────────────────────────────────────────────────────────────────── */
-function CostTab({ persona, completed, discussed }) {
+export function CostTab({ persona, completed, discussed }) {
   const data = ROADMAPS[persona.key];
   const [mode, setMode] = useState("discussed"); // "discussed" | "remaining" | "full"
 
@@ -261,8 +261,16 @@ function CostTab({ persona, completed, discussed }) {
           Cost & Timeline
         </p>
         <p className="text-[11px] text-slate-500">
-          Live estimate updated from your conversation.
+          Planning estimate based on your conversation.
         </p>
+      </div>
+
+      <div
+        role="note"
+        className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-relaxed text-amber-900"
+      >
+        These ranges are illustrative, not official fees or timelines. Verify
+        current requirements with the relevant agency or provider.
       </div>
 
       {/* Mode toggle */}

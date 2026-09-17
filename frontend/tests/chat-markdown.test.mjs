@@ -267,6 +267,31 @@ test("roadmap progress synchronizes only from local storage updates", async () =
   }
 });
 
+test("cost estimates are identified as non-official planning ranges", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { CostTab } = await server.ssrLoadModule(
+      "/src/components/RightSidebar.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(CostTab, {
+      persona: { key: "tech", name: "Anton" },
+      completed: {},
+      discussed: new Set(),
+    }));
+
+    assert.match(html, /Planning estimate based on your conversation/);
+    assert.match(html, /role="note"/);
+    assert.match(html, /not official fees or timelines/);
+    assert.match(html, /relevant agency or provider/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer stays editable for drafting during mentor replies", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
