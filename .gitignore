@@ -9,6 +9,7 @@ backend/.env.*
 backend/chroma_db/
 backend/vector_index.json
 backend/vector_index.json.tmp
+backend/**/.*.json.*.tmp
 
 # ---- Secrets / local configuration ----
 .env
