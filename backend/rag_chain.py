@@ -128,6 +128,11 @@ def reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def reject_nonstandard_json_constant(_value: str) -> None:
+    """Reject NaN and infinity tokens, which are not valid JSON numbers."""
+    raise ValueError("Vector index contains a non-standard numeric value")
+
+
 def _system_prompt(persona_key: str) -> str:
     persona = PERSONAS.get(persona_key, PERSONAS[DEFAULT_PERSONA])
     return f"""{persona['voice']}
@@ -231,6 +236,7 @@ def _load_index(
     payload = json.loads(
         raw_index.decode("utf-8"),
         object_pairs_hook=reject_duplicate_json_keys,
+        parse_constant=reject_nonstandard_json_constant,
     )
     if not isinstance(payload, dict):
         raise ValueError("Vector index schema is unsupported")

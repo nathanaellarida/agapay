@@ -103,6 +103,24 @@ class RetrievalTests(unittest.TestCase):
                     rag_chain.get_index()
             rag_chain._load_index.cache_clear()
 
+    def test_nonstandard_json_numbers_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            for value in ("NaN", "Infinity", "-Infinity"):
+                with self.subTest(value=value):
+                    index_path.write_text(
+                        f'{{"schema_version":1,"metadata":{value}}}',
+                        encoding="utf-8",
+                    )
+                    rag_chain._load_index.cache_clear()
+                    with patch.object(rag_chain, "INDEX_PATH", index_path):
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            "non-standard numeric value",
+                        ):
+                            rag_chain.get_index()
+            rag_chain._load_index.cache_clear()
+
     def test_non_integer_index_schema_versions_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             index_path = Path(directory) / "index.json"
