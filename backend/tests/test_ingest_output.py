@@ -34,6 +34,17 @@ class IndexOutputLimitTests(unittest.TestCase):
         self.assertEqual(self.index_path.read_bytes(), expected)
         self.assertEqual(list(self.index_path.parent.iterdir()), [self.index_path])
 
+    def test_missing_configured_parent_directories_are_created(self):
+        nested_index_path = (
+            Path(self.directory.name) / "cache" / "indexes" / "index.json"
+        )
+
+        with patch.object(ingest, "INDEX_PATH", nested_index_path):
+            ingest.write_index(self.entries)
+
+        self.assertEqual(nested_index_path.read_bytes(), self.serialized())
+        self.assertEqual(list(nested_index_path.parent.iterdir()), [nested_index_path])
+
     def test_output_is_flushed_before_it_is_published(self):
         events = []
         fsync = ingest.os.fsync

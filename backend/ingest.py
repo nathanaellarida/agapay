@@ -153,6 +153,7 @@ def write_index(entries: list[dict]) -> None:
     if len(serialized) > MAX_INDEX_BYTES:
         raise ValueError("Generated vector index exceeds the configured size limit")
 
+    INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = INDEX_PATH.with_name(
         f".{INDEX_PATH.name}.{os.getpid()}.tmp"
     )
