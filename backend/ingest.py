@@ -68,7 +68,12 @@ def load_documents() -> list[tuple[str, str]]:
             raw_content = document_file.read(MAX_DOCUMENT_BYTES + 1)
         if len(raw_content) > MAX_DOCUMENT_BYTES:
             raise ValueError(f"Document exceeds the size limit: {path.name}")
-        content = raw_content.decode("utf-8-sig")
+        try:
+            content = raw_content.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            raise ValueError(
+                f"Document is not valid UTF-8: {path.name}"
+            ) from None
         if not content.strip():
             raise ValueError(f"Document is empty: {path.name}")
         documents.append((path.name, content))

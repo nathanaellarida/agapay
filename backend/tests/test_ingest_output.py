@@ -85,6 +85,18 @@ class IndexOutputLimitTests(unittest.TestCase):
 
 
 class DocumentInputTests(unittest.TestCase):
+    def test_invalid_utf8_identifies_the_source_document(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / "Broken.txt").write_bytes(b"Registration \xff guidance")
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"not valid UTF-8: Broken\.txt",
+                ):
+                    ingest.load_documents()
+
     def test_case_insensitive_duplicate_filenames_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)
