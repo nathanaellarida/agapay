@@ -19,7 +19,7 @@ from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from rag_chain import (
     answer_question,
@@ -104,6 +104,8 @@ async def security_headers(request, call_next):
 # Schemas
 # --------------------------------------------------------------------------- #
 class QueryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     question: str = Field(..., min_length=2, max_length=2000)
     persona: Literal["tech", "online", "local"] = "tech"
 

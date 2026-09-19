@@ -6,6 +6,13 @@ from pydantic import ValidationError
 
 
 class QueryRequestTests(unittest.TestCase):
+    def test_unknown_request_fields_are_rejected(self):
+        with self.assertRaisesRegex(ValidationError, "Extra inputs are not permitted"):
+            main.QueryRequest(
+                question="How do I register?",
+                person="online",
+            )
+
     def test_question_length_is_checked_after_trimming(self):
         request = main.QueryRequest(question="ok" + (" " * 2000))
 
