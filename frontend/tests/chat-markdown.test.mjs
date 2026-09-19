@@ -45,6 +45,26 @@ test("request errors distinguish user cancellation from timeout and failure", as
   }
 });
 
+test("the composer requires two visible question characters", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { hasMinimumVisibleQuestionLength } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+
+    assert.equal(hasMinimumVisibleQuestionLength("\u200b\u2060"), false);
+    assert.equal(hasMinimumVisibleQuestionLength(" \nA\t"), false);
+    assert.equal(hasMinimumVisibleQuestionLength("A?"), true);
+    assert.equal(hasMinimumVisibleQuestionLength("🙂?"), true);
+  } finally {
+    await server.close();
+  }
+});
+
 test("application failures show a clear recovery screen", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

@@ -63,6 +63,19 @@ const MAX_QUESTION_LENGTH = 2000;
 const QUERY_TIMEOUT_MS = 45_000;
 const USER_ABORT_REASON = "user-stopped";
 const CHAT_BOTTOM_THRESHOLD_PX = 80;
+const NON_VISIBLE_QUESTION_CHARACTER = /[\p{C}\p{Z}]/u;
+
+export function hasMinimumVisibleQuestionLength(value) {
+  if (typeof value !== "string") return false;
+  let visibleCharacters = 0;
+  for (const character of value) {
+    if (!NON_VISIBLE_QUESTION_CHARACTER.test(character)) {
+      visibleCharacters += 1;
+      if (visibleCharacters >= MIN_QUESTION_LENGTH) return true;
+    }
+  }
+  return false;
+}
 
 export function getRequestErrorMessage(signal, status = null) {
   if (signal.aborted) {
@@ -427,7 +440,7 @@ export default function ChatFeed({
   async function send(text, preserveInput = false) {
     const q = (text ?? input).trim();
     if (
-      q.length < MIN_QUESTION_LENGTH ||
+      !hasMinimumVisibleQuestionLength(q) ||
       activeRequestRef.current ||
       loading ||
       locked ||
@@ -669,7 +682,10 @@ export default function ChatFeed({
                   send();
                 }
               }}
-              disabled={locked || (!loading && input.trim().length < MIN_QUESTION_LENGTH)}
+              disabled={
+                locked ||
+                (!loading && !hasMinimumVisibleQuestionLength(input))
+              }
               className="w-8 h-8 bg-flag-blue text-white rounded-xl flex items-center justify-center hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed transition flex-shrink-0"
               aria-label={loading ? "Stop response" : "Send"}
               title={loading ? "Stop response" : undefined}
