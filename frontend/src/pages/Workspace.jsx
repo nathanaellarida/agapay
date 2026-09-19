@@ -68,6 +68,10 @@ export function restoreSidebarToggleFocus(
   return true;
 }
 
+export function getTopBarStateKey(persona) {
+  return persona?.key ?? "mentor-selection";
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
@@ -233,6 +237,7 @@ export default function Workspace() {
           style={{ backgroundColor: "#FCFCFC" }}
         >
           <TopBar
+            key={getTopBarStateKey(persona)}
             breadcrumbs={breadcrumbs}
             persona={persona}
             leftOpen={leftOpen}

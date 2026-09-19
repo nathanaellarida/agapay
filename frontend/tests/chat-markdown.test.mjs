@@ -66,6 +66,28 @@ test("application failures show a clear recovery screen", async () => {
   }
 });
 
+test("top bar state resets when the active mentor changes", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getTopBarStateKey } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.equal(getTopBarStateKey(null), "mentor-selection");
+    assert.equal(getTopBarStateKey({ key: "tech" }), "tech");
+    assert.notEqual(
+      getTopBarStateKey({ key: "tech" }),
+      getTopBarStateKey({ key: "online" })
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("conversation search shortcut only activates for the visible sidebar", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
