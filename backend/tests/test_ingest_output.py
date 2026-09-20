@@ -97,6 +97,20 @@ class DocumentInputTests(unittest.TestCase):
                 ):
                     ingest.load_documents()
 
+    def test_nul_characters_identify_the_source_document(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / "Misencoded.txt").write_bytes(
+                b"R\x00e\x00g\x00i\x00s\x00t\x00r\x00a\x00t\x00i\x00o\x00n\x00"
+            )
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"NUL characters: Misencoded\.txt",
+                ):
+                    ingest.load_documents()
+
     def test_case_insensitive_duplicate_filenames_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)

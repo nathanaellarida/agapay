@@ -79,6 +79,8 @@ def load_documents() -> list[tuple[str, str]]:
             raise ValueError(
                 f"Document is not valid UTF-8: {path.name}"
             ) from None
+        if "\x00" in content:
+            raise ValueError(f"Document contains NUL characters: {path.name}")
         if not content.strip():
             raise ValueError(f"Document is empty: {path.name}")
         documents.append((path.name, content))
