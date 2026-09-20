@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import unicodedata
 from pathlib import Path
 
 from rag_chain import (
@@ -53,10 +54,14 @@ def load_documents() -> list[tuple[str, str]]:
     if not txt_files:
         raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
 
-    normalized_filenames = [path.name.casefold() for path in txt_files]
+    normalized_filenames = [
+        unicodedata.normalize("NFC", path.name).casefold()
+        for path in txt_files
+    ]
     if len(normalized_filenames) != len(set(normalized_filenames)):
         raise ValueError(
-            "Document filenames must be unique when ignoring letter case"
+            "Document filenames must be unique after Unicode normalization and "
+            "when ignoring letter case"
         )
 
     documents = []

@@ -111,6 +111,20 @@ class DocumentInputTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "unique.*letter case"):
                     ingest.load_documents()
 
+    def test_unicode_equivalent_duplicate_filenames_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / "Café.txt").write_text(
+                "Registration guidance", encoding="utf-8"
+            )
+            (data_dir / "Cafe\u0301.txt").write_text(
+                "Funding guidance", encoding="utf-8"
+            )
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(ValueError, "Unicode normalization"):
+                    ingest.load_documents()
+
 
 class TextSplittingTests(unittest.TestCase):
     def test_overlapping_chunks_start_and_end_at_word_boundaries(self):
