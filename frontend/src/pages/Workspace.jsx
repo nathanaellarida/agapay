@@ -28,6 +28,23 @@ export function shouldDismissSidebarAfterAction(isWideViewport) {
   return !isWideViewport;
 }
 
+export function getSidebarToggleState(
+  target,
+  isWideViewport,
+  leftOpen,
+  rightOpen
+) {
+  return target === "left"
+    ? {
+        leftOpen: !leftOpen,
+        rightOpen: isWideViewport ? rightOpen : false,
+      }
+    : {
+        leftOpen: isWideViewport ? leftOpen : false,
+        rightOpen: !rightOpen,
+      };
+}
+
 export function focusOpenMobileSidebar(
   isWideViewport,
   leftOpen,
@@ -109,6 +126,17 @@ export default function Workspace() {
       leftToggleRef.current,
       rightToggleRef.current
     );
+  }
+
+  function toggleSidebar(target) {
+    const nextState = getSidebarToggleState(
+      target,
+      window.matchMedia("(min-width: 1024px)").matches,
+      leftOpen,
+      rightOpen
+    );
+    setLeftOpen(nextState.leftOpen);
+    setRightOpen(nextState.rightOpen);
   }
 
   useEffect(() => {
@@ -242,8 +270,8 @@ export default function Workspace() {
             persona={persona}
             leftOpen={leftOpen}
             rightOpen={rightOpen}
-            onToggleLeft={() => setLeftOpen((v) => !v)}
-            onToggleRight={() => setRightOpen((v) => !v)}
+            onToggleLeft={() => toggleSidebar("left")}
+            onToggleRight={() => toggleSidebar("right")}
             leftToggleRef={leftToggleRef}
             rightToggleRef={rightToggleRef}
             onSwitchPersona={handleSwitchPersona}

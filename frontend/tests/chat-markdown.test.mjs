@@ -108,6 +108,34 @@ test("top bar state resets when the active mentor changes", async () => {
   }
 });
 
+test("mobile sidebar toggles close the opposite panel", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getSidebarToggleState } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.deepEqual(
+      getSidebarToggleState("right", false, true, false),
+      { leftOpen: false, rightOpen: true }
+    );
+    assert.deepEqual(
+      getSidebarToggleState("left", false, false, true),
+      { leftOpen: true, rightOpen: false }
+    );
+    assert.deepEqual(
+      getSidebarToggleState("right", true, true, false),
+      { leftOpen: true, rightOpen: true }
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("conversation search shortcut only activates for the visible sidebar", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
