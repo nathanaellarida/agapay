@@ -77,13 +77,25 @@ export function hasMinimumVisibleQuestionLength(value) {
   return false;
 }
 
-export function getRequestErrorMessage(signal, status = null) {
+export function getRequestErrorMessage(
+  signal,
+  status = null,
+  retryAfter = null
+) {
   if (signal.aborted) {
     return signal.reason === USER_ABORT_REASON
       ? "Response stopped. You can ask another question when you're ready."
       : "Agapay took too long to respond. Please try again.";
   }
   if (status !== null && status >= 500) {
+    const normalizedRetryAfter = retryAfter?.trim();
+    const retryDelay = /^\d+$/.test(normalizedRetryAfter || "")
+      ? Number(normalizedRetryAfter)
+      : null;
+    if (Number.isSafeInteger(retryDelay) && retryDelay > 0) {
+      const unit = retryDelay === 1 ? "second" : "seconds";
+      return `Agapay is temporarily unavailable. Please try again in ${retryDelay} ${unit}.`;
+    }
     return "Agapay is temporarily unavailable. Please try again in a moment.";
   }
   if (status !== null && status >= 400) {
@@ -464,6 +476,7 @@ export default function ChatFeed({
     activeRequestRef.current = controller;
 
     let responseStatus = null;
+    let retryAfter = null;
     try {
       const res = await fetch("/api/query", {
         method: "POST",
@@ -472,6 +485,7 @@ export default function ChatFeed({
         signal: controller.signal,
       });
       responseStatus = res.status;
+      retryAfter = res.headers.get("Retry-After");
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
       const answer = typeof data.answer === "string" ? data.answer.trim() : "";
@@ -494,7 +508,8 @@ export default function ChatFeed({
       if (activeRequestRef.current !== controller) return;
       const errorMessage = getRequestErrorMessage(
         controller.signal,
-        responseStatus
+        responseStatus,
+        retryAfter
       );
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),

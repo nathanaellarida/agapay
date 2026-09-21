@@ -45,6 +45,35 @@ test("request errors distinguish user cancellation from timeout and failure", as
   }
 });
 
+test("temporary errors surface valid retry guidance", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getRequestErrorMessage } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const failed = new AbortController();
+
+    assert.match(
+      getRequestErrorMessage(failed.signal, 503, "5"),
+      /try again in 5 seconds/
+    );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 503, "1"),
+      /try again in 1 second\./
+    );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 503, "invalid"),
+      /try again in a moment/
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer requires two visible question characters", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
