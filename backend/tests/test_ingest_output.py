@@ -45,9 +45,14 @@ class IndexOutputLimitTests(unittest.TestCase):
         self.assertEqual(nested_index_path.read_bytes(), self.serialized())
         self.assertEqual(list(nested_index_path.parent.iterdir()), [nested_index_path])
 
-    def test_output_is_flushed_before_it_is_published(self):
+    def test_output_and_directory_are_flushed_around_publication(self):
+        if not hasattr(ingest.os, "O_DIRECTORY"):
+            self.skipTest("directory synchronization is not supported")
+
         events = []
         fsync = ingest.os.fsync
+        open_directory = ingest.os.open
+        close_directory = ingest.os.close
         replace = ingest.os.replace
 
         def record_fsync(file_descriptor):
@@ -58,13 +63,26 @@ class IndexOutputLimitTests(unittest.TestCase):
             events.append("replace")
             replace(source, destination)
 
+        def record_open(path, flags):
+            events.append("open-directory")
+            return open_directory(path, flags)
+
+        def record_close(file_descriptor):
+            events.append("close-directory")
+            close_directory(file_descriptor)
+
         with (
             patch.object(ingest.os, "fsync", side_effect=record_fsync),
+            patch.object(ingest.os, "open", side_effect=record_open),
+            patch.object(ingest.os, "close", side_effect=record_close),
             patch.object(ingest.os, "replace", side_effect=record_replace),
         ):
             ingest.write_index(self.entries)
 
-        self.assertEqual(events, ["fsync", "replace"])
+        self.assertEqual(
+            events,
+            ["fsync", "replace", "open-directory", "fsync", "close-directory"],
+        )
         self.assertEqual(self.index_path.read_bytes(), self.serialized())
 
     def test_oversized_output_preserves_previous_index(self):

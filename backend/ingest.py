@@ -175,6 +175,16 @@ def write_index(entries: list[dict]) -> None:
             index_file.flush()
             os.fsync(index_file.fileno())
         os.replace(temporary_path, INDEX_PATH)
+        directory_flag = getattr(os, "O_DIRECTORY", None)
+        if directory_flag is not None:
+            directory_fd = os.open(
+                INDEX_PATH.parent,
+                os.O_RDONLY | directory_flag,
+            )
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
     finally:
         temporary_path.unlink(missing_ok=True)
 
