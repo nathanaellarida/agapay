@@ -165,6 +165,38 @@ test("mobile sidebar toggles close the opposite panel", async () => {
   }
 });
 
+test("mobile sidebars disable the covered workspace content", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldDisableWorkspaceContent } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.equal(
+      shouldDisableWorkspaceContent(false, false, true, false),
+      true
+    );
+    assert.equal(
+      shouldDisableWorkspaceContent(false, false, false, true),
+      true
+    );
+    assert.equal(
+      shouldDisableWorkspaceContent(false, true, true, true),
+      false
+    );
+    assert.equal(
+      shouldDisableWorkspaceContent(true, false, true, false),
+      false
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("conversation search shortcut only activates for the visible sidebar", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

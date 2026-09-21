@@ -45,6 +45,17 @@ export function getSidebarToggleState(
       };
 }
 
+export function shouldDisableWorkspaceContent(
+  onboarding,
+  isWideViewport,
+  leftOpen,
+  rightOpen
+) {
+  return Boolean(
+    !onboarding && !isWideViewport && (leftOpen || rightOpen)
+  );
+}
+
 export function focusOpenMobileSidebar(
   isWideViewport,
   leftOpen,
@@ -91,6 +102,7 @@ export function getTopBarStateKey(persona) {
 
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
+  const [isWideViewport, setIsWideViewport] = useState(openSidebarsByDefault);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
   const [rightOpen, setRightOpen] = useState(openSidebarsByDefault);
   const [activeChat, setActiveChat] = useState(null);
@@ -106,9 +118,14 @@ export default function Workspace() {
   const [messages, setMessages] = useState([]);
 
   const onboarding = !persona;
+  const workspaceContentDisabled = shouldDisableWorkspaceContent(
+    onboarding,
+    isWideViewport,
+    leftOpen,
+    rightOpen
+  );
 
   function dismissSidebarAfterAction(setOpen, toggleRef) {
-    const isWideViewport = window.matchMedia("(min-width: 1024px)").matches;
     if (shouldDismissSidebarAfterAction(isWideViewport)) {
       setOpen(false);
       toggleRef.current?.focus();
@@ -131,7 +148,7 @@ export default function Workspace() {
   function toggleSidebar(target) {
     const nextState = getSidebarToggleState(
       target,
-      window.matchMedia("(min-width: 1024px)").matches,
+      isWideViewport,
       leftOpen,
       rightOpen
     );
@@ -141,26 +158,27 @@ export default function Workspace() {
 
   useEffect(() => {
     const wideViewport = window.matchMedia("(min-width: 1024px)");
-    const closeSidebarsOnNarrowViewport = (event) => {
+    const updateViewport = (event) => {
+      setIsWideViewport(event.matches);
       if (!event.matches) {
         setLeftOpen(false);
         setRightOpen(false);
       }
     };
 
-    wideViewport.addEventListener("change", closeSidebarsOnNarrowViewport);
+    updateViewport(wideViewport);
+    wideViewport.addEventListener("change", updateViewport);
     return () => {
-      wideViewport.removeEventListener("change", closeSidebarsOnNarrowViewport);
+      wideViewport.removeEventListener("change", updateViewport);
     };
   }, []);
 
   useEffect(() => {
-    const wideViewport = window.matchMedia("(min-width: 1024px)");
     const closeSidebarsOnEscape = (event) => {
       if (
         shouldDismissMobileSidebars(
           event,
-          wideViewport.matches,
+          isWideViewport,
           leftOpen || rightOpen,
           Boolean(document.querySelector('[aria-modal="true"]'))
         )
@@ -172,17 +190,17 @@ export default function Workspace() {
 
     window.addEventListener("keydown", closeSidebarsOnEscape);
     return () => window.removeEventListener("keydown", closeSidebarsOnEscape);
-  }, [leftOpen, rightOpen]);
+  }, [isWideViewport, leftOpen, rightOpen]);
 
   useEffect(() => {
     focusOpenMobileSidebar(
-      window.matchMedia("(min-width: 1024px)").matches,
+      isWideViewport,
       leftOpen,
       rightOpen,
       leftSidebarRef.current,
       rightSidebarRef.current
     );
-  }, [leftOpen, rightOpen]);
+  }, [isWideViewport, leftOpen, rightOpen]);
 
   function handlePersonaSelect(p) {
     setPersona(p);
@@ -258,7 +276,11 @@ export default function Workspace() {
       </div>
 
       {/* CENTER COLUMN */}
-      <main className="flex-1 flex flex-col min-w-0 gap-3">
+      <main
+        aria-hidden={workspaceContentDisabled || undefined}
+        inert={workspaceContentDisabled ? "" : undefined}
+        className="flex-1 flex flex-col min-w-0 gap-3"
+      >
         {/* Topbar */}
         <div
           className="flex-shrink-0 rounded-2xl shadow-sm border border-slate-200/80"
