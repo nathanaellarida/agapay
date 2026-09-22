@@ -177,7 +177,13 @@ class RetrievalTests(unittest.TestCase):
                     rag_chain._validated_entry({**entry, "source": source}, None)
 
         validated, _ = rag_chain._validated_entry(
-            {**entry, "source": "DTI_Gabay_Ñ.txt"}, None
+            {
+                **entry,
+                "source": "DTI_Gabay_Ñ.txt",
+                "embedding": [1.0]
+                + [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1),
+            },
+            None,
         )
         self.assertEqual(validated["source"], "DTI_Gabay_Ñ.txt")
 
@@ -213,7 +219,7 @@ class RetrievalTests(unittest.TestCase):
         )
 
     def test_invalid_query_values_are_rejected(self):
-        for invalid_value in (float("nan"), 10**400, 1.01, -1.01):
+        for invalid_value in (0.0, 0.5, float("nan"), 10**400, 1.01, -1.01):
             vector = [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1) + [invalid_value]
             with self.subTest(invalid_value=invalid_value):
                 with (

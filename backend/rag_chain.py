@@ -103,7 +103,7 @@ def validate_source_name(source: Any) -> str:
 
 
 def normalize_embedding_values(values: list[Any], error_message: str) -> list[float]:
-    """Return finite floats without allowing numeric conversion to overflow."""
+    """Return finite unit-vector values without allowing conversion to overflow."""
     normalized: list[float] = []
     for value in values:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -115,6 +115,9 @@ def normalize_embedding_values(values: list[Any], error_message: str) -> list[fl
         if not math.isfinite(number) or abs(number) > 1.0:
             raise ValueError(error_message)
         normalized.append(number)
+    magnitude = math.sqrt(math.fsum(value * value for value in normalized))
+    if not math.isclose(magnitude, 1.0, rel_tol=1e-3, abs_tol=1e-3):
+        raise ValueError(error_message)
     return normalized
 
 

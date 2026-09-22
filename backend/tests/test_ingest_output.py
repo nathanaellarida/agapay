@@ -179,6 +179,8 @@ class GeneratedEmbeddingTests(unittest.TestCase):
     def test_invalid_generated_embeddings_are_rejected(self):
         invalid_vectors = (
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1),
+            [0.0] * ingest.EMBEDDING_DIMENSION,
+            [0.5] + [0.0] * (ingest.EMBEDDING_DIMENSION - 1),
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [float("nan")],
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [True],
             [0.0] * (ingest.EMBEDDING_DIMENSION - 1) + [10**400],
@@ -192,11 +194,14 @@ class GeneratedEmbeddingTests(unittest.TestCase):
                     ingest.validate_generated_embedding(self.Array(vector))
 
     def test_valid_generated_embedding_is_normalized_to_floats(self):
-        vector = [0] * ingest.EMBEDDING_DIMENSION
+        vector = [1] + [0] * (ingest.EMBEDDING_DIMENSION - 1)
 
         result = ingest.validate_generated_embedding(self.Array(vector))
 
-        self.assertEqual(result, [0.0] * ingest.EMBEDDING_DIMENSION)
+        self.assertEqual(
+            result,
+            [1.0] + [0.0] * (ingest.EMBEDDING_DIMENSION - 1),
+        )
 
     def test_build_entries_rejects_invalid_model_output(self):
         model = Mock()
