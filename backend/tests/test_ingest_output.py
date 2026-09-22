@@ -93,6 +93,30 @@ class IndexOutputLimitTests(unittest.TestCase):
         self.assertEqual(self.index_path.read_bytes(), b"previous index")
         self.assertEqual(list(self.index_path.parent.iterdir()), [self.index_path])
 
+    def test_existing_temporary_symlink_is_not_followed_or_removed(self):
+        protected_path = self.index_path.parent / "protected.txt"
+        protected_path.write_bytes(b"do not overwrite")
+        process_id = 1234
+        token = "fixed-token"
+        temporary_path = self.index_path.with_name(
+            f".{self.index_path.name}.{process_id}.{token}.tmp"
+        )
+        try:
+            temporary_path.symlink_to(protected_path)
+        except (NotImplementedError, OSError):
+            self.skipTest("symbolic links are not supported")
+
+        with (
+            patch.object(ingest.os, "getpid", return_value=process_id),
+            patch.object(ingest.secrets, "token_hex", return_value=token),
+        ):
+            with self.assertRaises(FileExistsError):
+                ingest.write_index(self.entries)
+
+        self.assertEqual(protected_path.read_bytes(), b"do not overwrite")
+        self.assertTrue(temporary_path.is_symlink())
+        self.assertFalse(self.index_path.exists())
+
     def test_limit_counts_utf8_bytes_not_characters(self):
         character_count = len(self.serialized().decode("utf-8"))
         self.assertGreater(len(self.serialized()), character_count)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 import unicodedata
 from pathlib import Path
 
@@ -167,10 +168,12 @@ def write_index(entries: list[dict]) -> None:
 
     INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = INDEX_PATH.with_name(
-        f".{INDEX_PATH.name}.{os.getpid()}.tmp"
+        f".{INDEX_PATH.name}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
     )
+    temporary_created = False
     try:
-        with temporary_path.open("wb") as index_file:
+        with temporary_path.open("xb") as index_file:
+            temporary_created = True
             index_file.write(serialized)
             index_file.flush()
             os.fsync(index_file.fileno())
@@ -186,7 +189,8 @@ def write_index(entries: list[dict]) -> None:
             finally:
                 os.close(directory_fd)
     finally:
-        temporary_path.unlink(missing_ok=True)
+        if temporary_created:
+            temporary_path.unlink(missing_ok=True)
 
 
 def main() -> None:
