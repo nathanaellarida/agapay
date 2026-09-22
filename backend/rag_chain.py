@@ -180,7 +180,7 @@ def get_groq_client():
 
 
 def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], int]:
-    if not isinstance(raw, dict):
+    if not isinstance(raw, dict) or set(raw) != {"source", "text", "embedding"}:
         raise ValueError("Vector index contains an invalid entry")
 
     source = validate_source_name(raw.get("source"))
@@ -241,7 +241,11 @@ def _load_index(
         object_pairs_hook=reject_duplicate_json_keys,
         parse_constant=reject_nonstandard_json_constant,
     )
-    if not isinstance(payload, dict):
+    if not isinstance(payload, dict) or set(payload) != {
+        "schema_version",
+        "model",
+        "entries",
+    }:
         raise ValueError("Vector index schema is unsupported")
     schema_version = payload.get("schema_version")
     if type(schema_version) is not int or schema_version != INDEX_SCHEMA_VERSION:
