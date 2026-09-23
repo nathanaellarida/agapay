@@ -257,7 +257,11 @@ function InlineSources({ sources }) {
 }
 
 function MarkdownLink({ node: _node, href, children, ...props }) {
-  if (!/^(https?:)?\/\//i.test(href || "")) {
+  if (!href) {
+    return <span>{children}</span>;
+  }
+
+  if (!/^(https?:)?\/\//i.test(href)) {
     return <a {...props} href={href}>{children}</a>;
   }
 

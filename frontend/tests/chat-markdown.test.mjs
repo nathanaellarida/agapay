@@ -708,6 +708,8 @@ test("web links open separately while footnotes and email links keep their behav
     assert.match(html, /data-footnote-ref="true"/);
     assert.match(html, /id="user-content-fn-note"/);
     assert.doesNotMatch(html, /href="javascript:/);
+    assert.doesNotMatch(html, /<a[^>]*href="">Unsafe<\/a>/);
+    assert.match(html, /<span>Unsafe<\/span>/);
   } finally {
     await server.close();
   }
