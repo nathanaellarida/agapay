@@ -23,6 +23,34 @@ class SourceSnippetTests(unittest.TestCase):
         self.assertLessEqual(len(result), 241)
 
 
+class AnswerQuestionTests(unittest.TestCase):
+    def test_fallback_answers_do_not_claim_retrieved_sources(self):
+        documents = [
+            {
+                "source": "guide.txt",
+                "text": "Apply through the official registration portal.",
+            }
+        ]
+
+        invalid_choices = (
+            [],
+            [Mock(message=Mock(content="   "))],
+            [Mock(message=Mock(content=None))],
+        )
+        for choices in invalid_choices:
+            with self.subTest(choices=choices):
+                client = Mock()
+                client.chat.completions.create.return_value = Mock(choices=choices)
+                with (
+                    patch.object(rag_chain, "_retrieve", return_value=documents),
+                    patch.object(rag_chain, "get_groq_client", return_value=client),
+                ):
+                    result = rag_chain.answer_question("How do I register?")
+
+                self.assertEqual(result["answer"], rag_chain.FALLBACK_ANSWER)
+                self.assertEqual(result["sources"], [])
+
+
 class RetrievalTests(unittest.TestCase):
     def model(self, vector):
         model = Mock()

@@ -357,7 +357,11 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
     message = completion.choices[0].message.content if completion.choices else None
     answer = message.strip() if isinstance(message, str) else ""
     if not answer:
-        answer = FALLBACK_ANSWER
+        return {
+            "answer": FALLBACK_ANSWER,
+            "persona": persona_key,
+            "sources": [],
+        }
 
     sources = []
     seen: set[str] = set()
