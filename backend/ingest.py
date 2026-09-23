@@ -44,14 +44,20 @@ def load_documents() -> list[tuple[str, str]]:
     if not DATA_DIR.is_dir():
         raise FileNotFoundError(f"Data directory is missing or invalid: {DATA_DIR}")
 
-    txt_files = sorted(
+    txt_files = []
+    txt_candidates = sorted(
         (
             path
             for path in DATA_DIR.iterdir()
-            if path.is_file() and path.suffix.lower() == ".txt"
+            if path.suffix.lower() == ".txt"
         ),
         key=lambda path: path.name.casefold(),
     )
+    for path in txt_candidates:
+        if path.is_symlink():
+            raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
+        if path.is_file():
+            txt_files.append(path)
     if not txt_files:
         raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
 

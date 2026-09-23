@@ -127,6 +127,22 @@ class IndexOutputLimitTests(unittest.TestCase):
 
 
 class DocumentInputTests(unittest.TestCase):
+    def test_broken_source_symlinks_are_rejected_during_discovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            source_link = data_dir / "Missing.txt"
+            try:
+                source_link.symlink_to(data_dir / "not-found.txt")
+            except (NotImplementedError, OSError):
+                self.skipTest("symbolic links are not supported")
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"symbolic link: Missing\.txt",
+                ):
+                    ingest.load_documents()
+
     def test_invalid_utf8_identifies_the_source_document(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)
