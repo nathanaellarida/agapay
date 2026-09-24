@@ -28,6 +28,7 @@ from rag_chain import (
     list_personas,
     require_backend_path,
     resolve_configured_path,
+    validate_source_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -233,6 +234,14 @@ def library() -> list[LibraryDocument]:
         return []
 
     for path in text_paths:
+        try:
+            validate_source_name(path.name)
+        except ValueError:
+            logger.warning(
+                "Skipping library document with invalid filename %r",
+                path.name,
+            )
+            continue
         try:
             stat = path.stat()
         except OSError as exc:
