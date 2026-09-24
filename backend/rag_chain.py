@@ -10,6 +10,7 @@ import heapq
 import json
 import math
 import os
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -264,8 +265,14 @@ def _load_index(
 
     entries: list[dict[str, Any]] = []
     dimension: int | None = None
+    source_names: dict[str, str] = {}
     for raw in raw_entries:
         entry, dimension = _validated_entry(raw, dimension)
+        source = entry["source"]
+        source_identity = unicodedata.normalize("NFC", source).casefold()
+        existing_source = source_names.setdefault(source_identity, source)
+        if existing_source != source:
+            raise ValueError("Vector index contains ambiguous source names")
         entries.append(entry)
     return tuple(entries)
 

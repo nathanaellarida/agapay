@@ -208,6 +208,46 @@ class RetrievalTests(unittest.TestCase):
                     rag_chain.get_index()
             rag_chain._load_index.cache_clear()
 
+    def test_ambiguous_index_source_names_are_rejected(self):
+        embedding = [1.0] + [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1)
+        ambiguous_pairs = (
+            ("Guide.txt", "guide.TXT"),
+            ("Café.txt", "Cafe\u0301.txt"),
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            for sources in ambiguous_pairs:
+                with self.subTest(sources=sources):
+                    index_path.write_text(
+                        json.dumps(
+                            {
+                                "schema_version": rag_chain.INDEX_SCHEMA_VERSION,
+                                "model": {
+                                    "name": rag_chain.EMBEDDING_MODEL,
+                                    "revision": rag_chain.EMBEDDING_MODEL_REVISION,
+                                },
+                                "entries": [
+                                    {
+                                        "source": source,
+                                        "text": "Registration guidance",
+                                        "embedding": embedding,
+                                    }
+                                    for source in sources
+                                ],
+                            }
+                        ),
+                        encoding="utf-8",
+                    )
+                    rag_chain._load_index.cache_clear()
+                    with patch.object(rag_chain, "INDEX_PATH", index_path):
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            "ambiguous source names",
+                        ):
+                            rag_chain.get_index()
+            rag_chain._load_index.cache_clear()
+
     def test_source_is_current_only_when_indexed_after_its_last_edit(self):
         index_state = (frozenset({"guide.txt"}), 200)
 
