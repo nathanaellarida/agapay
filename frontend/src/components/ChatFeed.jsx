@@ -104,6 +104,25 @@ export function getRequestErrorMessage(
   return "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
 }
 
+export function parseQueryResponse(data, expectedPersona) {
+  if (!data || data.persona !== expectedPersona) {
+    throw new Error("API returned a response for a different mentor");
+  }
+
+  const answer = typeof data.answer === "string" ? data.answer.trim() : "";
+  if (!answer) throw new Error("API returned an invalid answer");
+
+  const sources = Array.isArray(data.sources)
+    ? data.sources.filter(
+        (source) =>
+          source &&
+          typeof source.source === "string" &&
+          typeof source.snippet === "string"
+      )
+    : [];
+  return { answer, sources };
+}
+
 export function shouldProcessPendingAsk({
   pendingAsk,
   handledTimestamp,
@@ -492,16 +511,7 @@ export default function ChatFeed({
       retryAfter = res.headers.get("Retry-After");
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
-      const answer = typeof data.answer === "string" ? data.answer.trim() : "";
-      if (!answer) throw new Error("API returned an invalid answer");
-      const sources = Array.isArray(data.sources)
-        ? data.sources.filter(
-            (source) =>
-              source &&
-              typeof source.source === "string" &&
-              typeof source.snippet === "string"
-          )
-        : [];
+      const { answer, sources } = parseQueryResponse(data, persona.key);
       if (activeRequestRef.current !== controller) return;
       onMessagesChange([
         ...messages.filter((m) => m.content !== "__intro__"),

@@ -74,6 +74,35 @@ test("temporary errors surface valid retry guidance", async () => {
   }
 });
 
+test("query responses must match the selected mentor", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { parseQueryResponse } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const response = {
+      answer: "  Registration guidance  ",
+      persona: "online",
+      sources: [{ source: "guide.txt", snippet: "Reviewed guidance" }],
+    };
+
+    assert.deepEqual(parseQueryResponse(response, "online"), {
+      answer: "Registration guidance",
+      sources: response.sources,
+    });
+    assert.throws(
+      () => parseQueryResponse(response, "tech"),
+      /different mentor/
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer requires two visible question characters", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
