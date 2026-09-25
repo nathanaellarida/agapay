@@ -280,7 +280,7 @@ function MarkdownLink({ node: _node, href, children, ...props }) {
     return <span>{children}</span>;
   }
 
-  if (!/^(https?:)?\/\//i.test(href)) {
+  if (/^(?:#|mailto:|tel:)/i.test(href)) {
     return <a {...props} href={href}>{children}</a>;
   }
 

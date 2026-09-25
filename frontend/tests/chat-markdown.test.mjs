@@ -696,7 +696,7 @@ test("assistant Markdown cannot load images but keeps text, links, and portraits
   }
 });
 
-test("web links open separately while footnotes and email links keep their behavior", async () => {
+test("navigational links open separately while action links keep their behavior", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
     appType: "custom",
@@ -712,7 +712,9 @@ test("web links open separately while footnotes and email links keep their behav
           '[Website](https://example.com/guide "Guide title")',
           "[HTTP](http://example.com/guide)",
           "[Protocol relative](//example.com/guide)",
+          "[Local guide](/guides/registration)",
           "[Email](mailto:help@example.com)",
+          "[Phone](tel:+63321234567)",
           "[Section](#section)",
           "[Unsafe](javascript:alert%281%29)",
           "A footnote.[^note]",
@@ -725,13 +727,17 @@ test("web links open separately while footnotes and email links keep their behav
     const links = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) || [];
     const external = links.filter((link) => /href="(?:https?:)?\/\//.test(link));
     assert.equal(external.length, 3);
-    for (const link of external) {
+    const localGuide = links.find((link) =>
+      link.includes('href="/guides/registration"')
+    );
+    assert.ok(localGuide, "the relative guide link must be rendered");
+    for (const link of [...external, localGuide]) {
       assert.match(link, /target="_blank"/);
       assert.match(link, /rel="noopener noreferrer"/);
       assert.match(link, /opens in a new tab/);
     }
     assert.match(external[0], /title="Guide title"/);
-    for (const link of links.filter((link) => /href="(?:#|mailto:)/.test(link))) {
+    for (const link of links.filter((link) => /href="(?:#|mailto:|tel:)/.test(link))) {
       assert.doesNotMatch(link, /target="_blank"/);
     }
     assert.match(html, /data-footnote-ref="true"/);
