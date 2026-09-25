@@ -1,38 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  MessageSquare,
-  Bookmark,
   Search,
   Plus,
-  Clock,
+  Sparkles,
   ChevronRight,
 } from "lucide-react";
 
-const SAMPLE_CHATS = {
+const STARTER_QUESTIONS = {
   tech: [
-    { id: 1, title: "DOST Startup Grant Eligibility", time: "2h ago" },
-    { id: 2, title: "Innovative Startup Act benefits", time: "Yesterday" },
-    { id: 3, title: "MVP funding tiers", time: "2d ago" },
-    { id: 4, title: "SEC vs DTI for fundraising", time: "3d ago" },
+    { id: 1, title: "DOST Startup Grant Eligibility" },
+    { id: 2, title: "Innovative Startup Act benefits" },
+    { id: 3, title: "MVP funding tiers" },
+    { id: 4, title: "SEC vs DTI for fundraising" },
   ],
   online: [
-    { id: 1, title: "TikTok Shop seller setup", time: "1h ago" },
-    { id: 2, title: "Shopee Mall requirements", time: "Yesterday" },
-    { id: 3, title: "Online seller DTI registration", time: "2d ago" },
-    { id: 4, title: "Withholding tax on payouts", time: "4d ago" },
+    { id: 1, title: "TikTok Shop seller setup" },
+    { id: 2, title: "Shopee Mall requirements" },
+    { id: 3, title: "Online seller DTI registration" },
+    { id: 4, title: "Withholding tax on payouts" },
   ],
   local: [
-    { id: 1, title: "Open a cafe in Cebu — checklist", time: "3h ago" },
-    { id: 2, title: "Mayor's Permit timeline", time: "Yesterday" },
-    { id: 3, title: "Lease deposit norms in Cebu", time: "2d ago" },
-    { id: 4, title: "Fit-out cost estimate", time: "5d ago" },
+    { id: 1, title: "Open a cafe in Cebu — checklist" },
+    { id: 2, title: "Mayor's Permit timeline" },
+    { id: 3, title: "Lease deposit norms in Cebu" },
+    { id: 4, title: "Fit-out cost estimate" },
   ],
 };
-
-const SAMPLE_BOOKMARKS = [
-  { id: 7, title: "Saved: Founder Launch Checklist", time: "Saved" },
-  { id: 8, title: "Saved: Permit Process Map", time: "Saved" },
-];
 
 export function isSidebarSearchShortcut(event, isOpen) {
   return Boolean(
@@ -46,12 +39,10 @@ export function isSidebarSearchShortcut(event, isOpen) {
 
 export default function LeftSidebar({
   persona,
-  activeChat,
-  onSelectChat,
+  onSelectQuestion,
   onNewChat,
   isOpen = true,
 }) {
-  const [tab, setTab] = useState("chats");
   const [search, setSearch] = useState("");
   const searchRef = useRef(null);
 
@@ -74,8 +65,7 @@ export default function LeftSidebar({
     return () => window.removeEventListener("keydown", focusSearch);
   }, [isOpen]);
 
-  const chats = SAMPLE_CHATS[persona.key] || [];
-  const items = tab === "chats" ? chats : SAMPLE_BOOKMARKS;
+  const items = STARTER_QUESTIONS[persona.key] || [];
   const normalizedSearch = search.trim().toLowerCase();
   const filtered = items.filter((i) =>
     i.title.toLowerCase().includes(normalizedSearch)
@@ -83,7 +73,7 @@ export default function LeftSidebar({
 
   return (
     <aside
-      aria-label="Conversation history"
+      aria-label="Suggested questions"
       className="w-full flex-shrink-0 bg-transparent flex flex-col h-full"
     >
       {/* Brand */}
@@ -131,29 +121,12 @@ export default function LeftSidebar({
         </div>
       </div>
 
-      {/* Toggle */}
+      {/* Suggested question heading */}
       <div className="px-3 pt-3 pb-2">
-        <div className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5">
-          {["chats", "bookmarks"].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              aria-pressed={tab === t}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold capitalize transition ${
-                tab === t
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              {t === "chats" ? (
-                <MessageSquare className="w-3 h-3" />
-              ) : (
-                <Bookmark className="w-3 h-3" />
-              )}
-              {t}
-            </button>
-          ))}
-        </div>
+        <p className="text-xs font-semibold text-slate-700">Suggested questions</p>
+        <p className="text-[10px] text-slate-400 mt-0.5">
+          Choose a topic to ask {persona.name}.
+        </p>
       </div>
 
       {/* List */}
@@ -167,18 +140,12 @@ export default function LeftSidebar({
         {filtered.map((item) => (
           <button
             key={item.id}
-            onClick={() => onSelectChat(item)}
-            aria-current={activeChat?.id === item.id ? "true" : undefined}
-            className={`w-full text-left flex items-start gap-2.5 px-2.5 py-2 rounded-lg mb-0.5 group transition ${
-              activeChat?.id === item.id
-                ? "bg-blue-50 text-flag-blue"
-                : "hover:bg-slate-50 text-slate-700"
-            }`}
+            onClick={() => onSelectQuestion(item)}
+            className="w-full text-left flex items-start gap-2.5 px-2.5 py-2 rounded-lg mb-0.5 group transition hover:bg-slate-50 text-slate-700"
           >
-            <Clock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-slate-400" />
+            <Sparkles className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-flag-blue" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium truncate">{item.title}</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">{item.time}</p>
             </div>
             <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-slate-400 mt-0.5 flex-shrink-0" />
           </button>
@@ -194,8 +161,8 @@ export default function LeftSidebar({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search..."
-            aria-label="Search conversations"
+            placeholder="Search questions..."
+            aria-label="Search suggested questions"
             aria-keyshortcuts="Control+K Meta+K"
             className="bg-transparent text-xs text-slate-700 placeholder-slate-400 outline-none flex-1 min-w-0"
           />

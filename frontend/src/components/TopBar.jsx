@@ -169,12 +169,12 @@ export default function TopBar({
             ref={leftToggleRef}
             onClick={onToggleLeft}
             aria-label={
-              leftOpen ? "Hide conversation history" : "Show conversation history"
+              leftOpen ? "Hide suggested questions" : "Show suggested questions"
             }
             aria-expanded={leftOpen}
-            aria-controls="conversation-history-panel"
+            aria-controls="suggested-questions-panel"
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
-            title={leftOpen ? "Hide history" : "Show history"}
+            title={leftOpen ? "Hide suggestions" : "Show suggestions"}
           >
             {leftOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
           </button>

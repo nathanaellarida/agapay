@@ -100,12 +100,15 @@ export function getTopBarStateKey(persona) {
   return persona?.key ?? "mentor-selection";
 }
 
+export function createPendingQuestion(prompt, timestamp = Date.now()) {
+  return { prompt, ts: timestamp };
+}
+
 export default function Workspace() {
   const [persona, setPersona] = useState(null);
   const [isWideViewport, setIsWideViewport] = useState(openSidebarsByDefault);
   const [leftOpen, setLeftOpen] = useState(openSidebarsByDefault);
   const [rightOpen, setRightOpen] = useState(openSidebarsByDefault);
-  const [activeChat, setActiveChat] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState(["Agapay"]);
   const [pendingAsk, setPendingAsk] = useState(null);
   const [chatResetVersion, setChatResetVersion] = useState(0);
@@ -207,15 +210,14 @@ export default function Workspace() {
     setBreadcrumbs(["Agapay", p.pathLabel]);
   }
 
-  function handleSelectChat(chat) {
-    setActiveChat(chat);
-    setBreadcrumbs(["Agapay", persona.pathLabel, chat.title]);
+  function handleSelectQuestion(question) {
+    setBreadcrumbs(["Agapay", persona.pathLabel, question.title]);
+    setPendingAsk(createPendingQuestion(question.title));
     dismissSidebarAfterAction(setLeftOpen, leftToggleRef);
   }
 
   function handleNewChat() {
     setChatResetVersion((version) => version + 1);
-    setActiveChat(null);
     setMessages([{ role: "assistant", content: "__intro__" }]);
     setPendingAsk(null);
     setBreadcrumbs(["Agapay", persona.pathLabel]);
@@ -224,14 +226,13 @@ export default function Workspace() {
 
   function handleSwitchPersona() {
     setPersona(null);
-    setActiveChat(null);
     setMessages([]);
     setPendingAsk(null);
     setBreadcrumbs(["Agapay"]);
   }
 
   function handleAskMentor(prompt) {
-    setPendingAsk({ prompt, ts: Date.now() });
+    setPendingAsk(createPendingQuestion(prompt));
     dismissSidebarAfterAction(setRightOpen, rightToggleRef);
   }
 
@@ -250,7 +251,7 @@ export default function Workspace() {
       {/* LEFT SIDEBAR */}
       <div
         ref={leftSidebarRef}
-        id="conversation-history-panel"
+        id="suggested-questions-panel"
         aria-hidden={onboarding || !leftOpen}
         inert={onboarding || !leftOpen ? "" : undefined}
         className={`fixed inset-y-3 left-3 z-40 flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden lg:static lg:z-auto ${
@@ -266,9 +267,8 @@ export default function Workspace() {
           {persona && (
             <LeftSidebar
               persona={persona}
-              activeChat={activeChat}
               isOpen={leftOpen}
-              onSelectChat={handleSelectChat}
+              onSelectQuestion={handleSelectQuestion}
               onNewChat={handleNewChat}
             />
           )}

@@ -284,6 +284,26 @@ test("roadmap questions wait for the current reply and send only once", async ()
   }
 });
 
+test("sidebar suggestions create a queued mentor question", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { createPendingQuestion } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.deepEqual(
+      createPendingQuestion("DOST Startup Grant Eligibility", 42),
+      { prompt: "DOST Startup Grant Eligibility", ts: 42 }
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("roadmap estimates update only after the mentor discusses a step", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
@@ -1119,8 +1139,7 @@ test("workspace sidebars expose distinct landmark names", async () => {
     };
     const left = renderToStaticMarkup(createElement(LeftSidebar, {
       persona,
-      activeChat: null,
-      onSelectChat() {},
+      onSelectQuestion() {},
       onNewChat() {},
     }));
     const right = renderToStaticMarkup(createElement(RightSidebar, {
@@ -1128,7 +1147,8 @@ test("workspace sidebars expose distinct landmark names", async () => {
       onAskMentor() {},
     }));
 
-    assert.match(left, /<aside[^>]*aria-label="Conversation history"/);
+    assert.match(left, /<aside[^>]*aria-label="Suggested questions"/);
+    assert.match(left, /Choose a topic to ask Anton/);
     assert.match(right, /<aside[^>]*aria-label="Launch insights"/);
   } finally {
     await server.close();
@@ -1163,7 +1183,7 @@ test("sidebar toggles identify the panels they control", async () => {
     const workspace = renderToStaticMarkup(createElement(Workspace));
 
     for (const panelId of [
-      "conversation-history-panel",
+      "suggested-questions-panel",
       "launch-insights-panel",
     ]) {
       assert.match(topBar, new RegExp(`aria-controls="${panelId}"`));
