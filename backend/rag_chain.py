@@ -190,6 +190,7 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     if (
         not isinstance(text, str)
         or not text.strip()
+        or "\x00" in text
         or len(text) > 10_000
     ):
         raise ValueError("Vector index contains an invalid text chunk")
