@@ -226,7 +226,7 @@ test("mobile sidebars disable the covered workspace content", async () => {
   }
 });
 
-test("conversation search shortcut only activates for the visible sidebar", async () => {
+test("conversation search shortcut only activates when the sidebar is available", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
     appType: "custom",
@@ -242,10 +242,16 @@ test("conversation search shortcut only activates for the visible sidebar", asyn
       metaKey: false,
       altKey: false,
       shiftKey: false,
+      defaultPrevented: false,
     };
 
     assert.equal(isSidebarSearchShortcut(shortcut, true), true);
     assert.equal(isSidebarSearchShortcut(shortcut, false), false);
+    assert.equal(isSidebarSearchShortcut(shortcut, true, true), false);
+    assert.equal(
+      isSidebarSearchShortcut({ ...shortcut, defaultPrevented: true }, true),
+      false
+    );
     assert.equal(isSidebarSearchShortcut({ ...shortcut, altKey: true }, true), false);
     assert.equal(isSidebarSearchShortcut({ ...shortcut, shiftKey: true }, true), false);
     assert.equal(isSidebarSearchShortcut({ ...shortcut, key: "j" }, true), false);

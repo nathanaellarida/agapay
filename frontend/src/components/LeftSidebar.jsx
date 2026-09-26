@@ -27,9 +27,11 @@ const STARTER_QUESTIONS = {
   ],
 };
 
-export function isSidebarSearchShortcut(event, isOpen) {
+export function isSidebarSearchShortcut(event, isOpen, hasOpenModal = false) {
   return Boolean(
     isOpen &&
+      !hasOpenModal &&
+      !event.defaultPrevented &&
       (event.metaKey || event.ctrlKey) &&
       !event.altKey &&
       !event.shiftKey &&
@@ -54,7 +56,10 @@ export default function LeftSidebar({
     if (!isOpen) return undefined;
 
     function focusSearch(event) {
-      if (isSidebarSearchShortcut(event, isOpen)) {
+      const hasOpenModal = Boolean(
+        document.querySelector('[aria-modal="true"]')
+      );
+      if (isSidebarSearchShortcut(event, isOpen, hasOpenModal)) {
         event.preventDefault();
         searchRef.current?.focus();
         searchRef.current?.select();
