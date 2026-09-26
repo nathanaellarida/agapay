@@ -18,9 +18,10 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from starlette.responses import JSONResponse
 
 from rag_chain import (
     answer_question,
@@ -34,6 +35,7 @@ from rag_chain import (
 
 logger = logging.getLogger(__name__)
 RETRY_AFTER_SECONDS = 5
+MAX_QUERY_BODY_BYTES = 64 * 1024
 
 
 def parse_cors_origins(value: str) -> list[str]:
@@ -89,6 +91,31 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
+
+
+@app.middleware("http")
+async def limit_query_request_body(request: Request, call_next):
+    """Reject oversized query payloads before JSON parsing or model work."""
+    if request.method == "POST" and request.url.path == "/query":
+        content_length = request.headers.get("content-length")
+        if content_length and content_length.isdecimal():
+            if int(content_length) > MAX_QUERY_BODY_BYTES:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Query request body is too large."},
+                )
+
+        body = bytearray()
+        async for chunk in request.stream():
+            if len(body) + len(chunk) > MAX_QUERY_BODY_BYTES:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Query request body is too large."},
+                )
+            body.extend(chunk)
+        request._body = bytes(body)
+
+    return await call_next(request)
 
 
 @app.middleware("http")

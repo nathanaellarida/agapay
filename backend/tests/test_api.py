@@ -1,8 +1,11 @@
+import asyncio
 import unittest
 from unittest.mock import Mock, patch
 
 import main
 from pydantic import ValidationError
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 
 class QueryRequestTests(unittest.TestCase):
@@ -57,6 +60,78 @@ class QueryApiTests(unittest.TestCase):
             raised.exception.headers,
             {"Retry-After": str(main.RETRY_AFTER_SECONDS)},
         )
+
+
+class QueryRequestBodyLimitTests(unittest.TestCase):
+    @staticmethod
+    def request(chunks, content_length=None):
+        messages = [
+            {
+                "type": "http.request",
+                "body": chunk,
+                "more_body": index < len(chunks) - 1,
+            }
+            for index, chunk in enumerate(chunks)
+        ]
+
+        async def receive():
+            return messages.pop(0)
+
+        headers = []
+        if content_length is not None:
+            headers.append((b"content-length", str(content_length).encode("ascii")))
+        return Request(
+            {
+                "type": "http",
+                "method": "POST",
+                "scheme": "http",
+                "path": "/query",
+                "raw_path": b"/query",
+                "query_string": b"",
+                "headers": headers,
+                "client": ("127.0.0.1", 1),
+                "server": ("127.0.0.1", 8000),
+            },
+            receive,
+        )
+
+    def test_valid_query_body_is_preserved_for_json_parsing(self):
+        payload = b'{"question":"How do I register?","persona":"tech"}'
+        request = self.request([payload[:20], payload[20:]])
+        received = None
+
+        async def call_next(limited_request):
+            nonlocal received
+            received = await limited_request.body()
+            return JSONResponse({"ok": True})
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(received, payload)
+
+    def test_declared_oversized_query_body_is_rejected_before_reading(self):
+        request = self.request(
+            [b"not read"],
+            content_length=main.MAX_QUERY_BODY_BYTES + 1,
+        )
+        call_next = Mock()
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 413)
+        call_next.assert_not_called()
+
+    def test_chunked_oversized_query_body_is_rejected(self):
+        request = self.request(
+            [b"a" * main.MAX_QUERY_BODY_BYTES, b"b"],
+        )
+        call_next = Mock()
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 413)
+        call_next.assert_not_called()
 
 
 class CorsConfigurationTests(unittest.TestCase):
