@@ -23,13 +23,21 @@ class QueryRequestTests(unittest.TestCase):
             main.QueryRequest(question="x" * 2001)
 
     def test_invisible_characters_do_not_satisfy_the_minimum_length(self):
-        for question in ("\u200b\u200b", "A\u200b", "A\x00"):
+        for question in ("\u200b\u200b", "A\u200b"):
             with self.subTest(question=repr(question)):
                 with self.assertRaisesRegex(ValidationError, "visible characters"):
                     main.QueryRequest(question=question)
 
-        request = main.QueryRequest(question="A\nB")
-        self.assertEqual(request.question, "A\nB")
+    def test_control_characters_are_rejected_without_blocking_layout_whitespace(self):
+        for question in ("A\x00B", "A\x07B", "A\x85B"):
+            with self.subTest(question=repr(question)):
+                with self.assertRaisesRegex(ValidationError, "control characters"):
+                    main.QueryRequest(question=question)
+
+        for question in ("A\nB", "A\r\nB", "A\tB"):
+            with self.subTest(question=repr(question)):
+                request = main.QueryRequest(question=question)
+                self.assertEqual(request.question, question)
 
 
 class QueryApiTests(unittest.TestCase):

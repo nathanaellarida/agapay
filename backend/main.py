@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -116,6 +117,12 @@ class QueryRequest(BaseModel):
         if not isinstance(value, str):
             return value
         normalized = value.strip()
+        if any(
+            unicodedata.category(character) == "Cc"
+            and character not in "\t\n\r"
+            for character in normalized
+        ):
+            raise ValueError("Question cannot contain control characters")
         visible_characters = sum(
             character.isprintable() and not character.isspace()
             for character in normalized
