@@ -103,6 +103,52 @@ test("query responses must match the selected mentor", async () => {
   }
 });
 
+test("footnote links stay within their mentor response", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { AssistantBubble } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const persona = {
+      name: "Anton",
+      title: "The Tech Strategist",
+      image: "/startupAdvisor.png",
+    };
+    const note = "Registration guidance.[^1]\n\n[^1]: Official source note.";
+    const html = renderToStaticMarkup(createElement("div", null,
+      createElement(AssistantBubble, {
+        content: note,
+        persona,
+        messageIndex: 1,
+      }),
+      createElement(AssistantBubble, {
+        content: note,
+        persona,
+        messageIndex: 3,
+      })
+    ));
+
+    for (const index of [1, 3]) {
+      const prefix = `agapay-message-${index}-`;
+      assert.match(html, new RegExp(`href="#${prefix}fn-1"`));
+      assert.match(html, new RegExp(`id="${prefix}fn-1"`));
+      assert.match(html, new RegExp(`id="${prefix}footnote-label"`));
+      assert.match(
+        html,
+        new RegExp(`aria-describedby="${prefix}footnote-label"`)
+      );
+    }
+    assert.doesNotMatch(html, /user-content-fn-1/);
+    assert.doesNotMatch(html, /id="footnote-label"/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer requires two visible question characters", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
@@ -767,7 +813,7 @@ test("navigational links open separately while action links keep their behavior"
       assert.doesNotMatch(link, /target="_blank"/);
     }
     assert.match(html, /data-footnote-ref="true"/);
-    assert.match(html, /id="user-content-fn-note"/);
+    assert.match(html, /id="agapay-message-0-fn-note"/);
     assert.doesNotMatch(html, /href="javascript:/);
     assert.doesNotMatch(html, /<a[^>]*href="">Unsafe<\/a>/);
     assert.match(html, /<span>Unsafe<\/span>/);

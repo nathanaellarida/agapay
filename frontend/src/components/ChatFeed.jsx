@@ -275,13 +275,27 @@ function InlineSources({ sources }) {
   );
 }
 
-function MarkdownLink({ node: _node, href, children, ...props }) {
+function MarkdownLink({
+  node: _node,
+  href,
+  children,
+  footnoteLabelId,
+  ...props
+}) {
   if (!href) {
     return <span>{children}</span>;
   }
 
+  const ariaDescribedBy = props["data-footnote-ref"]
+    ? footnoteLabelId
+    : props["aria-describedby"];
+
   if (/^(?:#|mailto:|tel:)/i.test(href)) {
-    return <a {...props} href={href}>{children}</a>;
+    return (
+      <a {...props} href={href} aria-describedby={ariaDescribedBy}>
+        {children}
+      </a>
+    );
   }
 
   return (
@@ -291,10 +305,28 @@ function MarkdownLink({ node: _node, href, children, ...props }) {
       target="_blank"
       rel="noopener noreferrer"
       title={props.title || "Opens in a new tab"}
+      aria-describedby={ariaDescribedBy}
     >
       {children}
       <span className="sr-only"> (opens in a new tab)</span>
     </a>
+  );
+}
+
+function MarkdownHeadingTwo({
+  node: _node,
+  id,
+  footnoteLabelId,
+  children,
+  ...props
+}) {
+  return (
+    <h2
+      {...props}
+      id={id === "footnote-label" ? footnoteLabelId : id}
+    >
+      {children}
+    </h2>
   );
 }
 
@@ -325,7 +357,15 @@ function MarkdownPre({ node: _node, children, ...props }) {
   );
 }
 
-function AssistantBubble({ content, sources, persona }) {
+export function AssistantBubble({
+  content,
+  sources,
+  persona,
+  messageIndex = 0,
+}) {
+  const footnotePrefix = `agapay-message-${messageIndex}-`;
+  const footnoteLabelId = `${footnotePrefix}footnote-label`;
+
   return (
     <div className="flex justify-start gap-2">
       {persona && (
@@ -350,9 +390,18 @@ function AssistantBubble({ content, sources, persona }) {
           {/* Untrusted replies must not trigger automatic image requests. */}
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            remarkRehypeOptions={{ clobberPrefix: footnotePrefix }}
             disallowedElements={["img"]}
             components={{
-              a: MarkdownLink,
+              a: (props) => (
+                <MarkdownLink {...props} footnoteLabelId={footnoteLabelId} />
+              ),
+              h2: (props) => (
+                <MarkdownHeadingTwo
+                  {...props}
+                  footnoteLabelId={footnoteLabelId}
+                />
+              ),
               pre: MarkdownPre,
               table: MarkdownTable,
             }}
@@ -638,6 +687,7 @@ export default function ChatFeed({
                       content={m.content}
                       sources={m.sources}
                       persona={persona}
+                      messageIndex={i}
                     />
                   )
                 )}
