@@ -80,7 +80,7 @@ function updateCompletedSteps(completed, steps, stepId) {
  *   - Check / uncheck each step (state persists locally per persona)
  *   - Click "Ask mentor" to drop the step's prompt into the chat
  * ────────────────────────────────────────────────────────────────────────── */
-function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
+export function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
   const data = ROADMAPS[persona.key];
   if (!data) return null;
 
@@ -109,6 +109,7 @@ function RoadmapTab({ persona, completed, discussed, onToggle, onAskMentor }) {
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={pct}
+          aria-valuetext={`${done} of ${total} steps complete`}
           className="mt-1.5 h-1.5 bg-slate-100 rounded-full overflow-hidden"
         >
           <div

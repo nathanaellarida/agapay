@@ -422,6 +422,33 @@ test("locked roadmap steps remain focusable and cannot be activated", async () =
   }
 });
 
+test("roadmap progress reports completed steps to assistive technology", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { RoadmapTab } = await server.ssrLoadModule(
+      "/src/components/RightSidebar.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(RoadmapTab, {
+      persona: { key: "tech", name: "Anton" },
+      completed: { "tech-1": true, "tech-2": true },
+      discussed: new Set(),
+      onToggle() {},
+      onAskMentor() {},
+    }));
+    const progress = html.match(/<div[^>]*role="progressbar"[^>]*>/)?.[0];
+
+    assert.ok(progress, "roadmap must render a progress indicator");
+    assert.match(progress, /aria-valuenow="25"/);
+    assert.match(progress, /aria-valuetext="2 of 8 steps complete"/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("saved roadmap progress restores only known sequential steps", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
