@@ -966,6 +966,39 @@ test("export stays unavailable until the conversation has content", async () => 
   }
 });
 
+test("breadcrumbs use list semantics without false link affordances", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: TopBar } = await server.ssrLoadModule(
+      "/src/components/TopBar.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(TopBar, {
+      breadcrumbs: ["Agapay", "A Tech Startup", "MVP funding tiers"],
+      persona: null,
+      leftOpen: false,
+      rightOpen: false,
+      onToggleLeft() {},
+      onToggleRight() {},
+      onSwitchPersona() {},
+    }));
+    const breadcrumb = html.match(
+      /<nav[^>]*aria-label="Breadcrumb"[^>]*>[\s\S]*?<\/nav>/
+    )?.[0];
+
+    assert.ok(breadcrumb, "top bar must render breadcrumb navigation");
+    assert.match(breadcrumb, /<ol\b/);
+    assert.equal((breadcrumb.match(/<li\b/g) || []).length, 3);
+    assert.equal((breadcrumb.match(/aria-current="page"/g) || []).length, 1);
+    assert.doesNotMatch(breadcrumb, /cursor-pointer|<a\b|<button\b/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the workspace exposes its primary content as a main landmark", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

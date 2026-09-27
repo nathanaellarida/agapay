@@ -191,23 +191,30 @@ export default function TopBar({
         {/* Breadcrumbs */}
         <nav
           aria-label="Breadcrumb"
-          className="flex-1 flex items-center gap-1 text-xs text-slate-500 min-w-0"
+          className="flex-1 min-w-0"
         >
-          {breadcrumbs.map((crumb, i) => (
-            <span key={`${crumb}-${i}`} className="flex items-center gap-1 min-w-0">
-              {i > 0 && <ChevronRight className="w-3 h-3 flex-shrink-0 text-slate-300" />}
-              <span
-                aria-current={i === breadcrumbs.length - 1 ? "page" : undefined}
-                className={`truncate ${
-                  i === breadcrumbs.length - 1
-                    ? "text-slate-900 font-semibold"
-                    : "hover:text-slate-700 cursor-pointer"
-                }`}
-              >
-                {crumb}
-              </span>
-            </span>
-          ))}
+          <ol className="flex items-center gap-1 text-xs text-slate-500 min-w-0">
+            {breadcrumbs.map((crumb, i) => (
+              <li key={`${crumb}-${i}`} className="flex items-center gap-1 min-w-0">
+                {i > 0 && (
+                  <ChevronRight
+                    aria-hidden="true"
+                    className="w-3 h-3 flex-shrink-0 text-slate-300"
+                  />
+                )}
+                <span
+                  aria-current={i === breadcrumbs.length - 1 ? "page" : undefined}
+                  className={`truncate ${
+                    i === breadcrumbs.length - 1
+                      ? "text-slate-900 font-semibold"
+                      : "text-slate-500"
+                  }`}
+                >
+                  {crumb}
+                </span>
+              </li>
+            ))}
+          </ol>
         </nav>
 
         {/* Persona badge — only when a persona is active */}
