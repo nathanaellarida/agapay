@@ -118,6 +118,22 @@ class RetrievalTests(unittest.TestCase):
         self.assertEqual(result, (frozenset({"guide.txt", "faq.txt"}), 123_456))
         load_index.assert_called_once_with(signature)
 
+    def test_non_regular_index_paths_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            directory_path = Path(directory)
+            index_directory = directory_path / "index-directory"
+            index_directory.mkdir()
+            target_path = directory_path / "target.json"
+            target_path.write_text("{}", encoding="utf-8")
+            index_symlink = directory_path / "index.json"
+            index_symlink.symlink_to(target_path)
+
+            for index_path in (index_directory, index_symlink):
+                with self.subTest(index_path=index_path):
+                    with patch.object(rag_chain, "INDEX_PATH", index_path):
+                        with self.assertRaisesRegex(ValueError, "regular file"):
+                            rag_chain.get_index()
+
     def test_duplicate_index_object_keys_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             index_path = Path(directory) / "index.json"

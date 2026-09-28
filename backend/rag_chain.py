@@ -10,6 +10,7 @@ import heapq
 import json
 import math
 import os
+import stat
 import unicodedata
 from functools import lru_cache
 from pathlib import Path
@@ -215,12 +216,19 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
 def _index_signature() -> tuple[int, int, int, int]:
     """Identify the currently published index for cache invalidation."""
     try:
-        stat = INDEX_PATH.stat()
+        index_stat = INDEX_PATH.lstat()
     except FileNotFoundError:
         raise FileNotFoundError(
             "Vector index is missing; run `python ingest.py`"
         ) from None
-    return stat.st_dev, stat.st_ino, stat.st_mtime_ns, stat.st_size
+    if not stat.S_ISREG(index_stat.st_mode):
+        raise ValueError("Vector index must be a regular file")
+    return (
+        index_stat.st_dev,
+        index_stat.st_ino,
+        index_stat.st_mtime_ns,
+        index_stat.st_size,
+    )
 
 
 @lru_cache(maxsize=1)
