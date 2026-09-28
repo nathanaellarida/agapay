@@ -103,6 +103,35 @@ test("query responses must match the selected mentor", async () => {
   }
 });
 
+test("query responses keep only usable source citations", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { parseQueryResponse } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const parsed = parseQueryResponse({
+      answer: "Registration guidance",
+      persona: "tech",
+      sources: [
+        { source: "  guide.txt  ", snippet: "  Reviewed guidance.  " },
+        { source: "", snippet: "Missing filename" },
+        { source: "blank.txt", snippet: "   " },
+        { source: "wrong.txt", snippet: null },
+      ],
+    }, "tech");
+
+    assert.deepEqual(parsed.sources, [
+      { source: "guide.txt", snippet: "Reviewed guidance." },
+    ]);
+  } finally {
+    await server.close();
+  }
+});
+
 test("footnote links stay within their mentor response", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

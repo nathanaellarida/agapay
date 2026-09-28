@@ -113,12 +113,19 @@ export function parseQueryResponse(data, expectedPersona) {
   if (!answer) throw new Error("API returned an invalid answer");
 
   const sources = Array.isArray(data.sources)
-    ? data.sources.filter(
-        (source) =>
-          source &&
-          typeof source.source === "string" &&
-          typeof source.snippet === "string"
-      )
+    ? data.sources.flatMap((source) => {
+        if (
+          !source ||
+          typeof source.source !== "string" ||
+          typeof source.snippet !== "string"
+        ) {
+          return [];
+        }
+
+        const sourceName = source.source.trim();
+        const snippet = source.snippet.trim();
+        return sourceName && snippet ? [{ source: sourceName, snippet }] : [];
+      })
     : [];
   return { answer, sources };
 }
