@@ -136,6 +136,16 @@ npm run dev
 
 Visit `http://127.0.0.1:5173`.
 
+### 4. Verify the local setup
+
+With both development servers running, confirm that the API is healthy:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/health
+```
+
+Then open `http://127.0.0.1:5173` and send a test question to any mentor.
+
 ## API reference
 
 | Method | Endpoint | Purpose |
