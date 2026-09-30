@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import secrets
+import stat
 import unicodedata
 from pathlib import Path
 
@@ -74,10 +75,42 @@ def load_documents() -> list[tuple[str, str]]:
     documents = []
     for path in txt_files:
         validate_source_name(path.name)
-        if path.is_symlink():
+        expected_stat = path.lstat()
+        if not stat.S_ISREG(expected_stat.st_mode):
             raise ValueError(f"Refusing to ingest symbolic link: {path.name}")
+        expected_signature = (
+            expected_stat.st_dev,
+            expected_stat.st_ino,
+            expected_stat.st_mtime_ns,
+            expected_stat.st_size,
+        )
         with path.open("rb") as document_file:
+            opened_stat = os.fstat(document_file.fileno())
+            opened_signature = (
+                opened_stat.st_dev,
+                opened_stat.st_ino,
+                opened_stat.st_mtime_ns,
+                opened_stat.st_size,
+            )
+            if (
+                not stat.S_ISREG(opened_stat.st_mode)
+                or opened_signature != expected_signature
+            ):
+                raise ValueError(
+                    f"Source document changed while being loaded: {path.name}"
+                )
             raw_content = document_file.read(MAX_DOCUMENT_BYTES + 1)
+            finished_stat = os.fstat(document_file.fileno())
+            finished_signature = (
+                finished_stat.st_dev,
+                finished_stat.st_ino,
+                finished_stat.st_mtime_ns,
+                finished_stat.st_size,
+            )
+            if finished_signature != opened_signature:
+                raise ValueError(
+                    f"Source document changed while being loaded: {path.name}"
+                )
         if len(raw_content) > MAX_DOCUMENT_BYTES:
             raise ValueError(f"Document exceeds the size limit: {path.name}")
         try:

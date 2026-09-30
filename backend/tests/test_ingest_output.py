@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -127,6 +128,35 @@ class IndexOutputLimitTests(unittest.TestCase):
 
 
 class DocumentInputTests(unittest.TestCase):
+    def test_source_replacement_during_load_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            source_path = data_dir / "Guide.txt"
+            replacement_path = data_dir / "Replacement.tmp"
+            source_path.write_text("Original guidance", encoding="utf-8")
+            replacement_path.write_text("Replacement guidance", encoding="utf-8")
+            real_open = Path.open
+
+            def replace_before_open(path, *args, **kwargs):
+                if path == source_path:
+                    os.replace(replacement_path, source_path)
+                return real_open(path, *args, **kwargs)
+
+            with (
+                patch.object(ingest, "DATA_DIR", data_dir),
+                patch.object(
+                    Path,
+                    "open",
+                    autospec=True,
+                    side_effect=replace_before_open,
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"changed while being loaded: Guide\.txt",
+                ):
+                    ingest.load_documents()
+
     def test_broken_source_symlinks_are_rejected_during_discovery(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)
