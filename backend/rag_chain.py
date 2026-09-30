@@ -251,6 +251,15 @@ def _load_index(
             ):
                 raise ValueError("Vector index changed while being loaded")
             raw_index = index_file.read(MAX_INDEX_BYTES + 1)
+            finished_stat = os.fstat(index_file.fileno())
+            finished_signature = (
+                finished_stat.st_dev,
+                finished_stat.st_ino,
+                finished_stat.st_mtime_ns,
+                finished_stat.st_size,
+            )
+            if finished_signature != opened_signature:
+                raise ValueError("Vector index changed while being loaded")
     except FileNotFoundError:
         raise FileNotFoundError(
             "Vector index is missing; run `python ingest.py`"

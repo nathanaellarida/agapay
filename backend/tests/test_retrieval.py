@@ -146,6 +146,37 @@ class RetrievalTests(unittest.TestCase):
                     rag_chain._load_index(mismatched_signature)
             rag_chain._load_index.cache_clear()
 
+    def test_index_mutation_during_read_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            index_path.write_text("{}", encoding="utf-8")
+            opened_stat = index_path.stat()
+            signature = (
+                opened_stat.st_dev,
+                opened_stat.st_ino,
+                opened_stat.st_mtime_ns,
+                opened_stat.st_size,
+            )
+            changed_stat = Mock(
+                st_dev=opened_stat.st_dev,
+                st_ino=opened_stat.st_ino,
+                st_mtime_ns=opened_stat.st_mtime_ns + 1,
+                st_size=opened_stat.st_size,
+            )
+
+            rag_chain._load_index.cache_clear()
+            with (
+                patch.object(rag_chain, "INDEX_PATH", index_path),
+                patch.object(
+                    rag_chain.os,
+                    "fstat",
+                    side_effect=(opened_stat, changed_stat),
+                ),
+            ):
+                with self.assertRaisesRegex(ValueError, "changed while being loaded"):
+                    rag_chain._load_index(signature)
+            rag_chain._load_index.cache_clear()
+
     def test_duplicate_index_object_keys_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             index_path = Path(directory) / "index.json"
