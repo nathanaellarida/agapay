@@ -238,6 +238,18 @@ def _load_index(
     """Load and validate the generated local index before using it."""
     try:
         with INDEX_PATH.open("rb") as index_file:
+            opened_stat = os.fstat(index_file.fileno())
+            opened_signature = (
+                opened_stat.st_dev,
+                opened_stat.st_ino,
+                opened_stat.st_mtime_ns,
+                opened_stat.st_size,
+            )
+            if (
+                not stat.S_ISREG(opened_stat.st_mode)
+                or opened_signature != _signature
+            ):
+                raise ValueError("Vector index changed while being loaded")
             raw_index = index_file.read(MAX_INDEX_BYTES + 1)
     except FileNotFoundError:
         raise FileNotFoundError(

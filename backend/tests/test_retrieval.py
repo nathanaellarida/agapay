@@ -134,6 +134,18 @@ class RetrievalTests(unittest.TestCase):
                         with self.assertRaisesRegex(ValueError, "regular file"):
                             rag_chain.get_index()
 
+    def test_index_replacement_during_load_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            index_path = Path(directory) / "index.json"
+            index_path.write_text("{}", encoding="utf-8")
+            mismatched_signature = (0, 0, 0, 0)
+
+            rag_chain._load_index.cache_clear()
+            with patch.object(rag_chain, "INDEX_PATH", index_path):
+                with self.assertRaisesRegex(ValueError, "changed while being loaded"):
+                    rag_chain._load_index(mismatched_signature)
+            rag_chain._load_index.cache_clear()
+
     def test_duplicate_index_object_keys_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             index_path = Path(directory) / "index.json"
