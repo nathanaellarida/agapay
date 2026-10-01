@@ -69,6 +69,18 @@ test("temporary errors surface valid retry guidance", async () => {
       getRequestErrorMessage(failed.signal, 503, "invalid"),
       /try again in a moment/
     );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 429, "30"),
+      /try again in 30 seconds/
+    );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 429),
+      /try again in a moment/
+    );
+    assert.match(
+      getRequestErrorMessage(failed.signal, 422),
+      /review it and try again/
+    );
   } finally {
     await server.close();
   }

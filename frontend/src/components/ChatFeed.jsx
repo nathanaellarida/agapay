@@ -87,7 +87,7 @@ export function getRequestErrorMessage(
       ? "Response stopped. You can ask another question when you're ready."
       : "Agapay took too long to respond. Please try again.";
   }
-  if (status !== null && status >= 500) {
+  if (status === 429 || (status !== null && status >= 500)) {
     const normalizedRetryAfter = retryAfter?.trim();
     const retryDelay = /^\d+$/.test(normalizedRetryAfter || "")
       ? Number(normalizedRetryAfter)
