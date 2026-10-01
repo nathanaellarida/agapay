@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import stat
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -255,11 +256,7 @@ def library() -> list[LibraryDocument]:
             (
                 path
                 for path in DATA_DIR.iterdir()
-                if (
-                    path.is_file()
-                    and not path.is_symlink()
-                    and path.suffix.lower() == ".txt"
-                )
+                if path.suffix.lower() == ".txt"
             ),
             key=lambda path: path.name.casefold(),
         )
@@ -277,7 +274,7 @@ def library() -> list[LibraryDocument]:
             )
             continue
         try:
-            stat = path.stat()
+            document_stat = path.lstat()
         except OSError as exc:
             logger.warning(
                 "Could not inspect library document %s (%s)",
@@ -285,15 +282,22 @@ def library() -> list[LibraryDocument]:
                 type(exc).__name__,
             )
             continue
+        if not stat.S_ISREG(document_stat.st_mode):
+            logger.warning("Skipping non-regular library path %s", path.name)
+            continue
         items.append(
             LibraryDocument(
                 filename=path.name,
                 title=prettify_title(path.name),
                 category=classify_category(path.name),
-                last_updated=format_last_updated(stat.st_mtime),
+                last_updated=format_last_updated(document_stat.st_mtime),
                 status=(
                     "Indexed & Active"
-                    if is_source_current(path.name, stat.st_mtime_ns, index_state)
+                    if is_source_current(
+                        path.name,
+                        document_stat.st_mtime_ns,
+                        index_state,
+                    )
                     else "Needs Reindex"
                 ),
             )
