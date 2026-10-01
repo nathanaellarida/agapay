@@ -73,6 +73,25 @@ test("temporary errors surface valid retry guidance", async () => {
       getRequestErrorMessage(failed.signal, 429, "30"),
       /try again in 30 seconds/
     );
+    const now = Date.UTC(2026, 9, 1, 10, 30, 0);
+    assert.match(
+      getRequestErrorMessage(
+        failed.signal,
+        429,
+        "Thu, 01 Oct 2026 10:30:30 GMT",
+        now
+      ),
+      /try again in 30 seconds/
+    );
+    assert.match(
+      getRequestErrorMessage(
+        failed.signal,
+        429,
+        "Thu, 01 Oct 2026 10:29:30 GMT",
+        now
+      ),
+      /try again in a moment/
+    );
     assert.match(
       getRequestErrorMessage(failed.signal, 429),
       /try again in a moment/

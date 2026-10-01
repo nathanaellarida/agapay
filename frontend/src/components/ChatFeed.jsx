@@ -80,7 +80,8 @@ export function hasMinimumVisibleQuestionLength(value) {
 export function getRequestErrorMessage(
   signal,
   status = null,
-  retryAfter = null
+  retryAfter = null,
+  now = Date.now()
 ) {
   if (signal.aborted) {
     return signal.reason === USER_ABORT_REASON
@@ -89,9 +90,15 @@ export function getRequestErrorMessage(
   }
   if (status === 429 || (status !== null && status >= 500)) {
     const normalizedRetryAfter = retryAfter?.trim();
-    const retryDelay = /^\d+$/.test(normalizedRetryAfter || "")
+    let retryDelay = /^\d+$/.test(normalizedRetryAfter || "")
       ? Number(normalizedRetryAfter)
       : null;
+    if (retryDelay === null && normalizedRetryAfter) {
+      const retryTime = Date.parse(normalizedRetryAfter);
+      if (Number.isFinite(retryTime)) {
+        retryDelay = Math.ceil((retryTime - now) / 1000);
+      }
+    }
     if (Number.isSafeInteger(retryDelay) && retryDelay > 0) {
       const unit = retryDelay === 1 ? "second" : "seconds";
       return `Agapay is temporarily unavailable. Please try again in ${retryDelay} ${unit}.`;
