@@ -275,7 +275,11 @@ export function CostTab({ persona, completed, discussed }) {
       </div>
 
       {/* Mode toggle */}
-      <div className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5">
+      <div
+        role="group"
+        aria-label="Cost estimate scope"
+        className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5"
+      >
         {[
           { key: "discussed", label: "From chat" },
           { key: "remaining", label: "Remaining" },
@@ -522,7 +526,11 @@ export default function RightSidebar({ persona, messages = [], onAskMentor }) {
     >
       {/* Tab toggle */}
       <div className="px-3 pt-3 pb-2 border-b border-slate-100/80">
-        <div className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5">
+        <div
+          role="group"
+          aria-label="Insights view"
+          className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5"
+        >
           {[
             { key: "roadmap", label: "Roadmap" },
             { key: "cost", label: "Cost & Time" },

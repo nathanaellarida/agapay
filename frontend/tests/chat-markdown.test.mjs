@@ -638,6 +638,41 @@ test("cost estimates are identified as non-official planning ranges", async () =
   }
 });
 
+test("insights toggles expose named control groups", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: RightSidebar, CostTab } = await server.ssrLoadModule(
+      "/src/components/RightSidebar.jsx"
+    );
+    const persona = { key: "tech", name: "Anton" };
+    const sidebarHtml = renderToStaticMarkup(createElement(RightSidebar, {
+      persona,
+      messages: [],
+      onAskMentor() {},
+    }));
+    const costHtml = renderToStaticMarkup(createElement(CostTab, {
+      persona,
+      completed: {},
+      discussed: new Set(),
+    }));
+
+    assert.match(
+      sidebarHtml,
+      /role="group" aria-label="Insights view"/
+    );
+    assert.match(
+      costHtml,
+      /role="group" aria-label="Cost estimate scope"/
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer stays editable for drafting during mentor replies", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
