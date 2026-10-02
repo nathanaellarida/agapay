@@ -42,7 +42,13 @@ def validate_generated_embedding(embedding) -> list[float]:
 
 
 def load_documents() -> list[tuple[str, str]]:
-    if not DATA_DIR.is_dir():
+    try:
+        data_dir_stat = DATA_DIR.lstat()
+    except OSError:
+        raise FileNotFoundError(
+            f"Data directory is missing or invalid: {DATA_DIR}"
+        ) from None
+    if not stat.S_ISDIR(data_dir_stat.st_mode):
         raise FileNotFoundError(f"Data directory is missing or invalid: {DATA_DIR}")
 
     txt_files = []

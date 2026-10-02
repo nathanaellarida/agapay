@@ -1,5 +1,6 @@
 import json
 import os
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -128,6 +129,16 @@ class IndexOutputLimitTests(unittest.TestCase):
 
 
 class DocumentInputTests(unittest.TestCase):
+    def test_replaced_data_directory_symlink_is_not_followed(self):
+        data_dir = Mock()
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFLNK)
+
+        with patch.object(ingest, "DATA_DIR", data_dir):
+            with self.assertRaisesRegex(FileNotFoundError, "missing or invalid"):
+                ingest.load_documents()
+
+        data_dir.iterdir.assert_not_called()
+
     def test_source_replacement_during_load_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)

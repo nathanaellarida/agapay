@@ -190,7 +190,7 @@ class LibraryApiTests(unittest.TestCase):
         )
 
         data_dir = Mock()
-        data_dir.is_dir.return_value = True
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFDIR)
         data_dir.iterdir.return_value = [blocked_path, readable_path]
 
         with (
@@ -223,7 +223,7 @@ class LibraryApiTests(unittest.TestCase):
         )
 
         data_dir = Mock()
-        data_dir.is_dir.return_value = True
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFDIR)
         data_dir.iterdir.return_value = [replaced_path, readable_path]
 
         with (
@@ -253,7 +253,7 @@ class LibraryApiTests(unittest.TestCase):
         )
 
         data_dir = Mock()
-        data_dir.is_dir.return_value = True
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFDIR)
         data_dir.iterdir.return_value = [invalid_path, readable_path]
 
         with (
@@ -270,7 +270,7 @@ class LibraryApiTests(unittest.TestCase):
 
     def test_unreadable_data_directory_returns_an_empty_library(self):
         data_dir = Mock()
-        data_dir.is_dir.return_value = True
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFDIR)
         data_dir.iterdir.side_effect = PermissionError("directory is unreadable")
 
         with (
@@ -278,6 +278,19 @@ class LibraryApiTests(unittest.TestCase):
             patch.object(main, "get_index_state", return_value=(frozenset(), -1)),
         ):
             self.assertEqual(main.library(), [])
+
+    def test_replaced_data_directory_symlink_is_not_followed(self):
+        data_dir = Mock()
+        data_dir.lstat.return_value = Mock(st_mode=stat.S_IFLNK)
+
+        with (
+            patch.object(main, "DATA_DIR", data_dir),
+            patch.object(main, "get_index_state") as get_index_state,
+        ):
+            self.assertEqual(main.library(), [])
+
+        data_dir.iterdir.assert_not_called()
+        get_index_state.assert_not_called()
 
 
 if __name__ == "__main__":

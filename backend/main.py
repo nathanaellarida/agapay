@@ -241,7 +241,11 @@ def query(body: QueryRequest) -> QueryResponse:
 
 @app.get("/library", response_model=list[LibraryDocument])
 def library() -> list[LibraryDocument]:
-    if not DATA_DIR.is_dir():
+    try:
+        data_dir_stat = DATA_DIR.lstat()
+    except OSError:
+        return []
+    if not stat.S_ISDIR(data_dir_stat.st_mode):
         return []
 
     try:
