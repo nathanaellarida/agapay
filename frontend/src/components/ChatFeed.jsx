@@ -119,6 +119,7 @@ export function parseQueryResponse(data, expectedPersona) {
   const answer = typeof data.answer === "string" ? data.answer.trim() : "";
   if (!answer) throw new Error("API returned an invalid answer");
 
+  const seenCitations = new Set();
   const sources = Array.isArray(data.sources)
     ? data.sources.flatMap((source) => {
         if (
@@ -131,7 +132,12 @@ export function parseQueryResponse(data, expectedPersona) {
 
         const sourceName = source.source.trim();
         const snippet = source.snippet.trim();
-        return sourceName && snippet ? [{ source: sourceName, snippet }] : [];
+        if (!sourceName || !snippet) return [];
+
+        const citationKey = JSON.stringify([sourceName, snippet]);
+        if (seenCitations.has(citationKey)) return [];
+        seenCitations.add(citationKey);
+        return [{ source: sourceName, snippet }];
       })
     : [];
   return { answer, sources };

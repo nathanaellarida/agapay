@@ -163,6 +163,33 @@ test("query responses keep only usable source citations", async () => {
   }
 });
 
+test("query responses remove duplicate source citations", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { parseQueryResponse } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const parsed = parseQueryResponse({
+      answer: "Registration guidance",
+      persona: "tech",
+      sources: [
+        { source: " guide.txt ", snippet: " Reviewed guidance. " },
+        { source: "guide.txt", snippet: "Reviewed guidance." },
+      ],
+    }, "tech");
+
+    assert.deepEqual(parsed.sources, [
+      { source: "guide.txt", snippet: "Reviewed guidance." },
+    ]);
+  } finally {
+    await server.close();
+  }
+});
+
 test("footnote links stay within their mentor response", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
