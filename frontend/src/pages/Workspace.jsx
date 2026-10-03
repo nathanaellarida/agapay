@@ -10,6 +10,8 @@ const openSidebarsByDefault = () =>
   window.matchMedia("(min-width: 1024px)").matches;
 
 const DEFAULT_DOCUMENT_TITLE = "Agapay | MSME Regulatory Navigator";
+const NEW_CHAT_CONFIRMATION =
+  "Start a new chat? Your current conversation will be cleared.";
 
 export function getWorkspaceDocumentTitle(persona) {
   return persona?.name
@@ -110,6 +112,13 @@ export function getTopBarStateKey(persona) {
 
 export function createPendingQuestion(prompt, timestamp = Date.now()) {
   return { prompt, ts: timestamp };
+}
+
+export function shouldStartNewChat(messages, confirmDiscard) {
+  const hasConversation = messages.some(
+    (message) => message.content !== "__intro__"
+  );
+  return !hasConversation || Boolean(confirmDiscard?.(NEW_CHAT_CONFIRMATION));
 }
 
 export default function Workspace() {
@@ -229,6 +238,8 @@ export default function Workspace() {
   }
 
   function handleNewChat() {
+    if (!shouldStartNewChat(messages, window.confirm.bind(window))) return;
+
     setChatResetVersion((version) => version + 1);
     setMessages([{ role: "assistant", content: "__intro__" }]);
     setPendingAsk(null);

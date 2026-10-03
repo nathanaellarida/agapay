@@ -467,6 +467,45 @@ test("sidebar suggestions create a queued mentor question", async () => {
   }
 });
 
+test("starting a new chat confirms before clearing a conversation", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldStartNewChat } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    let confirmationMessage = null;
+
+    assert.equal(
+      shouldStartNewChat([{ role: "assistant", content: "__intro__" }]),
+      true
+    );
+    assert.equal(
+      shouldStartNewChat(
+        [{ role: "user", content: "How do I register?" }],
+        (message) => {
+          confirmationMessage = message;
+          return false;
+        }
+      ),
+      false
+    );
+    assert.match(confirmationMessage, /conversation will be cleared/);
+    assert.equal(
+      shouldStartNewChat(
+        [{ role: "assistant", content: "Registration guidance" }],
+        () => true
+      ),
+      true
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("roadmap estimates update only after the mentor discusses a step", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
