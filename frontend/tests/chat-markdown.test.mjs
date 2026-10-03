@@ -299,6 +299,30 @@ test("top bar state resets when the active mentor changes", async () => {
   }
 });
 
+test("the page title identifies the active mentor", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getWorkspaceDocumentTitle } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+
+    assert.equal(
+      getWorkspaceDocumentTitle(null),
+      "Agapay | MSME Regulatory Navigator"
+    );
+    assert.equal(
+      getWorkspaceDocumentTitle({ name: "Anton" }),
+      "Anton | Agapay"
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("mobile sidebar toggles close the opposite panel", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

@@ -9,6 +9,14 @@ const openSidebarsByDefault = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(min-width: 1024px)").matches;
 
+const DEFAULT_DOCUMENT_TITLE = "Agapay | MSME Regulatory Navigator";
+
+export function getWorkspaceDocumentTitle(persona) {
+  return persona?.name
+    ? `${persona.name} | Agapay`
+    : DEFAULT_DOCUMENT_TITLE;
+}
+
 export function shouldDismissMobileSidebars(
   event,
   isWideViewport,
@@ -175,6 +183,10 @@ export default function Workspace() {
       wideViewport.removeEventListener("change", updateViewport);
     };
   }, []);
+
+  useEffect(() => {
+    document.title = getWorkspaceDocumentTitle(persona);
+  }, [persona]);
 
   useEffect(() => {
     const closeSidebarsOnEscape = (event) => {
