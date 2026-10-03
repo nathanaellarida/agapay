@@ -39,6 +39,15 @@ RETRY_AFTER_SECONDS = 5
 MAX_QUERY_BODY_BYTES = 64 * 1024
 
 
+def content_length_exceeds_limit(value: str, limit: int) -> bool:
+    """Compare decimal byte counts without converting unbounded integers."""
+    normalized = value.lstrip("0") or "0"
+    limit_text = str(limit)
+    return len(normalized) > len(limit_text) or (
+        len(normalized) == len(limit_text) and normalized > limit_text
+    )
+
+
 def parse_cors_origins(value: str) -> list[str]:
     """Return unique HTTP(S) origins and reject malformed configuration."""
     origins: list[str] = []
@@ -100,7 +109,10 @@ async def limit_query_request_body(request: Request, call_next):
     if request.method == "POST" and request.url.path == "/query":
         content_length = request.headers.get("content-length")
         if content_length and content_length.isdecimal():
-            if int(content_length) > MAX_QUERY_BODY_BYTES:
+            if content_length_exceeds_limit(
+                content_length,
+                MAX_QUERY_BODY_BYTES,
+            ):
                 return JSONResponse(
                     status_code=413,
                     content={"detail": "Query request body is too large."},

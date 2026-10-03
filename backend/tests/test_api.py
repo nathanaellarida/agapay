@@ -123,6 +123,18 @@ class QueryRequestBodyLimitTests(unittest.TestCase):
         self.assertEqual(response.status_code, 413)
         call_next.assert_not_called()
 
+    def test_extreme_declared_body_size_is_rejected_without_integer_conversion(self):
+        request = self.request(
+            [b"not read"],
+            content_length="9" * 5000,
+        )
+        call_next = Mock()
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 413)
+        call_next.assert_not_called()
+
     def test_chunked_oversized_query_body_is_rejected(self):
         request = self.request(
             [b"a" * main.MAX_QUERY_BODY_BYTES, b"b"],
