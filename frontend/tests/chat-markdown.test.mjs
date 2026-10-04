@@ -879,6 +879,36 @@ test("the conversation has a labeled keyboard-scrollable region", async () => {
   }
 });
 
+test("the active conversation has a page-level heading", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: ChatFeed } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(ChatFeed, {
+      persona: {
+        key: "tech",
+        name: "Anton",
+        title: "The Tech Strategist",
+        image: "/startupAdvisor.png",
+      },
+      messages: [{ role: "assistant", content: "__intro__" }],
+      onMessagesChange() {},
+    }));
+
+    assert.match(
+      html,
+      /<h1 class="sr-only">Conversation with Anton, The Tech Strategist<\/h1>/
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

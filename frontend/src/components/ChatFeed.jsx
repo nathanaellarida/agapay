@@ -621,6 +621,12 @@ export default function ChatFeed({
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-canvas h-full">
+      {persona && !locked && (
+        <h1 className="sr-only">
+          Conversation with {persona.name}, {persona.title}
+        </h1>
+      )}
+
       {/* Feed area */}
       <div
         ref={scrollAreaRef}
