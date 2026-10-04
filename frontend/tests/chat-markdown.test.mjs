@@ -506,6 +506,46 @@ test("starting a new chat confirms before clearing a conversation", async () => 
   }
 });
 
+test("switching mentors confirms before clearing a conversation", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { shouldSwitchMentor } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    let confirmationMessage = null;
+
+    assert.equal(
+      shouldSwitchMentor([{ role: "assistant", content: "__intro__" }]),
+      true
+    );
+    assert.equal(
+      shouldSwitchMentor(
+        [{ role: "user", content: "How do I register?" }],
+        (message) => {
+          confirmationMessage = message;
+          return false;
+        }
+      ),
+      false
+    );
+    assert.match(confirmationMessage, /Switch mentors/);
+    assert.match(confirmationMessage, /conversation will be cleared/);
+    assert.equal(
+      shouldSwitchMentor(
+        [{ role: "assistant", content: "Registration guidance" }],
+        () => true
+      ),
+      true
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("roadmap estimates update only after the mentor discusses a step", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

@@ -12,6 +12,8 @@ const openSidebarsByDefault = () =>
 const DEFAULT_DOCUMENT_TITLE = "Agapay | MSME Regulatory Navigator";
 const NEW_CHAT_CONFIRMATION =
   "Start a new chat? Your current conversation will be cleared.";
+const SWITCH_MENTOR_CONFIRMATION =
+  "Switch mentors? Your current conversation will be cleared.";
 
 export function getWorkspaceDocumentTitle(persona) {
   return persona?.name
@@ -119,6 +121,13 @@ export function shouldStartNewChat(messages, confirmDiscard) {
     (message) => message.content !== "__intro__"
   );
   return !hasConversation || Boolean(confirmDiscard?.(NEW_CHAT_CONFIRMATION));
+}
+
+export function shouldSwitchMentor(messages, confirmDiscard) {
+  const hasConversation = messages.some(
+    (message) => message.content !== "__intro__"
+  );
+  return !hasConversation || Boolean(confirmDiscard?.(SWITCH_MENTOR_CONFIRMATION));
 }
 
 export default function Workspace() {
@@ -248,6 +257,8 @@ export default function Workspace() {
   }
 
   function handleSwitchPersona() {
+    if (!shouldSwitchMentor(messages, window.confirm.bind(window))) return;
+
     setPersona(null);
     setMessages([]);
     setPendingAsk(null);
