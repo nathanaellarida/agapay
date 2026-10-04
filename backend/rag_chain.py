@@ -104,6 +104,15 @@ def validate_source_name(source: Any) -> str:
     return source
 
 
+def contains_disallowed_control_characters(value: str) -> bool:
+    """Return whether text contains controls other than layout whitespace."""
+    return any(
+        unicodedata.category(character) == "Cc"
+        and character not in "\t\n\r"
+        for character in value
+    )
+
+
 def normalize_embedding_values(values: list[Any], error_message: str) -> list[float]:
     """Return finite unit-vector values without allowing conversion to overflow."""
     normalized: list[float] = []
@@ -191,7 +200,7 @@ def _validated_entry(raw: Any, dimension: int | None) -> tuple[dict[str, Any], i
     if (
         not isinstance(text, str)
         or not text.strip()
-        or "\x00" in text
+        or contains_disallowed_control_characters(text)
         or len(text) > 10_000
     ):
         raise ValueError("Vector index contains an invalid text chunk")

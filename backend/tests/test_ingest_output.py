@@ -210,6 +210,20 @@ class DocumentInputTests(unittest.TestCase):
                 ):
                     ingest.load_documents()
 
+    def test_control_characters_identify_the_source_document(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / "Unsafe.txt").write_bytes(
+                b"Registration \x07 guidance"
+            )
+
+            with patch.object(ingest, "DATA_DIR", data_dir):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"control characters: Unsafe\.txt",
+                ):
+                    ingest.load_documents()
+
     def test_case_insensitive_duplicate_filenames_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             data_dir = Path(directory)

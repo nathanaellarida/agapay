@@ -17,6 +17,7 @@ from rag_chain import (
     INDEX_SCHEMA_VERSION,
     MAX_INDEX_BYTES,
     MAX_INDEX_ENTRIES,
+    contains_disallowed_control_characters,
     get_embedding_model,
     normalize_embedding_values,
     require_backend_path,
@@ -127,6 +128,10 @@ def load_documents() -> list[tuple[str, str]]:
             ) from None
         if "\x00" in content:
             raise ValueError(f"Document contains NUL characters: {path.name}")
+        if contains_disallowed_control_characters(content):
+            raise ValueError(
+                f"Document contains control characters: {path.name}"
+            )
         if not content.strip():
             raise ValueError(f"Document is empty: {path.name}")
         documents.append((path.name, content))
