@@ -52,10 +52,11 @@ class QueryApiTests(unittest.TestCase):
             main,
             "answer_question",
             side_effect=RuntimeError("provider unavailable"),
-        ):
+        ), patch.object(main.logger, "exception") as log_exception:
             with self.assertRaises(main.HTTPException) as raised:
                 main.query(request)
 
+        log_exception.assert_called_once_with("RAG query failed (%s)", "RuntimeError")
         self.assertEqual(raised.exception.status_code, 503)
         self.assertEqual(
             raised.exception.headers,

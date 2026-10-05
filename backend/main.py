@@ -242,7 +242,7 @@ def query(body: QueryRequest) -> QueryResponse:
     try:
         result = answer_question(body.question, persona=body.persona)
     except Exception as exc:  # noqa: BLE001
-        logger.error("RAG query failed (%s)", type(exc).__name__)
+        logger.exception("RAG query failed (%s)", type(exc).__name__)
         raise HTTPException(
             status_code=503,
             detail="The assistant is temporarily unavailable.",
