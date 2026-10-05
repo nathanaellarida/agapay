@@ -89,7 +89,7 @@ DEFAULT_PERSONA = "tech"
 
 
 def validate_source_name(source: Any) -> str:
-    """Return a portable, display-safe source filename."""
+    """Return a portable, display-safe text source filename."""
     if (
         not isinstance(source, str)
         or not source.strip()
@@ -99,6 +99,7 @@ def validate_source_name(source: Any) -> str:
         or "/" in source
         or "\\" in source
         or not source.isprintable()
+        or Path(source).suffix.lower() != ".txt"
     ):
         raise ValueError("Source name is invalid")
     return source

@@ -324,6 +324,9 @@ class RetrievalTests(unittest.TestCase):
             "guide\n.txt",
             " guide.txt",
             "guide.txt ",
+            "guide",
+            "guide.pdf",
+            "guide.txt.exe",
             "a" * (rag_chain.MAX_SOURCE_NAME_LENGTH + 1),
         )
         entry = {
@@ -339,13 +342,13 @@ class RetrievalTests(unittest.TestCase):
         validated, _ = rag_chain._validated_entry(
             {
                 **entry,
-                "source": "DTI_Gabay_Ñ.txt",
+                "source": "DTI_Gabay_Ñ.TXT",
                 "embedding": [1.0]
                 + [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1),
             },
             None,
         )
-        self.assertEqual(validated["source"], "DTI_Gabay_Ñ.txt")
+        self.assertEqual(validated["source"], "DTI_Gabay_Ñ.TXT")
 
     def test_nul_characters_in_index_text_are_rejected(self):
         entry = {
