@@ -256,6 +256,26 @@ test("the composer requires two visible question characters", async () => {
   }
 });
 
+test("the composer counts and limits Unicode characters consistently", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { countQuestionCharacters, limitQuestionLength } =
+      await server.ssrLoadModule("/src/components/ChatFeed.jsx");
+    const emojiQuestion = "🙂".repeat(2001);
+    const limited = limitQuestionLength(emojiQuestion);
+
+    assert.equal(countQuestionCharacters("A🙂"), 2);
+    assert.equal(countQuestionCharacters(limited), 2000);
+    assert.equal(limited, "🙂".repeat(2000));
+  } finally {
+    await server.close();
+  }
+});
+
 test("application failures show a clear recovery screen", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

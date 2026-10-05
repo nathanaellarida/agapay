@@ -65,6 +65,14 @@ const USER_ABORT_REASON = "user-stopped";
 const CHAT_BOTTOM_THRESHOLD_PX = 80;
 const NON_VISIBLE_QUESTION_CHARACTER = /[\p{C}\p{Z}]/u;
 
+export function countQuestionCharacters(value) {
+  return typeof value === "string" ? Array.from(value).length : 0;
+}
+
+export function limitQuestionLength(value) {
+  return Array.from(value).slice(0, MAX_QUESTION_LENGTH).join("");
+}
+
 export function hasMinimumVisibleQuestionLength(value) {
   if (typeof value !== "string") return false;
   let visibleCharacters = 0;
@@ -542,7 +550,7 @@ export default function ChatFeed({
   }, [pendingAsk?.ts, loading, locked, persona?.key]);
 
   async function send(text, preserveInput = false) {
-    const q = (text ?? input).trim();
+    const q = limitQuestionLength(text ?? input).trim();
     if (
       !hasMinimumVisibleQuestionLength(q) ||
       activeRequestRef.current ||
@@ -618,6 +626,7 @@ export default function ChatFeed({
     loading,
     personaName: persona?.name,
   });
+  const questionCharacterCount = countQuestionCharacters(input);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-canvas h-full">
@@ -742,11 +751,10 @@ export default function ChatFeed({
               rows={1}
               enterKeyHint="send"
               minLength={MIN_QUESTION_LENGTH}
-              maxLength={MAX_QUESTION_LENGTH}
               value={input}
               onChange={(e) => {
                 if (locked) return;
-                setInput(e.target.value);
+                setInput(limitQuestionLength(e.target.value));
                 e.target.style.height = "auto";
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
               }}
@@ -811,12 +819,12 @@ export default function ChatFeed({
             <p
               id="question-character-count"
               className={
-                input.length === MAX_QUESTION_LENGTH
+                questionCharacterCount === MAX_QUESTION_LENGTH
                   ? "font-semibold text-amber-600"
                   : ""
               }
             >
-              {input.length}/{MAX_QUESTION_LENGTH}
+              {questionCharacterCount}/{MAX_QUESTION_LENGTH}
             </p>
           )}
         </div>
