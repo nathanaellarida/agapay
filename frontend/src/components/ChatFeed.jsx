@@ -268,11 +268,11 @@ function useTypewriter(phrases) {
 
 function UserBubble({ content }) {
   return (
-    <div className="flex justify-end">
+    <article aria-label="Message from you" className="flex justify-end">
       <div className="max-w-[72%] break-words bg-flag-blue text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm">
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -395,7 +395,10 @@ export function AssistantBubble({
   const footnoteLabelId = `${footnotePrefix}footnote-label`;
 
   return (
-    <div className="flex justify-start gap-2">
+    <article
+      aria-label={`Response from ${persona?.name || "Agapay"}`}
+      className="flex justify-start gap-2"
+    >
       {persona && (
         <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mt-1">
           <img
@@ -439,7 +442,7 @@ export function AssistantBubble({
         </div>
         <InlineSources sources={sources} />
       </div>
-    </div>
+    </article>
   );
 }
 

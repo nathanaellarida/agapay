@@ -969,6 +969,37 @@ test("the active conversation has a page-level heading", async () => {
   }
 });
 
+test("conversation messages identify their speakers", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: ChatFeed } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(ChatFeed, {
+      persona: {
+        key: "tech",
+        name: "Anton",
+        title: "The Tech Strategist",
+        image: "/startupAdvisor.png",
+      },
+      messages: [
+        { role: "user", content: "How do I register?" },
+        { role: "assistant", content: "Start with DTI." },
+      ],
+      onMessagesChange() {},
+    }));
+
+    assert.match(html, /<article aria-label="Message from you"/);
+    assert.match(html, /<article aria-label="Response from Anton"/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("Markdown tables have a labeled keyboard-accessible scroll area", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
