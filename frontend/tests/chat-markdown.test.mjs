@@ -190,6 +190,32 @@ test("query responses remove duplicate source citations", async () => {
   }
 });
 
+test("response citations expose native list semantics", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { AssistantBubble } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(AssistantBubble, {
+      content: "Registration guidance",
+      sources: [
+        { source: "guide.txt", snippet: "Reviewed guidance." },
+        { source: "faq.txt", snippet: "Official answers." },
+      ],
+    }));
+
+    assert.match(html, /<ul aria-label="Sources"/);
+    assert.equal((html.match(/<li/g) || []).length, 2);
+    assert.match(html, /<li[^>]*><details[^>]*><summary/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("footnote links stay within their mentor response", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
