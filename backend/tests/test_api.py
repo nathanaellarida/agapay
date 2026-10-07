@@ -66,7 +66,7 @@ class QueryApiTests(unittest.TestCase):
 
 class QueryRequestBodyLimitTests(unittest.TestCase):
     @staticmethod
-    def request(chunks, content_length=None):
+    def request(chunks, content_length=None, content_type="application/json"):
         messages = [
             {
                 "type": "http.request",
@@ -79,7 +79,7 @@ class QueryRequestBodyLimitTests(unittest.TestCase):
         async def receive():
             return messages.pop(0)
 
-        headers = []
+        headers = [(b"content-type", content_type.encode("ascii"))]
         if content_length is not None:
             headers.append((b"content-length", str(content_length).encode("ascii")))
         return Request(
@@ -99,7 +99,40 @@ class QueryRequestBodyLimitTests(unittest.TestCase):
 
     def test_valid_query_body_is_preserved_for_json_parsing(self):
         payload = b'{"question":"How do I register?","persona":"tech"}'
-        request = self.request([payload[:20], payload[20:]])
+        request = self.request(
+            [payload[:20], payload[20:]],
+            content_type="application/json; charset=utf-8",
+        )
+        received = None
+
+        async def call_next(limited_request):
+            nonlocal received
+            received = await limited_request.body()
+            return JSONResponse({"ok": True})
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(received, payload)
+
+    def test_unsupported_query_media_type_is_rejected_before_reading(self):
+        request = self.request(
+            [b'{"question":"How do I register?"}'],
+            content_type="text/plain",
+        )
+        call_next = Mock()
+
+        response = asyncio.run(main.limit_query_request_body(request, call_next))
+
+        self.assertEqual(response.status_code, 415)
+        call_next.assert_not_called()
+
+    def test_json_suffix_media_types_are_accepted(self):
+        payload = b'{"question":"How do I register?"}'
+        request = self.request(
+            [payload],
+            content_type="application/vnd.agapay.query+json",
+        )
         received = None
 
         async def call_next(limited_request):

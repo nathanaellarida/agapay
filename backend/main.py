@@ -48,6 +48,14 @@ def content_length_exceeds_limit(value: str, limit: int) -> bool:
     )
 
 
+def is_json_media_type(value: str) -> bool:
+    """Return whether a Content-Type identifies a JSON representation."""
+    media_type = value.partition(";")[0].strip().lower()
+    return media_type == "application/json" or (
+        media_type.startswith("application/") and media_type.endswith("+json")
+    )
+
+
 def parse_cors_origins(value: str) -> list[str]:
     """Return unique HTTP(S) origins and reject malformed configuration."""
     origins: list[str] = []
@@ -105,8 +113,14 @@ app.add_middleware(
 
 @app.middleware("http")
 async def limit_query_request_body(request: Request, call_next):
-    """Reject oversized query payloads before JSON parsing or model work."""
+    """Validate query payloads before JSON parsing or model work."""
     if request.method == "POST" and request.url.path == "/query":
+        if not is_json_media_type(request.headers.get("content-type", "")):
+            return JSONResponse(
+                status_code=415,
+                content={"detail": "Query requests must use a JSON content type."},
+            )
+
         content_length = request.headers.get("content-length")
         if content_length and content_length.isdecimal():
             if content_length_exceeds_limit(
