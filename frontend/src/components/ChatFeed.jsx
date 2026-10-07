@@ -445,7 +445,7 @@ export function AssistantBubble({
   );
 }
 
-function Loader({ persona }) {
+export function Loader({ persona }) {
   return (
     <div className="flex justify-start gap-2">
       {persona && (
@@ -467,12 +467,12 @@ function Loader({ persona }) {
           {[0, 150, 300].map((d) => (
             <span
               key={d}
-              className="w-2 h-2 bg-flag-blue rounded-full animate-bounce"
+              className="w-2 h-2 bg-flag-blue rounded-full animate-bounce motion-reduce:animate-none"
               style={{ animationDelay: `${d}ms` }}
             />
           ))}
         </div>
-        <span className="text-xs text-slate-500 animate-pulse">
+        <span className="text-xs text-slate-500 animate-pulse motion-reduce:animate-none">
           {persona?.name || "Agapay"} is thinking…
         </span>
       </div>

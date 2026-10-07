@@ -216,6 +216,34 @@ test("response citations expose native list semantics", async () => {
   }
 });
 
+test("the thinking indicator honors reduced-motion preferences", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { Loader } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(Loader, {
+      persona: {
+        name: "Anton",
+        image: "/startupAdvisor.png",
+      },
+    }));
+
+    assert.match(html, /animate-bounce motion-reduce:animate-none/);
+    assert.equal(
+      (html.match(/motion-reduce:animate-none/g) || []).length,
+      4
+    );
+    assert.match(html, /animate-pulse motion-reduce:animate-none/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("footnote links stay within their mentor response", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
