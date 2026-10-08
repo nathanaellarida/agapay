@@ -189,6 +189,10 @@ def build_entries(documents: list[tuple[str, str]]) -> list[dict]:
         convert_to_numpy=True,
         show_progress_bar=True,
     )
+    if len(embeddings) != len(chunks):
+        raise ValueError(
+            "Embedding model returned an unexpected number of document vectors"
+        )
     return [
         {**chunk, "embedding": validate_generated_embedding(embedding)}
         for chunk, embedding in zip(chunks, embeddings, strict=True)

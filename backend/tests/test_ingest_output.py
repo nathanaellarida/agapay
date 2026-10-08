@@ -308,6 +308,24 @@ class GeneratedEmbeddingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "invalid document vector"):
                 ingest.build_entries([("guide.txt", "Registration guidance")])
 
+    def test_build_entries_rejects_unexpected_embedding_count(self):
+        valid_embedding = self.Array(
+            [1.0] + [0.0] * (ingest.EMBEDDING_DIMENSION - 1)
+        )
+
+        for embeddings in ([], [valid_embedding, valid_embedding]):
+            with self.subTest(returned_count=len(embeddings)):
+                model = Mock()
+                model.encode.return_value = embeddings
+
+                with patch.object(ingest, "get_embedding_model", return_value=model):
+                    with self.assertRaisesRegex(
+                        ValueError, "unexpected number of document vectors"
+                    ):
+                        ingest.build_entries(
+                            [("guide.txt", "Registration guidance")]
+                        )
+
 
 if __name__ == "__main__":
     unittest.main()
