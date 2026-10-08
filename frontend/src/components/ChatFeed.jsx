@@ -116,6 +116,9 @@ export function getRequestErrorMessage(
   if (status !== null && status >= 400) {
     return "Agapay couldn't process that question. Please review it and try again.";
   }
+  if (status !== null) {
+    return "Agapay received an unexpected response. Please try again.";
+  }
   return "I couldn't reach Agapay right now. Please check your connection and try again in a moment.";
 }
 

@@ -105,6 +105,26 @@ test("temporary errors surface valid retry guidance", async () => {
   }
 });
 
+test("invalid successful responses are not reported as connection failures", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getRequestErrorMessage } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const failed = new AbortController();
+    const message = getRequestErrorMessage(failed.signal, 200);
+
+    assert.match(message, /unexpected response/);
+    assert.doesNotMatch(message, /connection/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("query responses must match the selected mentor", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
