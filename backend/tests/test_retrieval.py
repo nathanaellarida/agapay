@@ -350,6 +350,32 @@ class RetrievalTests(unittest.TestCase):
         )
         self.assertEqual(validated["source"], "DTI_Gabay_Ñ.TXT")
 
+    def test_platform_unsafe_source_names_are_rejected(self):
+        invalid_sources = (
+            "CON.txt",
+            "aux.TXT",
+            "LPT9.notes.txt",
+            "guide?.txt",
+            "guide:name.txt",
+            'guide"name.txt',
+            "guide|name.txt",
+            "guide<draft>.txt",
+        )
+
+        for source in invalid_sources:
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(ValueError, "Source name is invalid"):
+                    rag_chain.validate_source_name(source)
+
+        self.assertEqual(
+            rag_chain.validate_source_name("CONCESSION_GUIDE.txt"),
+            "CONCESSION_GUIDE.txt",
+        )
+        self.assertEqual(
+            rag_chain.validate_source_name("COM10_GUIDE.txt"),
+            "COM10_GUIDE.txt",
+        )
+
     def test_nul_characters_in_index_text_are_rejected(self):
         entry = {
             "source": "guide.txt",

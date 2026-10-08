@@ -51,6 +51,15 @@ INDEX_SCHEMA_VERSION = 1
 MAX_INDEX_BYTES = 100 * 1024 * 1024
 MAX_INDEX_ENTRIES = 100_000
 MAX_SOURCE_NAME_LENGTH = 255
+WINDOWS_RESERVED_SOURCE_NAMES = {
+    "con",
+    "prn",
+    "aux",
+    "nul",
+    *(f"com{number}" for number in range(1, 10)),
+    *(f"lpt{number}" for number in range(1, 10)),
+}
+WINDOWS_INVALID_FILENAME_CHARACTERS = frozenset('<>:"|?*')
 
 FALLBACK_ANSWER = (
     "I don't have that specific guidance in my knowledge base yet. "
@@ -90,6 +99,11 @@ DEFAULT_PERSONA = "tech"
 
 def validate_source_name(source: Any) -> str:
     """Return a portable, display-safe text source filename."""
+    windows_stem = (
+        source.partition(".")[0].rstrip(" .").casefold()
+        if isinstance(source, str)
+        else ""
+    )
     if (
         not isinstance(source, str)
         or not source.strip()
@@ -98,6 +112,8 @@ def validate_source_name(source: Any) -> str:
         or source in {".", ".."}
         or "/" in source
         or "\\" in source
+        or any(character in source for character in WINDOWS_INVALID_FILENAME_CHARACTERS)
+        or windows_stem in WINDOWS_RESERVED_SOURCE_NAMES
         or not source.isprintable()
         or Path(source).suffix.lower() != ".txt"
     ):
