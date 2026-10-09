@@ -65,6 +65,10 @@ FALLBACK_ANSWER = (
     "I don't have that specific guidance in my knowledge base yet. "
     "Please check the relevant official agency portal."
 )
+TRUNCATED_ANSWER_NOTICE = (
+    "_This response reached the length limit. Ask a narrower question for "
+    "complete guidance._"
+)
 
 PERSONAS = {
     "tech": {
@@ -417,7 +421,8 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
         temperature=0.2,
         max_completion_tokens=MAX_COMPLETION_TOKENS,
     )
-    message = completion.choices[0].message.content if completion.choices else None
+    choice = completion.choices[0] if completion.choices else None
+    message = choice.message.content if choice else None
     answer = message.strip() if isinstance(message, str) else ""
     if not answer:
         return {
@@ -425,6 +430,8 @@ def answer_question(question: str, persona: str = DEFAULT_PERSONA) -> dict[str, 
             "persona": persona_key,
             "sources": [],
         }
+    if choice.finish_reason == "length":
+        answer = f"{answer}\n\n{TRUNCATED_ANSWER_NOTICE}"
 
     sources = []
     seen: set[str] = set()

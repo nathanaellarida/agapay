@@ -50,6 +50,36 @@ class AnswerQuestionTests(unittest.TestCase):
                 self.assertEqual(result["answer"], rag_chain.FALLBACK_ANSWER)
                 self.assertEqual(result["sources"], [])
 
+    def test_truncated_answers_are_identified(self):
+        documents = [
+            {
+                "source": "guide.txt",
+                "text": "Apply through the official registration portal.",
+            }
+        ]
+        client = Mock()
+        client.chat.completions.create.return_value = Mock(
+            choices=[
+                Mock(
+                    finish_reason="length",
+                    message=Mock(content="Start with the required documents."),
+                )
+            ]
+        )
+
+        with (
+            patch.object(rag_chain, "_retrieve", return_value=documents),
+            patch.object(rag_chain, "get_groq_client", return_value=client),
+        ):
+            result = rag_chain.answer_question("How do I register?")
+
+        self.assertEqual(
+            result["answer"],
+            "Start with the required documents.\n\n"
+            + rag_chain.TRUNCATED_ANSWER_NOTICE,
+        )
+        self.assertEqual(result["sources"][0]["source"], "guide.txt")
+
 
 class RetrievalTests(unittest.TestCase):
     def model(self, vector):
