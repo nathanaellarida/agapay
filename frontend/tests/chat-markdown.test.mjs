@@ -371,6 +371,33 @@ test("application failures show a clear recovery screen", async () => {
   }
 });
 
+test("application failures are logged for diagnosis", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { AppErrorBoundary } = await server.ssrLoadModule("/src/App.jsx");
+    const boundary = new AppErrorBoundary({ children: null });
+    const error = new Error("render failed");
+    const errorInfo = { componentStack: "\n    at Workspace" };
+    const calls = [];
+    const originalConsoleError = console.error;
+    console.error = (...args) => calls.push(args);
+
+    try {
+      boundary.componentDidCatch(error, errorInfo);
+    } finally {
+      console.error = originalConsoleError;
+    }
+
+    assert.deepEqual(calls, [["Agapay render failed", error, errorInfo]]);
+  } finally {
+    await server.close();
+  }
+});
+
 test("top bar state resets when the active mentor changes", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
