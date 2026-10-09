@@ -325,6 +325,21 @@ class LibraryApiTests(unittest.TestCase):
         ):
             self.assertEqual(main.library(), [])
 
+    def test_uninspectable_data_directory_is_logged(self):
+        data_dir = Mock()
+        data_dir.lstat.side_effect = PermissionError("directory is unavailable")
+
+        with (
+            patch.object(main, "DATA_DIR", data_dir),
+            patch.object(main.logger, "warning") as log_warning,
+        ):
+            self.assertEqual(main.library(), [])
+
+        log_warning.assert_called_once_with(
+            "Could not inspect library directory (%s)",
+            "PermissionError",
+        )
+
     def test_replaced_data_directory_symlink_is_not_followed(self):
         data_dir = Mock()
         data_dir.lstat.return_value = Mock(st_mode=stat.S_IFLNK)
@@ -332,11 +347,15 @@ class LibraryApiTests(unittest.TestCase):
         with (
             patch.object(main, "DATA_DIR", data_dir),
             patch.object(main, "get_index_state") as get_index_state,
+            patch.object(main.logger, "warning") as log_warning,
         ):
             self.assertEqual(main.library(), [])
 
         data_dir.iterdir.assert_not_called()
         get_index_state.assert_not_called()
+        log_warning.assert_called_once_with(
+            "Library data path is not a directory"
+        )
 
 
 if __name__ == "__main__":

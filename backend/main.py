@@ -269,9 +269,14 @@ def query(body: QueryRequest) -> QueryResponse:
 def library() -> list[LibraryDocument]:
     try:
         data_dir_stat = DATA_DIR.lstat()
-    except OSError:
+    except OSError as exc:
+        logger.warning(
+            "Could not inspect library directory (%s)",
+            type(exc).__name__,
+        )
         return []
     if not stat.S_ISDIR(data_dir_stat.st_mode):
+        logger.warning("Library data path is not a directory")
         return []
 
     try:
