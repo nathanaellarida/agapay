@@ -461,8 +461,6 @@ export function Loader({ persona }) {
         </div>
       )}
       <div
-        role="status"
-        aria-live="polite"
         className="border border-slate-200 border-l-4 border-l-flag-blue rounded-2xl rounded-tl-none shadow-sm px-4 py-3 flex items-center gap-2"
         style={{ backgroundColor: "#FCFCFC" }}
       >

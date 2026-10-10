@@ -236,7 +236,7 @@ test("response citations expose native list semantics", async () => {
   }
 });
 
-test("the thinking indicator honors reduced-motion preferences", async () => {
+test("the thinking indicator avoids nested announcements and honors reduced motion", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
     appType: "custom",
@@ -259,6 +259,9 @@ test("the thinking indicator honors reduced-motion preferences", async () => {
       4
     );
     assert.match(html, /animate-pulse motion-reduce:animate-none/);
+    assert.match(html, /Anton is thinking/);
+    assert.doesNotMatch(html, /role="status"/);
+    assert.doesNotMatch(html, /aria-live=/);
   } finally {
     await server.close();
   }
