@@ -108,6 +108,21 @@ export function restoreSidebarToggleFocus(
   return true;
 }
 
+export function getFocusedSidebarState(
+  activeElement,
+  leftSidebar,
+  rightSidebar
+) {
+  return {
+    leftWasOpen: Boolean(
+      activeElement && leftSidebar?.contains(activeElement)
+    ),
+    rightWasOpen: Boolean(
+      activeElement && rightSidebar?.contains(activeElement)
+    ),
+  };
+}
+
 export function getTopBarStateKey(persona) {
   return persona?.key ?? "mentor-selection";
 }
@@ -142,6 +157,7 @@ export default function Workspace() {
   const rightSidebarRef = useRef(null);
   const leftToggleRef = useRef(null);
   const rightToggleRef = useRef(null);
+  const responsiveFocusRestoreRef = useRef(null);
   // Lifted: messages list shared with the right sidebar so the Cost tab
   // can react to what the AI has actually discussed.
   const [messages, setMessages] = useState([]);
@@ -190,6 +206,15 @@ export default function Workspace() {
     const updateViewport = (event) => {
       setIsWideViewport(event.matches);
       if (!event.matches) {
+        const focusedSidebar = getFocusedSidebarState(
+          document.activeElement,
+          leftSidebarRef.current,
+          rightSidebarRef.current
+        );
+        responsiveFocusRestoreRef.current =
+          focusedSidebar.leftWasOpen || focusedSidebar.rightWasOpen
+            ? focusedSidebar
+            : null;
         setLeftOpen(false);
         setRightOpen(false);
       }
@@ -232,6 +257,20 @@ export default function Workspace() {
       rightOpen,
       leftSidebarRef.current,
       rightSidebarRef.current
+    );
+  }, [isWideViewport, leftOpen, rightOpen]);
+
+  useEffect(() => {
+    if (isWideViewport || leftOpen || rightOpen) return;
+
+    const focusedSidebar = responsiveFocusRestoreRef.current;
+    if (!focusedSidebar) return;
+    responsiveFocusRestoreRef.current = null;
+    restoreSidebarToggleFocus(
+      focusedSidebar.leftWasOpen,
+      focusedSidebar.rightWasOpen,
+      leftToggleRef.current,
+      rightToggleRef.current
     );
   }, [isWideViewport, leftOpen, rightOpen]);
 

@@ -1578,6 +1578,39 @@ test("dismissing a mobile sidebar restores focus to its toggle", async () => {
   }
 });
 
+test("responsive sidebar closure remembers which toggle should regain focus", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { getFocusedSidebarState } = await server.ssrLoadModule(
+      "/src/pages/Workspace.jsx"
+    );
+    const activeElement = {};
+    const leftSidebar = {
+      contains: (element) => element === activeElement,
+    };
+    const rightSidebar = { contains: () => false };
+
+    assert.deepEqual(
+      getFocusedSidebarState(activeElement, leftSidebar, rightSidebar),
+      { leftWasOpen: true, rightWasOpen: false }
+    );
+    assert.deepEqual(
+      getFocusedSidebarState(activeElement, rightSidebar, leftSidebar),
+      { leftWasOpen: false, rightWasOpen: true }
+    );
+    assert.deepEqual(
+      getFocusedSidebarState(null, leftSidebar, rightSidebar),
+      { leftWasOpen: false, rightWasOpen: false }
+    );
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor selection keeps its controls within narrow screens", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
