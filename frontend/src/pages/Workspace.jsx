@@ -153,6 +153,7 @@ export default function Workspace() {
   const [breadcrumbs, setBreadcrumbs] = useState(["Agapay"]);
   const [pendingAsk, setPendingAsk] = useState(null);
   const [chatResetVersion, setChatResetVersion] = useState(0);
+  const [focusMentorSelection, setFocusMentorSelection] = useState(false);
   const leftSidebarRef = useRef(null);
   const rightSidebarRef = useRef(null);
   const leftToggleRef = useRef(null);
@@ -275,6 +276,7 @@ export default function Workspace() {
   }, [isWideViewport, leftOpen, rightOpen]);
 
   function handlePersonaSelect(p) {
+    setFocusMentorSelection(false);
     setPersona(p);
     setBreadcrumbs(["Agapay", p.pathLabel]);
   }
@@ -298,6 +300,7 @@ export default function Workspace() {
   function handleSwitchPersona() {
     if (!shouldSwitchMentor(messages, window.confirm.bind(window))) return;
 
+    setFocusMentorSelection(true);
     setPersona(null);
     setMessages([]);
     setPendingAsk(null);
@@ -384,7 +387,12 @@ export default function Workspace() {
             messages={messages}
             onMessagesChange={setMessages}
             onboardingContent={
-              onboarding ? <PersonaSelection onSelect={handlePersonaSelect} /> : null
+              onboarding ? (
+                <PersonaSelection
+                  onSelect={handlePersonaSelect}
+                  autoFocusSelect={focusMentorSelection}
+                />
+              ) : null
             }
           />
         </div>

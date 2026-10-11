@@ -66,7 +66,7 @@ export function shouldNavigateMentorCarousel(event) {
  *   - Circle (3D avatar placeholder) with < and > arrows flanking it
  *   - SELECT button below
  */
-export default function PersonaSelection({ onSelect }) {
+export default function PersonaSelection({ onSelect, autoFocusSelect = false }) {
   const [index, setIndex] = useState(0);
   const persona = PERSONAS[index];
   const previousPersona = PERSONAS[(index - 1 + PERSONAS.length) % PERSONAS.length];
@@ -153,6 +153,7 @@ export default function PersonaSelection({ onSelect }) {
         {/* SELECT button */}
         <button
           onClick={() => onSelect(persona)}
+          autoFocus={autoFocusSelect}
           aria-label={`Select ${persona.name} as your mentor`}
           className="bg-flag-blue text-white font-display font-bold tracking-[0.15em] px-12 py-3.5 rounded-2xl shadow-action hover:bg-blue-800 active:scale-[0.98] transition"
         >

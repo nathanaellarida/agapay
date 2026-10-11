@@ -1639,6 +1639,35 @@ test("mentor selection keeps its controls within narrow screens", async () => {
   }
 });
 
+test("returning to mentor selection focuses its primary action", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { default: PersonaSelection } = await server.ssrLoadModule(
+      "/src/components/PersonaSelection.jsx"
+    );
+    const initialHtml = renderToStaticMarkup(createElement(PersonaSelection, {
+      onSelect() {},
+    }));
+    const returnedHtml = renderToStaticMarkup(createElement(PersonaSelection, {
+      onSelect() {},
+      autoFocusSelect: true,
+    }));
+    const selectButton = returnedHtml.match(
+      /<button[^>]*aria-label="Select Anton as your mentor"[^>]*>/
+    )?.[0];
+
+    assert.ok(selectButton, "the mentor selection action must be rendered");
+    assert.match(selectButton, /autofocus=""/);
+    assert.doesNotMatch(initialHtml, /autofocus=""/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("mentor keyboard navigation preserves modified arrow shortcuts", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
