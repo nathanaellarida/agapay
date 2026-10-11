@@ -211,18 +211,22 @@ class DocumentInputTests(unittest.TestCase):
                     ingest.load_documents()
 
     def test_control_characters_identify_the_source_document(self):
-        with tempfile.TemporaryDirectory() as directory:
-            data_dir = Path(directory)
-            (data_dir / "Unsafe.txt").write_bytes(
-                b"Registration \x07 guidance"
-            )
+        for content in (
+            "Registration \x07 guidance",
+            "Registration \u202e guidance",
+            "Registration \u2066 guidance\u2069",
+        ):
+            with self.subTest(content=repr(content)):
+                with tempfile.TemporaryDirectory() as directory:
+                    data_dir = Path(directory)
+                    (data_dir / "Unsafe.txt").write_text(content, encoding="utf-8")
 
-            with patch.object(ingest, "DATA_DIR", data_dir):
-                with self.assertRaisesRegex(
-                    ValueError,
-                    r"control characters: Unsafe\.txt",
-                ):
-                    ingest.load_documents()
+                    with patch.object(ingest, "DATA_DIR", data_dir):
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            r"control characters: Unsafe\.txt",
+                        ):
+                            ingest.load_documents()
 
     def test_case_insensitive_duplicate_filenames_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

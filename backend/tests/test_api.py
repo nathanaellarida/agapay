@@ -33,7 +33,13 @@ class QueryRequestTests(unittest.TestCase):
                     main.QueryRequest(question=question)
 
     def test_control_characters_are_rejected_without_blocking_layout_whitespace(self):
-        for question in ("A\x00B", "A\x07B", "A\x85B"):
+        for question in (
+            "A\x00B",
+            "A\x07B",
+            "A\x85B",
+            "Apply \u202eto the DTI",
+            "Apply \u2066to the DTI\u2069",
+        ):
             with self.subTest(question=repr(question)):
                 with self.assertRaisesRegex(ValidationError, "control characters"):
                     main.QueryRequest(question=question)

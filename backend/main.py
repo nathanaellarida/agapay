@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import os
 import stat
-import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -26,6 +25,7 @@ from starlette.responses import JSONResponse
 
 from rag_chain import (
     answer_question,
+    contains_disallowed_control_characters,
     get_index_state,
     is_source_current,
     list_personas,
@@ -171,11 +171,7 @@ class QueryRequest(BaseModel):
         if not isinstance(value, str):
             return value
         normalized = value.strip()
-        if any(
-            unicodedata.category(character) == "Cc"
-            and character not in "\t\n\r"
-            for character in normalized
-        ):
+        if contains_disallowed_control_characters(normalized):
             raise ValueError("Question cannot contain control characters")
         visible_characters = sum(
             character.isprintable() and not character.isspace()

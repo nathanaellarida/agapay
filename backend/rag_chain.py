@@ -60,6 +60,9 @@ WINDOWS_RESERVED_SOURCE_NAMES = {
     *(f"lpt{number}" for number in range(1, 10)),
 }
 WINDOWS_INVALID_FILENAME_CHARACTERS = frozenset('<>:"|?*')
+BIDIRECTIONAL_CONTROL_CHARACTERS = frozenset(
+    "\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+)
 
 FALLBACK_ANSWER = (
     "I don't have that specific guidance in my knowledge base yet. "
@@ -126,10 +129,13 @@ def validate_source_name(source: Any) -> str:
 
 
 def contains_disallowed_control_characters(value: str) -> bool:
-    """Return whether text contains controls other than layout whitespace."""
+    """Return whether text contains unsafe controls or bidi formatting marks."""
     return any(
-        unicodedata.category(character) == "Cc"
-        and character not in "\t\n\r"
+        (
+            unicodedata.category(character) == "Cc"
+            and character not in "\t\n\r"
+        )
+        or character in BIDIRECTIONAL_CONTROL_CHARACTERS
         for character in value
     )
 

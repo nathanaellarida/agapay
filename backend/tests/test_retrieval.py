@@ -418,15 +418,21 @@ class RetrievalTests(unittest.TestCase):
             rag_chain._validated_entry(entry, None)
 
     def test_control_characters_in_index_text_are_rejected(self):
-        entry = {
-            "source": "guide.txt",
-            "text": "Registration \x07 guidance",
-            "embedding": [1.0]
-            + [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1),
-        }
+        for text in (
+            "Registration \x07 guidance",
+            "Registration \u202eguidance",
+            "Registration \u2066guidance\u2069",
+        ):
+            with self.subTest(text=repr(text)):
+                entry = {
+                    "source": "guide.txt",
+                    "text": text,
+                    "embedding": [1.0]
+                    + [0.0] * (rag_chain.EMBEDDING_DIMENSION - 1),
+                }
 
-        with self.assertRaisesRegex(ValueError, "invalid text chunk"):
-            rag_chain._validated_entry(entry, None)
+                with self.assertRaisesRegex(ValueError, "invalid text chunk"):
+                    rag_chain._validated_entry(entry, None)
 
     def test_index_errors_skip_model_loading(self):
         for error in (FileNotFoundError("missing index"), ValueError("invalid index")):
