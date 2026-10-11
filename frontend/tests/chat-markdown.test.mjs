@@ -353,7 +353,7 @@ test("the composer counts and limits Unicode characters consistently", async () 
   }
 });
 
-test("application failures show a clear recovery screen", async () => {
+test("application failures focus a clear recovery action", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
     appType: "custom",
@@ -368,7 +368,10 @@ test("application failures show a clear recovery screen", async () => {
     assert.deepEqual(boundary.state, { hasError: true });
     assert.match(fallbackHtml, /<main[^>]*role="alert"/);
     assert.match(fallbackHtml, /Agapay needs a refresh/);
-    assert.match(fallbackHtml, /Reload Agapay/);
+    assert.match(
+      fallbackHtml,
+      /<button[^>]*autofocus=""[^>]*>Reload Agapay<\/button>/
+    );
   } finally {
     await server.close();
   }

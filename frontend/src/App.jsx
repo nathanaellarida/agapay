@@ -16,6 +16,7 @@ export function AppFallback() {
         </p>
         <button
           type="button"
+          autoFocus
           onClick={() => window.location.reload()}
           className="mt-5 rounded-xl bg-flag-blue px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
         >
