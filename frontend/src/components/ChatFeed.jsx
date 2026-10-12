@@ -360,6 +360,10 @@ function MarkdownHeadingTwo({
   );
 }
 
+function MarkdownHeadingOne({ node: _node, children, ...props }) {
+  return <h2 {...props}>{children}</h2>;
+}
+
 function MarkdownTable({ node: _node, children, ...props }) {
   return (
     <div
@@ -429,6 +433,7 @@ export function AssistantBubble({
               a: (props) => (
                 <MarkdownLink {...props} footnoteLabelId={footnoteLabelId} />
               ),
+              h1: MarkdownHeadingOne,
               h2: (props) => (
                 <MarkdownHeadingTwo
                   {...props}

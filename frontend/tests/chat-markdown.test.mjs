@@ -313,6 +313,33 @@ test("footnote links stay within their mentor response", async () => {
   }
 });
 
+test("mentor response headings stay below the page heading", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { AssistantBubble } = await server.ssrLoadModule(
+      "/src/components/ChatFeed.jsx"
+    );
+    const html = renderToStaticMarkup(createElement(AssistantBubble, {
+      content: "# Launch plan\n\n## Registration documents",
+      persona: {
+        name: "Anton",
+        title: "The Tech Strategist",
+        image: "/startupAdvisor.png",
+      },
+    }));
+
+    assert.doesNotMatch(html, /<h1[ >]/);
+    assert.match(html, /<h2>Launch plan<\/h2>/);
+    assert.match(html, /<h2>Registration documents<\/h2>/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("the composer requires two visible question characters", async () => {
   const server = await createServer({
     server: { middlewareMode: true },
