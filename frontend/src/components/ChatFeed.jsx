@@ -156,14 +156,14 @@ export function parseQueryResponse(data, expectedPersona) {
 
 export function shouldProcessPendingAsk({
   pendingAsk,
-  handledTimestamp,
+  handledPendingAsk,
   persona,
   locked,
   busy,
 }) {
   return Boolean(
     pendingAsk?.prompt &&
-      pendingAsk.ts !== handledTimestamp &&
+      pendingAsk !== handledPendingAsk &&
       persona &&
       !locked &&
       !busy
@@ -546,16 +546,16 @@ export default function ChatFeed({
   useEffect(() => {
     if (!shouldProcessPendingAsk({
       pendingAsk,
-      handledTimestamp: handledPendingAskRef.current,
+      handledPendingAsk: handledPendingAskRef.current,
       persona,
       locked,
       busy: loading || Boolean(activeRequestRef.current),
     })) return;
 
-    handledPendingAskRef.current = pendingAsk.ts;
+    handledPendingAskRef.current = pendingAsk;
     send(pendingAsk.prompt, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingAsk?.ts, loading, locked, persona?.key]);
+  }, [pendingAsk, loading, locked, persona?.key]);
 
   async function send(text, preserveInput = false) {
     const q = limitQuestionLength(text ?? input).trim();

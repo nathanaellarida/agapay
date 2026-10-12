@@ -584,7 +584,7 @@ test("roadmap questions wait for the current reply and send only once", async ()
     const pendingAsk = { prompt: "What permit comes next?", ts: 42 };
     const ready = {
       pendingAsk,
-      handledTimestamp: null,
+      handledPendingAsk: null,
       persona: { key: "local" },
       locked: false,
       busy: false,
@@ -593,8 +593,16 @@ test("roadmap questions wait for the current reply and send only once", async ()
     assert.equal(shouldProcessPendingAsk({ ...ready, busy: true }), false);
     assert.equal(shouldProcessPendingAsk(ready), true);
     assert.equal(
-      shouldProcessPendingAsk({ ...ready, handledTimestamp: pendingAsk.ts }),
+      shouldProcessPendingAsk({ ...ready, handledPendingAsk: pendingAsk }),
       false
+    );
+    assert.equal(
+      shouldProcessPendingAsk({
+        ...ready,
+        pendingAsk: { prompt: "What comes after that?", ts: pendingAsk.ts },
+        handledPendingAsk: pendingAsk,
+      }),
+      true
     );
   } finally {
     await server.close();
