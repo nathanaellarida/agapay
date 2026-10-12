@@ -739,6 +739,28 @@ test("roadmap estimates update only after the mentor discusses a step", async ()
   }
 });
 
+test("BIR registration does not mark entity registration as discussed", async () => {
+  const server = await createServer({
+    server: { middlewareMode: true },
+    appType: "custom",
+  });
+
+  try {
+    const { detectDiscussedSteps } = await server.ssrLoadModule(
+      "/src/data/stepKeywords.js"
+    );
+    const steps = [{ id: "tech-2" }, { id: "tech-6" }];
+    const messages = [{
+      role: "assistant",
+      content: "Complete your BIR registration and books of accounts.",
+    }];
+
+    assert.deepEqual([...detectDiscussedSteps(messages, steps)], ["tech-6"]);
+  } finally {
+    await server.close();
+  }
+});
+
 test("locked roadmap steps remain focusable and cannot be activated", async () => {
   const server = await createServer({
     server: { middlewareMode: true },

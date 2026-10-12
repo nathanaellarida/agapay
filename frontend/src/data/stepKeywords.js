@@ -8,7 +8,7 @@
 export const STEP_KEYWORDS = {
   // ── Tech ────────────────────────────────────────────────────────────────
   "tech-1":  ["validate", "idea validation", "customer interview", "problem validation"],
-  "tech-2":  ["dti", "sec", "registration", "incorporation", "sole proprietor", "corporation"],
+  "tech-2":  ["dti", "sec", "incorporation", "sole proprietor", "corporation"],
   "tech-3":  ["ra 11337", "innovative startup act", "startup accreditation", "startupphilippines"],
   "tech-4":  ["mvp", "minimum viable product", "prototype", "build the product"],
   "tech-5":  ["dost", "startup grant fund", "sgf", "pcieerd"],
