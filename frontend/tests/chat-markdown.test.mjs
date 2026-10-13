@@ -230,7 +230,10 @@ test("response citations expose native list semantics", async () => {
 
     assert.match(html, /<ul aria-label="Sources"/);
     assert.equal((html.match(/<li/g) || []).length, 2);
-    assert.match(html, /<li[^>]*><details[^>]*><summary/);
+    assert.match(html, /<li[^>]*><details class="group [^"]*"><summary/);
+    assert.equal((html.match(/lucide-chevron-down/g) || []).length, 2);
+    assert.match(html, /group-open:rotate-180/);
+    assert.match(html, /motion-reduce:transition-none/);
   } finally {
     await server.close();
   }

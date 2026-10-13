@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, ArrowUp, FileText, Square } from "lucide-react";
+import { Sparkles, ArrowUp, ChevronDown, FileText, Square } from "lucide-react";
 
 // Persona-specific typewriter prompts and welcome messages
 const PERSONA_CONTENT = {
@@ -289,10 +289,17 @@ function InlineSources({ sources }) {
       <ul aria-label="Sources" className="flex flex-wrap gap-1.5">
         {sources.map((s, i) => (
           <li key={`${s.source}-${i}`} className="max-w-full">
-            <details className="bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200">
+            <details className="group bg-slate-100 text-slate-700 text-[10px] rounded-md px-2 py-1 border border-slate-200">
               <summary className="inline-flex max-w-full items-center gap-1 break-all cursor-pointer list-none">
-                <FileText className="w-2.5 h-2.5 flex-shrink-0 text-flag-blue" />
+                <FileText
+                  aria-hidden="true"
+                  className="w-2.5 h-2.5 flex-shrink-0 text-flag-blue"
+                />
                 {s.source}
+                <ChevronDown
+                  aria-hidden="true"
+                  className="w-2.5 h-2.5 flex-shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                />
               </summary>
               <p className="mt-1.5 max-w-sm whitespace-normal break-words leading-relaxed text-slate-600">
                 {s.snippet}
