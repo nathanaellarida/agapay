@@ -185,7 +185,7 @@ export function getComposerStatus({ locked, loading, personaName }) {
   }
   return {
     disabled: false,
-    helpText: `${personaName}'s answers cite their source documents`,
+    helpText: `Source-backed answers from ${personaName} include citations`,
   };
 }
 

@@ -36,7 +36,8 @@ snippets.
 - Three mentor personas tailored to tech startups, online sellers, and local
   businesses.
 - Retrieval-grounded answers based on the repository's reviewed text library.
-- Source names and excerpts returned with every answer.
+- Source names and excerpts accompany answers when supporting context is
+  available.
 - Revision-pinned local embeddings with a validated JSON vector index.
 - Provider credentials kept on the backend and out of the browser bundle.
 - Dependency monitoring and automated security checks on the default branch.

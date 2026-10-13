@@ -984,6 +984,14 @@ test("the composer stays editable for drafting during mentor replies", async () 
       loading: false,
       personaName: undefined,
     }).disabled, true);
+    assert.deepEqual(getComposerStatus({
+      locked: false,
+      loading: false,
+      personaName: "Anton",
+    }), {
+      disabled: false,
+      helpText: "Source-backed answers from Anton include citations",
+    });
   } finally {
     await server.close();
   }
