@@ -4,7 +4,7 @@ python-dotenv==1.2.2
 pydantic==2.13.4
 
 # Provider and local embeddings
-groq==1.6.0
+groq==1.7.0
 sentence-transformers==5.7.0
 transformers==5.15.0
 tokenizers==0.22.2
